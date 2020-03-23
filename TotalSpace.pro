@@ -26,19 +26,25 @@ CONFIG += c++11
 
 SOURCES += \
         building.cpp \
+        drawer.cpp \
         gamescene.cpp \
         main.cpp \
         mainwindow.cpp \
         planet.cpp \
+        planetgraphics.cpp \
         player.cpp \
+        playerbase.cpp \
         unit.cpp
 
 HEADERS += \
         building.h \
+        drawer.h \
         gamescene.h \
         mainwindow.h \
         planet.h \
+        planetgraphics.h \
         player.h \
+        playerbase.h \
         unit.h
 
 FORMS += \

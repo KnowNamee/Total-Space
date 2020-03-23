@@ -1,21 +1,10 @@
 #include "player.h"
 
-Player::Player()
-{
+Player::Player(std::shared_ptr<Planet> planet) : PlayerBase(planet) {}
 
-}
-
-int64_t Player::Money()
-{
-  return money_;
-}
-
-QVector<Planet *> Player::Planets()
-{
-  return planets_;
-}
-
-QVector<Unit*> Player::Units()
-{
-  return units_;
+Player::Player(QVector<std::shared_ptr<Planet>> planets, int64_t money,
+               int32_t income) {
+  money_ = money;
+  income_ = income;
+  planets_ = planets;
 }

@@ -1,14 +1,24 @@
 #ifndef GAMESCENE_H
 #define GAMESCENE_H
 
-#include <QObject>
 #include <QGraphicsScene>
+#include <QObject>
+#include <memory>
 
-class GameScene  : public QGraphicsScene
-{
+class Drawer;
+class Player;
+
+class GameScene : public QGraphicsScene {
   Q_OBJECT
-public:
-  GameScene();
+ public:
+  GameScene(QObject *parent);
+  void NewGame();
+
+ private:
+  void GenerateMap();
+
+  std::shared_ptr<Drawer> drawer_;
+  std::shared_ptr<Player> player_;
 };
 
-#endif // GAMESCENE_H
+#endif  // GAMESCENE_H

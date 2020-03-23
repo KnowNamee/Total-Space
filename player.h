@@ -2,25 +2,19 @@
 #define PLAYER_H
 
 #include <QObject>
+#include <memory>
+
+#include "playerbase.h"
+
 class Planet;
 class Unit;
 
+class Player : public PlayerBase {
+ public:
+  explicit Player(std::shared_ptr<Planet> planet);
 
-class Player
-{
-public:
-  Player();
-
-  int64_t Money();
-  QVector<Planet*> Planets();
-  QVector<Unit*> Units();
-
-private:
-  int64_t money_;
-  int32_t income_;
-  QVector<Planet*> planets_;
-  QVector<Unit*> units_;
-
+  Player(QVector<std::shared_ptr<Planet>> planets, int64_t money,
+         int32_t income);
 };
 
-#endif // PLAYER_H
+#endif  // PLAYER_H

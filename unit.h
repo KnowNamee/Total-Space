@@ -3,10 +3,10 @@
 
 #include <QObject>
 
-class Unit
-{
-public:
+class Unit : public QObject {
+  Q_OBJECT
+ public:
   Unit();
 };
 
-#endif // UNIT_H
+#endif  // UNIT_H
