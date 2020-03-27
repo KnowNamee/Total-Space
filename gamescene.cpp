@@ -1,9 +1,11 @@
 #include "gamescene.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QRandomGenerator>
+#include <QScreen>
 #include <functional>
 #include <memory>
 
@@ -18,7 +20,10 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
 void GameScene::NewGame() {
   // TODO
   // Надо выбрать радиус
-  Planet *start_planet = new Planet(QPointF(0, 0), 120);
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  Planet *start_planet = new Planet(QPointF(width / 4, height / 4), 250);
   std::shared_ptr<Planet> player_planet(start_planet);
 
   drawer_->DrawPlanet(player_planet);
@@ -71,13 +76,12 @@ void GameScene::GenerateMap() {
       if (is_allowed_distance) {
         // TODO
         // Надо выбрать радиус, возможно рандомный
-        Planet *new_planet = new Planet(coordinates, 120);
+        Planet *new_planet = new Planet(coordinates, 200);
         std::shared_ptr<Planet> planet_ptr(new_planet);
 
         drawer_->DrawPlanet(planet_ptr);
         number_of_planets++;
       }
-      qDebug() << number_of_planets;
     }
   }
 }
