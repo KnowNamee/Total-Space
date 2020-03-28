@@ -9,10 +9,14 @@ GameView::GameView(GameScene *scene, QWidget *parent)
   setMouseTracking(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setFrameStyle(QFrame::NoFrame);  
+  setFrameStyle(QFrame::NoFrame);
   event_handler_ = std::make_shared<EventHandler::View>(this);
 }
 
 void GameView::mouseMoveEvent(QMouseEvent *event) {
   event_handler_->MouseMoveEvent(event);
+}
+
+void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
+  event_handler_->DoubleClick(event);
 }

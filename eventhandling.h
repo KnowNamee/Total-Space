@@ -14,6 +14,7 @@ class View : public QObject {
  public:
   View(GameView *view);
   void MouseMoveEvent(QMouseEvent *event);
+//  void DoubleClick(QMouseEvent *event);
 
  private:
   GameView *view_;

@@ -17,8 +17,8 @@ void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - 100 || cursor.y() > height - 100 ||
-      cursor.x() < 100 || cursor.y() < 100) {
+  if (cursor.x() > width - width / 32 || cursor.y() > height - width / 32 ||
+      cursor.x() < width / 32 || cursor.y() < width / 32) {
     if (timer_ == nullptr) {
       timer_ = new QTimer();
       timer_->start(15);
@@ -32,14 +32,21 @@ void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
   }
 }
 
+//void EventHandler::View::DoubleClick(QMouseEvent *event) {
+//  if (view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform()) !=
+//      nullptr) {
+
+//  }
+//}
+
 void EventHandler::View::Move() {
   int32_t width = view_->rect().width();
   int32_t height = view_->rect().height();
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - 100 || cursor.y() > height - 100 ||
-      cursor.x() < 100 || cursor.y() < 100) {
+  if (cursor.x() > width - width / 32 || cursor.y() > height - width / 32 ||
+      cursor.x() < width / 32 || cursor.y() < width / 32) {
     qreal x_direction = cursor.x() - width / 2;
     qreal y_direction = cursor.y() - height / 2;
     qreal scale_coeff_x =

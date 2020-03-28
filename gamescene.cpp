@@ -23,7 +23,7 @@ void GameScene::NewGame() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  Planet *start_planet = new Planet(QPointF(width / 4, height / 4), 250);
+  Planet *start_planet = new Planet(QPointF(width / 4, height / 4), width / 16);
   std::shared_ptr<Planet> player_planet(start_planet);
 
   drawer_->DrawPlanet(player_planet);
@@ -43,6 +43,8 @@ void GameScene::GenerateMap() {
         return (left->pos().x() - right.x()) * (left->pos().x() - right.x()) +
                (left->pos().y() - right.y()) * (left->pos().y() - right.y());
       };
+
+  int32_t width = qApp->screens()[0]->size().width();
 
   int32_t number_of_planets = 0;
   int32_t required_number_of_planets =
@@ -76,7 +78,7 @@ void GameScene::GenerateMap() {
       if (is_allowed_distance) {
         // TODO
         // Надо выбрать радиус, возможно рандомный
-        Planet *new_planet = new Planet(coordinates, 200);
+        Planet *new_planet = new Planet(coordinates, width / 16);
         std::shared_ptr<Planet> planet_ptr(new_planet);
 
         drawer_->DrawPlanet(planet_ptr);
