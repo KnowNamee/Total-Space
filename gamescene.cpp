@@ -37,7 +37,7 @@ void GameScene::NewGame() {
 }
 
 void GameScene::GenerateMap() {
-  std::function<double(QGraphicsItem *, QPointF)> distance =
+  std::function<double(QGraphicsItem*, QPointF)> distance =
       [](QGraphicsItem *left, QPointF right) {
         return (left->pos().x() - right.x()) * (left->pos().x() - right.x()) +
                (left->pos().y() - right.y()) * (left->pos().y() - right.y());
@@ -45,8 +45,8 @@ void GameScene::GenerateMap() {
 
   int32_t width = qApp->screens()[0]->size().width();
 
-  int32_t number_of_planets = 0;
-  int32_t required_number_of_planets =
+  uint32_t number_of_planets = 0;
+  uint32_t required_number_of_planets =
       QRandomGenerator::global()->generate() % 10 + 20;
 
   while (number_of_planets < required_number_of_planets) {
@@ -78,10 +78,7 @@ void GameScene::GenerateMap() {
       if (is_allowed_distance) {
         // TODO
         // Надо выбрать радиус, возможно рандомный
-        Planet *new_planet = new Planet(coordinates, width / 16);
-        std::shared_ptr<Planet> planet_ptr(new_planet);
-
-        drawer_->DrawPlanet(planet_ptr);
+        drawer_->DrawPlanet(std::make_shared<Planet>(coordinates, width / 16));
         number_of_planets++;
       }
     }

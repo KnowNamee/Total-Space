@@ -4,7 +4,7 @@
 
 #include "planet.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> planet)
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
     : planet_(planet) {
 }
 

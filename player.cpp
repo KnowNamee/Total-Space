@@ -1,3 +1,3 @@
 #include "player.h"
 
-Player::Player(std::shared_ptr<Planet> planet) : PlayerBase(planet) {}
+Player::Player(const std::shared_ptr<Planet>& planet) : PlayerBase(planet) {}

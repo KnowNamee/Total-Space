@@ -1,6 +1,6 @@
 #include "playerbase.h"
 
-PlayerBase::PlayerBase(std::shared_ptr<Planet> planet) {
+PlayerBase::PlayerBase(const std::shared_ptr<Planet>& planet) {
   planets_.push_back(planet);
 }
 

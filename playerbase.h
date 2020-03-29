@@ -11,7 +11,7 @@ class PlayerBase {
  public:
   PlayerBase() = default;
 
-  explicit PlayerBase(std::shared_ptr<Planet> planet);
+  explicit PlayerBase(const std::shared_ptr<Planet>& planet);
 
   int64_t Money() const;
   const QVector<std::shared_ptr<Planet>>& Planets() const;

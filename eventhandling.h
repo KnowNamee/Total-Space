@@ -28,4 +28,5 @@ class View : public QObject {
 };
 
 }  // namespace EventHandler
+
 #endif  // EVENTHANDLING_H

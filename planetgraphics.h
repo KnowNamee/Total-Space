@@ -10,7 +10,7 @@ class Planet;
 class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_OBJECT
  public:
-  PlanetGraphics(const std::shared_ptr<Planet> planet);
+  PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
  private:
   QRectF boundingRect() const override;

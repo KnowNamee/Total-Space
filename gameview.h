@@ -17,7 +17,7 @@ class GameView : public QGraphicsView {
  private:
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseDoubleClickEvent(QMouseEvent *event) override;
-  std::shared_ptr <EventHandler::View> event_handler_;
+  std::shared_ptr<EventHandler::View> event_handler_;
 };
 
 #endif  // GAMEVIEW_H
