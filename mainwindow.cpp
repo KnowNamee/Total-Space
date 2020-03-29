@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   GameView *view = new GameView(game_scene, this);
   view->setGeometry(QRect(0, 0, width, height));
-  view->setSceneRect(view->rect());
+  view->setSceneRect(-width / 2, -height / 2, width, height);
   view->show();
 }
 

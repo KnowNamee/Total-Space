@@ -10,6 +10,7 @@ GameView::GameView(GameScene *scene, QWidget *parent)
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameStyle(QFrame::NoFrame);
+
   event_handler_ = std::make_shared<EventHandler::View>(this);
 }
 

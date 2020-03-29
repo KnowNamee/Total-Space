@@ -6,8 +6,10 @@ PlayerBase::PlayerBase(std::shared_ptr<Planet> planet) {
 
 int64_t PlayerBase::Money() const { return money_; }
 
-QVector<std::shared_ptr<Planet>> PlayerBase::Planets() const {
+const QVector<std::shared_ptr<Planet>>& PlayerBase::Planets() const {
   return planets_;
 }
 
-QVector<std::shared_ptr<Unit>> PlayerBase::Units() const { return units_; }
+const QVector<std::shared_ptr<Unit>>& PlayerBase::Units() const {
+  return units_;
+}

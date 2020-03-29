@@ -6,6 +6,7 @@
 #include <memory>
 
 class GameView;
+class QGraphicsItem;
 
 namespace EventHandler {
 
@@ -14,14 +15,16 @@ class View : public QObject {
  public:
   View(GameView *view);
   void MouseMoveEvent(QMouseEvent *event);
-//  void DoubleClick(QMouseEvent *event);
+  void DoubleClick(QMouseEvent *event);
 
  private:
+  QGraphicsItem *target_;
   GameView *view_;
   QTimer *timer_;
 
  private slots:
   void Move();
+  void MoveTo();
 };
 
 }  // namespace EventHandler
