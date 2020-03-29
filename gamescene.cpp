@@ -12,6 +12,7 @@
 #include "player.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
+  SetSceneSettings();
   drawer_ = std::make_shared<Drawer>(this);
 }
 
@@ -30,6 +31,11 @@ void GameScene::NewGame() {
 
   // TODO
   //Здесь должна происходить генерация ботов и присвоение им планет
+}
+
+void GameScene::SetSceneSettings()
+{
+  // TODO установка background и т.п. как настройки
 }
 
 void GameScene::GenerateMap() {

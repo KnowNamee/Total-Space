@@ -30,10 +30,12 @@ SOURCES += \
         gamescene.cpp \
         main.cpp \
         mainwindow.cpp \
+        menu.cpp \
         planet.cpp \
         planetgraphics.cpp \
         player.cpp \
         playerbase.cpp \
+        statemachine.cpp \
         unit.cpp
 
 HEADERS += \
@@ -41,10 +43,12 @@ HEADERS += \
         drawer.h \
         gamescene.h \
         mainwindow.h \
+        menu.h \
         planet.h \
         planetgraphics.h \
         player.h \
         playerbase.h \
+        statemachine.h \
         unit.h
 
 FORMS += \

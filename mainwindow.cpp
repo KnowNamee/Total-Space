@@ -5,8 +5,11 @@
 #include <QGraphicsView>
 #include <QScreen>
 
-#include "gamescene.h"
 #include "ui_mainwindow.h"
+
+#include "gamescene.h"
+#include "menu.h"
+#include "statemachine.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -17,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
+  scene_ = new GameScene();
+
+  main_menu_ = StateMachine::DrawMainMenu(this, scene_);
   // TODO
   // Это все нужно будет перенести в класс со стартовым экраном
   GameScene *game_scene = new GameScene(this);
@@ -29,3 +35,13 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+GameScene *MainWindow::GetScene()
+{
+    return scene_;
+}
+
+void MainWindow::Exit()
+{
+    QApplication::exit();
+}
