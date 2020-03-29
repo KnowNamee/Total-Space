@@ -1,10 +1,12 @@
 #include "planet.h"
 
-Planet::Planet(QPointF coordinates, qreal radius)
+Planet::Planet(QPointF coordinates, double radius)
     : coordinates_(coordinates), radius_(radius) {}
 
-void Planet::SetOwner(std::shared_ptr<PlayerBase> owner) { owner_ = owner; }
+void Planet::SetOwner(const std::shared_ptr<PlayerBase>& owner) {
+  owner_ = owner;
+}
 
 QPointF Planet::Coordinates() const { return coordinates_; }
 
-qreal Planet::Radius() const { return radius_; }
+double Planet::Radius() const { return radius_; }

@@ -4,8 +4,9 @@
 
 #include "planet.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> planet)
-    : planet_(planet) {}
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
+    : planet_(planet) {
+}
 
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->Coordinates().x() - planet_->Radius(),

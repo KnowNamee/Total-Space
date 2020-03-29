@@ -13,17 +13,17 @@ class Unit;
 class Planet : public QObject {
   Q_OBJECT
  public:
-  Planet(QPointF coordinates, qreal radius);
+  Planet(QPointF coordinates, double radius);
 
-  void SetOwner(std::shared_ptr<PlayerBase> owner);
+  void SetOwner(const std::shared_ptr<PlayerBase>& owner);
 
   QPointF Coordinates() const;
-  qreal Radius() const;
+  double Radius() const;
 
  private:
   std::shared_ptr<PlayerBase> owner_;
   const QPointF coordinates_;
-  const qreal radius_;
+  const double radius_;
   QVector<std::shared_ptr<Building>> buildings_;
   QVector<std::shared_ptr<Unit>> units_on_planet_;
 };

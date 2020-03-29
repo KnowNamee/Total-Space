@@ -27,7 +27,9 @@ CONFIG += c++17
 SOURCES += \
         building.cpp \
         drawer.cpp \
+        eventhandling.cpp \
         gamescene.cpp \
+        gameview.cpp \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
@@ -41,7 +43,9 @@ SOURCES += \
 HEADERS += \
         building.h \
         drawer.h \
+        eventhandling.h \
         gamescene.h \
+        gameview.h \
         mainwindow.h \
         menu.h \
         planet.h \

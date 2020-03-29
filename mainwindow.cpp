@@ -5,6 +5,11 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+<<<<<<< HEAD
+=======
+#include "gamescene.h"
+#include "gameview.h"
+>>>>>>> fe6d6d13bbfef52aafe6ecad39dfb22f36779779
 #include "ui_mainwindow.h"
 
 #include "gamescene.h"
@@ -28,9 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
   GameScene *game_scene = new GameScene(this);
   game_scene->NewGame();
 
-  QGraphicsView *view = new QGraphicsView(game_scene, this);
+  GameView *view = new GameView(game_scene, this);
   view->setGeometry(QRect(0, 0, width, height));
-  view->setSceneRect(QRect(-width * 3, -height * 3, 6 * width, 6 * height));
+  view->setSceneRect(-width / 2, -height / 2, width, height);
   view->show();
 }
 
