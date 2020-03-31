@@ -5,13 +5,9 @@
 #include <QGraphicsView>
 #include <QScreen>
 
-<<<<<<< HEAD
-=======
-#include "gamescene.h"
-#include "gameview.h"
->>>>>>> fe6d6d13bbfef52aafe6ecad39dfb22f36779779
 #include "ui_mainwindow.h"
 
+#include "gameview.h"
 #include "gamescene.h"
 #include "menu.h"
 #include "statemachine.h"
@@ -25,28 +21,49 @@ MainWindow::MainWindow(QWidget *parent)
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  scene_ = new GameScene();
+  StateMachine::scene = new GameScene();
+  StateMachine::window = this;
+  GameView *view = new GameView(StateMachine::scene, this);
 
-  main_menu_ = StateMachine::DrawMainMenu(this, scene_);
-  // TODO
-  // Это все нужно будет перенести в класс со стартовым экраном
-  GameScene *game_scene = new GameScene(this);
-  game_scene->NewGame();
+  StateMachine::DrawMainMenu();
 
-  GameView *view = new GameView(game_scene, this);
   view->setGeometry(QRect(0, 0, width, height));
   view->setSceneRect(-width / 2, -height / 2, width, height);
   view->show();
 }
 
-MainWindow::~MainWindow() { delete ui; }
-
-GameScene *MainWindow::GetScene()
-{
-    return scene_;
+MainWindow::~MainWindow() {
+    if (StateMachine::unit_menu) {
+        StateMachine::RemoveUnitMenu();
+    }
+    if (StateMachine::planet_menu) {
+        StateMachine::RemovePlanetMenu();
+    }
+    if (StateMachine::pause_menu) {
+        StateMachine::RemovePauseMenu();
+    }
+    if (StateMachine::main_menu) {
+        StateMachine::RemoveMainMenu();
+    }
+    delete ui;
 }
 
 void MainWindow::Exit()
 {
     QApplication::exit();
+}
+
+void MainWindow::StartGame()
+{
+    StateMachine::StartGame();
+}
+
+void MainWindow::DrawMainMenu()
+{
+    StateMachine::DrawMainMenu();
+}
+
+void MainWindow::RemovePauseMenu()
+{
+    StateMachine::RemovePauseMenu();
 }

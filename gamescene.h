@@ -16,6 +16,8 @@ class GameScene : public QGraphicsScene {
   GameScene(QObject *parent = nullptr);
 
   void Destroy();
+  void HideAll();
+  void ShowAll();
 
  public slots:
   void NewGame();

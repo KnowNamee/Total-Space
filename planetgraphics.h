@@ -9,6 +9,8 @@ class Planet;
 
 class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_OBJECT
+  Q_INTERFACES()
+
  public:
   PlanetGraphics(const std::shared_ptr<Planet>& planet);
 

@@ -4,58 +4,150 @@
 #include "gamescene.h"
 #include "mainwindow.h"
 
+#include <QDebug>
+
+// -----------------------------------------------------------
+
 int StateMachine::current_state_ = StateMainMenu;
 
-MainMenu *StateMachine::DrawMainMenu(MainWindow *window)
+MainMenu* StateMachine::main_menu = nullptr;
+PauseMenu* StateMachine::pause_menu = nullptr;
+UnitMenu* StateMachine::unit_menu = nullptr;
+PlanetMenu* StateMachine::planet_menu = nullptr;
+
+Unit* StateMachine::active_unit_ = nullptr;
+Planet* StateMachine::active_planet_ = nullptr;
+
+GameScene* StateMachine::scene = nullptr;
+
+MainWindow* StateMachine::window = nullptr;
+
+// -----------------------------------------------------------
+
+void StateMachine::StartGame()
 {
-    if (State() == StateGame) {
-        // window->GetScene()->Destroy();
-        // TODO
-        // нужно решить, что делаем с объектами не сцене
+    qDebug() << "Game Started";
+    if (State() == StateMainMenu) {
+        RemoveMainMenu();
     }
+    SetState(StateGame);
+    scene->NewGame();
+}
+
+void StateMachine::EndGame()
+{
+    qDebug() << "Game Ended";
+    SetState(StateNone);
+    scene->Destroy();
+    // TODO
+}
+
+void StateMachine::HideGame()
+{
+    qDebug() << "Game Hided";
+    scene->HideAll();
+}
+
+void StateMachine::ShowGame()
+{
+    qDebug() << "Game Showed";
+    scene->ShowAll();
+}
+
+void StateMachine::DrawMainMenu()
+{
+    if (State() == StatePauseMenu) {
+        RemovePauseMenu();
+        EndGame();
+    }
+    qDebug() << "DrawMainMenu";
     SetState(StateMainMenu);
-    return new MainMenu(window);
+    main_menu = new MainMenu();
 }
 
-PauseMenu *StateMachine::DrawPauseMenu(MainWindow *window)
+void StateMachine::DrawPauseMenu()
 {
+    qDebug() << "DrawPauseMenu";
     SetState(StatePauseMenu);
-    return new PauseMenu(window);
+    pause_menu = new PauseMenu();
 }
 
-void StateMachine::RemoveMainMenu(MainMenu *menu)
+void StateMachine::DrawPlanetMenu()
 {
-    delete(menu);
+    qDebug() << "DrawPlanetMenu";
+    SetState(StatePlanetMenu);
+    planet_menu = new PlanetMenu();
 }
 
-void StateMachine::RemovePauseMenu(PauseMenu *menu)
+void StateMachine::DrawUnitMenu()
 {
-    delete(menu);
+    SetState(StateUnitMenu);
+    HideGame();
+    HidePlanetMenu();
+    qDebug() << "DrawPauseMenu";
+    unit_menu = new UnitMenu();
 }
 
-void StateMachine::HideMainMenu(MainMenu *menu)
+void StateMachine::RemoveMainMenu()
 {
-    menu->Hide();
+    qDebug() << "MainMenuRemoved";
+    delete(main_menu);
+    main_menu = nullptr;
+    SetState(StateNone);
 }
 
-void StateMachine::HidePauseMenu(PauseMenu *menu)
+void StateMachine::RemovePauseMenu()
 {
-    menu->Hide();
+    qDebug() << "PauseMenuRemoved";
+    delete(pause_menu);
+    pause_menu = nullptr;
+    SetState(StateGame);
 }
 
-void StateMachine::ShowMainMenu(MainMenu *menu)
+void StateMachine::RemovePlanetMenu()
 {
-    menu->Show();
+    qDebug() << "PlanetMenuRemoved";
+    delete(planet_menu);
+    planet_menu = nullptr;
+    SetState(StateGame);
 }
 
-void StateMachine::ShowPauseMenu(PauseMenu *menu)
+void StateMachine::RemoveUnitMenu()
 {
-    menu->Show();
+    qDebug() << "UnitMenuDeleted";
+    delete(unit_menu);
+    unit_menu = nullptr;
+    SetState(StatePlanetMenu);
 }
 
-void StateMachine::SetState(int new_state_)
+void StateMachine::HidePlanetMenu()
 {
-    current_state_ = new_state_;
+    assert(planet_menu != nullptr);
+    qDebug() << "PlanetMenuHided";
+    planet_menu->Hide();
+}
+
+void StateMachine::SetState(int next_state)
+{
+    if (next_state == StateGame) {
+        qDebug() << "StateGame";
+    }
+    if (next_state == StateNone) {
+        qDebug() << "StateNone";
+    }
+    if (next_state == StatePauseMenu) {
+        qDebug() << "StatePauseMenu";
+    }
+    if (next_state == StateMainMenu) {
+        qDebug() << "StateMainMenu";
+    }
+    if (next_state == StateUnitMenu) {
+        qDebug() << "StateUnitMenu";
+    }
+    if (next_state == StatePlanetMenu) {
+        qDebug() << "StatePlanetMenu";
+    }
+    current_state_ = next_state;
 }
 
 int StateMachine::State()

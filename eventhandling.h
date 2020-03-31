@@ -14,8 +14,12 @@ class View : public QObject {
   Q_OBJECT
  public:
   View(GameView *view);
+
   void MouseMoveEvent(QMouseEvent *event);
+  void MouseReleaseEvent(QMouseEvent *event);
   void DoubleClick(QMouseEvent *event);
+
+  void KeyReleaseEvent(QKeyEvent* event);
 
  private:
   QGraphicsItem *target_;

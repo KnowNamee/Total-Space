@@ -11,74 +11,99 @@
 
 #include <QGraphicsItem>
 
+#include "eventhandling.h"
+
+class Button;
 class GameScene;
 class MainWindow;
 
-class Menu {
-public:
-    Menu() = delete;
-    explicit Menu(GameScene* scene);
-    virtual ~Menu();
-
-    virtual void Draw();
-    virtual void Hide();
-    virtual void Show();
-
-    GameScene* scene_;
-};
-
-class MainMenu : public Menu, public QObject {
+class MainMenu : public QObject {
     Q_OBJECT
 
-public:
-    MainMenu() = delete;
-    explicit MainMenu(MainWindow* window);
-    ~MainMenu() override;
+ public:
+    MainMenu();
+    ~MainMenu();
 
-    void Draw() override;
-    void Hide() override;
-    void Show() override;
+    void Draw();
 
-signals:
+ signals:
     void btnSettingsClick();
     void btnNewGameClick();
     void btnExitClick();
     // add signals here
 
-private:
+ private:
+    friend class EventHandler::View;
+
     QGraphicsTextItem* txt_total_space_;
-    QGraphicsTextItem* btn_new_game_;
-    QGraphicsTextItem* btn_exit_;
+    Button* btn_new_game_;
+    Button* btn_exit_;
     // QGraphicsTextItem* btn_settings;
     // QGraphicsItem* btn_load_;
     // add buttons here
 };
 
-class PauseMenu: public Menu, public QObject {
+class PauseMenu : public QObject {
     Q_OBJECT
 
-public:
-    PauseMenu() = delete;
-    explicit PauseMenu(MainWindow *window);
-    ~PauseMenu() override;
+ public:
+    PauseMenu();
+    ~PauseMenu();
 
-    void Draw() override;
-    void Hide() override;
-    void Show() override;
+    void Draw();
 
-signals:
+ signals:
     void btnBackClick();
     void btnExitClick();
-    void btnSettingsClick();
+    // void btnSettingsClick();
     // TODO btnSaveClick();
     // add signals here
 
-private:
-    QGraphicsTextItem* btn_exit_;
-    QGraphicsTextItem* btn_back_;
+ private:
+    friend class EventHandler::View;
+
+    Button* btn_exit_;
+    Button* btn_back_;
+    QGraphicsRectItem* background_rect_;
     // QGraphicsTextItem* btn_settings_;
     // QGraphicsTextItem* btn_save_;
     // add buttons here
 };
 
+class PlanetMenu : public QObject {
+    Q_OBJECT
+
+ public:
+    PlanetMenu();
+    ~PlanetMenu();
+
+    void Draw();
+    void Hide();
+    void Show();
+
+ signals:
+
+
+ private:
+    friend class EventHandler::View;
+
+    QGraphicsItem* btn1;
+};
+
+class UnitMenu : public QObject {
+    Q_OBJECT
+
+ public:
+    UnitMenu();
+    ~UnitMenu();
+
+    void Draw();
+    void Hide();
+    void Show();
+
+ signals:
+
+ private:
+    friend class EventHandler::View;
+};
 #endif // MENU_H

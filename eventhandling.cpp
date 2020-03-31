@@ -8,6 +8,10 @@
 #include <QTimer>
 #include <cmath>
 
+#include "statemachine.h"
+#include "button.h"
+#include "menu.h"
+
 #include "gameview.h"
 
 EventHandler::View::View(GameView *view) : view_(view) { timer_ = nullptr; }
@@ -32,6 +36,45 @@ void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
       timer_ = nullptr;
     }
   }
+}
+
+void EventHandler::View::MouseReleaseEvent(QMouseEvent *event)
+{
+    QGraphicsItem *item =
+        view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
+
+    if (item == nullptr) {
+        return;
+    }
+
+    if (StateMachine::State() == StateMachine::StateMainMenu) {
+        MainMenu* menu = StateMachine::main_menu;
+        if (item->type() == Button::Type) {
+            Button *b = dynamic_cast<Button*>(item);
+            if (b == menu->btn_exit_) {
+                qDebug() << "from MainMenu : btnExitClicked";
+                emit menu->btnExitClick();
+            }
+            if (b == menu->btn_new_game_) {
+                qDebug() << "from MainMenu : btnNewGameClicked";
+                emit menu->btnNewGameClick();
+            }
+        }
+    }
+    if (StateMachine::State() == StateMachine::StatePauseMenu) {
+        PauseMenu* menu = StateMachine::pause_menu;
+        if (item->type() == Button::Type) {
+            Button *b = dynamic_cast<Button*>(item);
+            if (b == menu->btn_exit_) {
+                qDebug() << "from PauseMenu : btnExitClicked";
+                emit menu->btnExitClick();
+            }
+            if (b == menu->btn_back_) {
+                qDebug() << "from PauseMenu : btnBackClicked";
+                emit menu->btnBackClick();
+            }
+        }
+    }
 }
 
 void EventHandler::View::Move() {
@@ -81,6 +124,15 @@ void EventHandler::View::DoubleClick(QMouseEvent *event) {
     timer_->start(15);
     connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
   }
+}
+
+void EventHandler::View::KeyReleaseEvent(QKeyEvent *event)
+{
+    if (StateMachine::State() == StateMachine::StateGame) {
+        if (event->key() == Qt::Key_Escape) {
+            StateMachine::DrawPauseMenu();
+        }
+    }
 }
 
 void EventHandler::View::MoveTo() {

@@ -1,6 +1,8 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
+#include <QObject>
+
 class GameScene;
 class Unit;
 class Planet;
@@ -23,32 +25,43 @@ public:
         StatePlanetMenu,
         StateUnitMenu,
         StateGame,
+        StateNone,
     };
 
-    static MainMenu* DrawMainMenu(MainWindow* window);
-    static PauseMenu* DrawPauseMenu(MainWindow* window);
-    static UnitMenu* DrawPlanetMenu(MainWindow* window, Unit *unit);
-    static PlanetMenu* DrawUnitMenu(MainWindow* window, Planet *planet);
+    static void StartGame();
+    static void EndGame();
+    static void HideGame();
+    static void ShowGame();
 
-    static void RemoveMainMenu(MainMenu* menu);
-    static void RemovePauseMenu(PauseMenu *menu);
-    static void RemovePlanetMenu(PlanetMenu *menu);
-    static void RemoveUnitMenu(UnitMenu *menu);
+    static void DrawMainMenu();
+    static void DrawPauseMenu();
+    static void DrawPlanetMenu();
+    static void DrawUnitMenu();
 
-    static void HideMainMenu(MainMenu* menu);
-    static void HidePauseMenu(PauseMenu* menu);
-    static void HidePlanetMenu(PlanetMenu* menu);
-    static void HideUnitMenu(UnitMenu* menu);
+    static void RemoveMainMenu();
+    static void RemovePauseMenu();
+    static void RemovePlanetMenu();
+    static void RemoveUnitMenu();
 
-    static void ShowMainMenu(MainMenu* menu);
-    static void ShowPauseMenu(PauseMenu* menu);
-    static void ShowPlanetMenu(PlanetMenu* menu);
-    static void ShowUnitMenu(UnitMenu* menu);
+    static void HidePlanetMenu();
 
-    static void SetState(int new_state_);
+    static void ShowPlanetMenu();
+
+    static void SetState(int next_state);
     static int State();
 
-private:
+    static MainMenu* main_menu;
+    static PauseMenu* pause_menu;
+    static PlanetMenu* planet_menu;
+    static UnitMenu* unit_menu;
+    static GameScene* scene;
+
+    static MainWindow* window;
+
+ private:
+    static Unit* active_unit_;
+    static Planet* active_planet_;
+
     static int current_state_;
 };
 
