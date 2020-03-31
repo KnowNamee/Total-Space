@@ -14,9 +14,8 @@ class UnitMenu;
 
 class MainWindow;
 
-class StateMachine
-{
-public:
+class StateMachine {
+ public:
     StateMachine() = delete;
 
     enum {

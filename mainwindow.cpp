@@ -1,11 +1,10 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QScreen>
-
-#include "ui_mainwindow.h"
 
 #include "gameview.h"
 #include "gamescene.h"
@@ -48,22 +47,18 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::Exit()
-{
+void MainWindow::Exit() {
     QApplication::exit();
 }
 
-void MainWindow::StartGame()
-{
+void MainWindow::StartGame() {
     StateMachine::StartGame();
 }
 
-void MainWindow::DrawMainMenu()
-{
+void MainWindow::DrawMainMenu() {
     StateMachine::DrawMainMenu();
 }
 
-void MainWindow::RemovePauseMenu()
-{
+void MainWindow::RemovePauseMenu() {
     StateMachine::RemovePauseMenu();
 }

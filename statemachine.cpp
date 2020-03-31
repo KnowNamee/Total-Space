@@ -4,8 +4,6 @@
 #include "gamescene.h"
 #include "mainwindow.h"
 
-#include <QDebug>
-
 // -----------------------------------------------------------
 
 int StateMachine::current_state_ = StateMainMenu;
@@ -24,9 +22,7 @@ MainWindow* StateMachine::window = nullptr;
 
 // -----------------------------------------------------------
 
-void StateMachine::StartGame()
-{
-    qDebug() << "Game Started";
+void StateMachine::StartGame() {
     if (State() == StateMainMenu) {
         RemoveMainMenu();
     }
@@ -34,123 +30,79 @@ void StateMachine::StartGame()
     scene->NewGame();
 }
 
-void StateMachine::EndGame()
-{
-    qDebug() << "Game Ended";
+void StateMachine::EndGame() {
     SetState(StateNone);
     scene->Destroy();
     // TODO
 }
 
-void StateMachine::HideGame()
-{
-    qDebug() << "Game Hided";
+void StateMachine::HideGame() {
     scene->HideAll();
 }
 
-void StateMachine::ShowGame()
-{
-    qDebug() << "Game Showed";
+void StateMachine::ShowGame() {
     scene->ShowAll();
 }
 
-void StateMachine::DrawMainMenu()
-{
+void StateMachine::DrawMainMenu() {
     if (State() == StatePauseMenu) {
         RemovePauseMenu();
         EndGame();
     }
-    qDebug() << "DrawMainMenu";
     SetState(StateMainMenu);
     main_menu = new MainMenu();
 }
 
-void StateMachine::DrawPauseMenu()
-{
-    qDebug() << "DrawPauseMenu";
+void StateMachine::DrawPauseMenu() {
     SetState(StatePauseMenu);
     pause_menu = new PauseMenu();
 }
 
-void StateMachine::DrawPlanetMenu()
-{
-    qDebug() << "DrawPlanetMenu";
+void StateMachine::DrawPlanetMenu() {
     SetState(StatePlanetMenu);
     planet_menu = new PlanetMenu();
 }
 
-void StateMachine::DrawUnitMenu()
-{
+void StateMachine::DrawUnitMenu() {
     SetState(StateUnitMenu);
     HideGame();
     HidePlanetMenu();
-    qDebug() << "DrawPauseMenu";
     unit_menu = new UnitMenu();
 }
 
-void StateMachine::RemoveMainMenu()
-{
-    qDebug() << "MainMenuRemoved";
+void StateMachine::RemoveMainMenu() {
     delete(main_menu);
     main_menu = nullptr;
     SetState(StateNone);
 }
 
-void StateMachine::RemovePauseMenu()
-{
-    qDebug() << "PauseMenuRemoved";
+void StateMachine::RemovePauseMenu() {
     delete(pause_menu);
     pause_menu = nullptr;
     SetState(StateGame);
 }
 
-void StateMachine::RemovePlanetMenu()
-{
-    qDebug() << "PlanetMenuRemoved";
+void StateMachine::RemovePlanetMenu() {
     delete(planet_menu);
     planet_menu = nullptr;
     SetState(StateGame);
 }
 
-void StateMachine::RemoveUnitMenu()
-{
-    qDebug() << "UnitMenuDeleted";
+void StateMachine::RemoveUnitMenu() {
     delete(unit_menu);
     unit_menu = nullptr;
     SetState(StatePlanetMenu);
 }
 
-void StateMachine::HidePlanetMenu()
-{
+void StateMachine::HidePlanetMenu() {
     assert(planet_menu != nullptr);
-    qDebug() << "PlanetMenuHided";
     planet_menu->Hide();
 }
 
-void StateMachine::SetState(int next_state)
-{
-    if (next_state == StateGame) {
-        qDebug() << "StateGame";
-    }
-    if (next_state == StateNone) {
-        qDebug() << "StateNone";
-    }
-    if (next_state == StatePauseMenu) {
-        qDebug() << "StatePauseMenu";
-    }
-    if (next_state == StateMainMenu) {
-        qDebug() << "StateMainMenu";
-    }
-    if (next_state == StateUnitMenu) {
-        qDebug() << "StateUnitMenu";
-    }
-    if (next_state == StatePlanetMenu) {
-        qDebug() << "StatePlanetMenu";
-    }
+void StateMachine::SetState(int next_state) {
     current_state_ = next_state;
 }
 
-int StateMachine::State()
-{
+int StateMachine::State() {
     return current_state_;
 }

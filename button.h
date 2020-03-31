@@ -3,14 +3,13 @@
 
 #include <QGraphicsItem>
 
-class Button : public QGraphicsItem
-{
+class Button : public QGraphicsItem {
     Q_INTERFACES()
 
  public:
     Button();
     Button(const QImage& img);
-    Button(const QString& str);
+    Button(const QString& str_);
 
     enum {
         Type = UserType + 1,
@@ -18,10 +17,10 @@ class Button : public QGraphicsItem
 
     int type() const override;
 
-    QImage img;
-    QString str;
-
  private:
+    QImage img_;
+    QString str_;
+
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget) override;

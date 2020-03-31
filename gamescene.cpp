@@ -19,24 +19,21 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
 }
 
-void GameScene::Destroy()
-{
+void GameScene::Destroy() {
     QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
     while (it.hasNext()) {
         StateMachine::scene->removeItem(it.next());
     }
 }
 
-void GameScene::HideAll()
-{
+void GameScene::HideAll() {
     QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
     while (it.hasNext()) {
         it.next()->hide();
     }
 }
 
-void GameScene::ShowAll()
-{
+void GameScene::ShowAll() {
     QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
     while (it.hasNext()) {
         it.next()->show();
@@ -62,8 +59,7 @@ void GameScene::NewGame() {
   //Здесь должна происходить генерация ботов и присвоение им планет
 }
 
-void GameScene::SetSceneSettings()
-{
+void GameScene::SetSceneSettings() {
   // TODO установка background и т.п. как настройки
 }
 

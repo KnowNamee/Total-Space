@@ -1,13 +1,13 @@
 #include "menu.h"
-#include "gamescene.h"
-#include "button.h"
-#include "mainwindow.h"
-#include "statemachine.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 
+#include "gamescene.h"
+#include "button.h"
+#include "mainwindow.h"
+#include "statemachine.h"
 
 MainMenu::MainMenu() {
     connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
@@ -15,15 +15,13 @@ MainMenu::MainMenu() {
     this->Draw();
 }
 
-MainMenu::~MainMenu()
-{
+MainMenu::~MainMenu() {
     StateMachine::scene->removeItem(txt_total_space_);
     StateMachine::scene->removeItem(btn_exit_);
     StateMachine::scene->removeItem(btn_new_game_);
 }
 
-void MainMenu::Draw()
-{
+void MainMenu::Draw() {
     txt_total_space_ = new QGraphicsTextItem("Total Space");
     btn_exit_ = new Button("Exit");
     btn_new_game_ = new Button("New game");
@@ -67,47 +65,39 @@ void PauseMenu::Draw() {
     // TODO
 }
 
-PlanetMenu::PlanetMenu()
-{
+PlanetMenu::PlanetMenu() {
     // connect'ы
     this->Draw();
 }
 
-PlanetMenu::~PlanetMenu()
-{
+PlanetMenu::~PlanetMenu() {
     StateMachine::scene->removeItem(btn1);
     // и т.д.
 }
 
-void PlanetMenu::Draw()
-{
+void PlanetMenu::Draw() {
     // btn1 = new ...
     // расположение кнопок и т.п.
 }
 
-void PlanetMenu::Hide()
-{
+void PlanetMenu::Hide() {
 
 }
 
-void PlanetMenu::Show()
-{
+void PlanetMenu::Show() {
 
 }
 
-UnitMenu::UnitMenu()
-{
+UnitMenu::UnitMenu() {
     // connect
     this->Draw();
 }
 
-UnitMenu::~UnitMenu()
-{
+UnitMenu::~UnitMenu() {
     // remove item
 }
 
-void UnitMenu::Draw()
-{
+void UnitMenu::Draw() {
     // new
     // + позиционирование
 }
