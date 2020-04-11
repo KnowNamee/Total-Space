@@ -152,21 +152,43 @@ void EventHandler::View::MoveTo() {
 
 void EventHandler::View::Scale(QWheelEvent *event) {
   double current_scale = view_->matrix().m11();
-  const double positive_scale = 1.3;
-  const double negative_scale = 0.8;
-  double final_scale = current_scale;
-  if (event->delta() > 0 && current_scale >= max_scale_ / positive_scale) {
-    final_scale = max_scale_;
-  } else if (event->delta() > 0) {
-    final_scale *= positive_scale;
+  int8_t direction = static_cast<int8_t>(event->delta() / abs(event->delta()));
+  if (direction != scale_direction_) {
+    delete timer_;
+    timer_ = nullptr;
+    scale_direction_ = 0;
+    goal_scale_ = current_scale;
   }
-  if (event->delta() < 0 && current_scale <= min_scale_ / negative_scale) {
-    final_scale = min_scale_;
-  } else if (event->delta() < 0) {
-    final_scale *= negative_scale;
+  if ((timer_ != nullptr) ||
+      (current_scale <= min_scale_ && event->delta() < 0) ||
+      (current_scale >= max_scale_ && event->delta() > 0)) {
+    return;
   }
+  const double scale = 0.3 * event->delta() / 400;
+  scale_direction_ = direction;
+  goal_scale_ = current_scale + scale;
+  timer_ = new QTimer();
+  timer_->start(1);
+  connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
+}
+
+void EventHandler::View::ScaleToGoal() {
+  double current_scale = view_->matrix().m11();
+  double scale_velocity = 0.04 * scale_direction_;
+
+  if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
+      (scale_direction_ < 0 && current_scale <= goal_scale_) ||
+      (current_scale + scale_velocity <= min_scale_) ||
+      (current_scale + scale_velocity >= max_scale_)) {
+    delete timer_;
+    timer_ = nullptr;
+    scale_direction_ = 0;
+    goal_scale_ = current_scale;
+  }
+
   QMatrix matrix;
-  matrix.setMatrix(final_scale, view_->matrix().m12(), view_->matrix().m21(),
-                   final_scale, view_->matrix().dx(), view_->matrix().dy());
+  matrix.setMatrix(current_scale + scale_velocity, view_->matrix().m12(),
+                   view_->matrix().m21(), current_scale + scale_velocity,
+                   view_->matrix().dx(), view_->matrix().dy());
   view_->setMatrix(matrix);
 }

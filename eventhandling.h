@@ -24,9 +24,12 @@ class View : public QObject {
   QTimer *timer_;
   const double max_scale_ = 1;
   const double min_scale_ = 1. / 3;
+  double goal_scale_;
+  int8_t scale_direction_ = 0;
  private slots:
   void Move();
   void MoveTo();
+  void ScaleToGoal();
 };
 
 }  // namespace EventHandler
