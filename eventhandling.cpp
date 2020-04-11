@@ -1,14 +1,18 @@
 #include "eventhandling.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QObject>
+#include <QScreen>
 #include <QScrollBar>
 #include <QTimer>
 #include <cmath>
 
 #include "gameview.h"
+
+const int EventHandler::View::kMoveZone = 32;
 
 EventHandler::View::View(GameView *view) : view_(view) { timer_ = nullptr; }
 
@@ -19,8 +23,9 @@ void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - width / 32 || cursor.y() > height - width / 32 ||
-      cursor.x() < width / 32 || cursor.y() < width / 32) {
+  if (cursor.x() > width - width / kMoveZone ||
+      cursor.y() > height - width / kMoveZone ||
+      cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone) {
     if (timer_ == nullptr) {
       timer_ = new QTimer();
       timer_->start(15);
@@ -40,8 +45,9 @@ void EventHandler::View::Move() {
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - width / 32 || cursor.y() > height - width / 32 ||
-      cursor.x() < width / 32 || cursor.y() < width / 32) {
+  if (cursor.x() > width - width / kMoveZone ||
+      cursor.y() > height - width / kMoveZone ||
+      cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone) {
     double x_direction = cursor.x() - width / 2;
     double y_direction = cursor.y() - height / 2;
     double scale_coeff_x =
@@ -54,17 +60,17 @@ void EventHandler::View::Move() {
         width / 80 / view_->matrix().m11();  // 20px на моем экране
 
     double x_velocity = velocity * scale_coeff_x;
-
+    const double kMapSize = 3;
     // TODO
     // Размеры карты тоже выбрать надо
-    if ((view_->sceneRect().x() >= 3 * width && x_velocity > 0) ||
-        (view_->sceneRect().x() <= -3 * width && x_velocity < 0)) {
+    if ((view_->sceneRect().x() >= kMapSize * width && x_velocity > 0) ||
+        (view_->sceneRect().x() <= -kMapSize * width && x_velocity < 0)) {
       x_velocity = 0;
     }
     double y_velocity = y_direction / abs(y_direction) *
                         sqrt(velocity * velocity - x_velocity * x_velocity);
-    if ((view_->sceneRect().y() >= 3 * height && y_velocity > 0) ||
-        (view_->sceneRect().y() <= -3 * height && y_velocity < 0)) {
+    if ((view_->sceneRect().y() >= kMapSize * height && y_velocity > 0) ||
+        (view_->sceneRect().y() <= -kMapSize * height && y_velocity < 0)) {
       y_velocity = 0;
     }
 
@@ -102,36 +108,31 @@ void EventHandler::View::MoveTo() {
   double width = view_->sceneRect().width();
   double height = view_->sceneRect().height();
 
-  double x = target_->boundingRect().x();
-  double y = target_->boundingRect().y();
-  double radius = target_->boundingRect().width() / 2;
-
-  double x_direction = 2 * (x + radius) - view_->sceneRect().x() - width / 2;
-  double y_direction = 2 * (y + radius) - view_->sceneRect().y() - height / 2;
-
-  double distance = sqrt(x_direction * x_direction + y_direction * y_direction);
+  QPointF direction = 2 * target_->pos() - view_->sceneRect().center();
+  double distance =
+      sqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
   // TODO
   // Выбрать скорость передвижения к планете
-  const double velocity = width / 40;
+  const double kVelocity = width / 40;
 
-  double time = distance / velocity;
-  if (distance > velocity) {
+  double time = distance / kVelocity;
+  if (distance > kVelocity) {
     view_->setSceneRect(
-        view_->sceneRect().x() + x_direction / static_cast<int>(time + 1),
-        view_->sceneRect().y() + y_direction / static_cast<int>(time + 1),
+        view_->sceneRect().x() + direction.x() / static_cast<int>(time + 1),
+        view_->sceneRect().y() + direction.y() / static_cast<int>(time + 1),
         width, height);
   }
-  if (view_->matrix().m11() < max_scale_) {
+  if (view_->matrix().m11() < kMaxScale) {
     double scale_velocity;
     if (abs(time) < 1e-12) {
       // TODO
       // Выбрать скорость зума
-      scale_velocity = (max_scale_ - view_->matrix().m11()) *
-                           (max_scale_ - view_->matrix().m11()) * 0.2 +
+      scale_velocity = (kMaxScale - view_->matrix().m11()) *
+                           (kMaxScale - view_->matrix().m11()) * 0.2 +
                        0.01;
     } else {
-      scale_velocity = (max_scale_ - view_->matrix().m11()) / time;
+      scale_velocity = (kMaxScale - view_->matrix().m11()) / time;
     }
     QMatrix matrix;
     matrix.setMatrix(view_->matrix().m11() + scale_velocity,
@@ -140,9 +141,9 @@ void EventHandler::View::MoveTo() {
                      view_->matrix().dx(), view_->matrix().dy());
     view_->setMatrix(matrix);
   }
-  if (distance <= velocity && view_->matrix().m11() >= max_scale_) {
-    view_->setSceneRect(2 * (x + radius) - width / 2,
-                        2 * (y + radius) - height / 2, width, height);
+  if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
+    view_->setSceneRect(2 * target_->pos().x() - width / 2,
+                        2 * target_->pos().y() - height / 2, width, height);
     // TODO
     // Открытие меню планеты
     delete timer_;
@@ -160,13 +161,13 @@ void EventHandler::View::Scale(QWheelEvent *event) {
     goal_scale_ = current_scale;
   }
   if ((timer_ != nullptr) ||
-      (current_scale <= min_scale_ && event->delta() < 0) ||
-      (current_scale >= max_scale_ && event->delta() > 0)) {
+      (current_scale <= kMinScale && event->delta() < 0) ||
+      (current_scale >= kMaxScale && event->delta() > 0)) {
     return;
   }
-  const double scale = 0.3 * event->delta() / 400;
+  const double kScale = 0.3 * event->delta() / 400;
   scale_direction_ = direction;
-  goal_scale_ = current_scale + scale;
+  goal_scale_ = current_scale + kScale;
   timer_ = new QTimer();
   timer_->start(1);
   connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
@@ -178,8 +179,8 @@ void EventHandler::View::ScaleToGoal() {
 
   if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
       (scale_direction_ < 0 && current_scale <= goal_scale_) ||
-      (current_scale + scale_velocity <= min_scale_) ||
-      (current_scale + scale_velocity >= max_scale_)) {
+      (current_scale + scale_velocity <= kMinScale) ||
+      (current_scale + scale_velocity >= kMaxScale)) {
     delete timer_;
     timer_ = nullptr;
     scale_direction_ = 0;

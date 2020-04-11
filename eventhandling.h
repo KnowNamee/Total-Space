@@ -18,14 +18,16 @@ class View : public QObject {
   void DoubleClick(QMouseEvent *event);
   void Scale(QWheelEvent *event);
 
- private:
+ private:    
   QGraphicsItem *target_;
   GameView *view_;
   QTimer *timer_;
-  const double max_scale_ = 1;
-  const double min_scale_ = 1. / 3;
+  const double kMaxScale = 1;
+  const double kMinScale = 1. / 3;
   double goal_scale_;
-  int8_t scale_direction_ = 0;
+  int8_t scale_direction_ = 0;  
+
+  static const int kMoveZone;
  private slots:
   void Move();
   void MoveTo();
