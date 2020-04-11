@@ -4,13 +4,15 @@
 
 #include "gamescene.h"
 
+#include <QDebug>
+
 GameView::GameView(GameScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent) {
   setMouseTracking(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameStyle(QFrame::NoFrame);
-
+  scale(1. / 3, 1. / 3);
   event_handler_ = std::make_shared<EventHandler::View>(this);
 }
 
@@ -20,4 +22,9 @@ void GameView::mouseMoveEvent(QMouseEvent *event) {
 
 void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
   event_handler_->DoubleClick(event);
+}
+
+void GameView::wheelEvent(QWheelEvent *event)
+{
+  event_handler_->Scale(event);
 }

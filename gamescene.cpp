@@ -18,11 +18,11 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::NewGame() {
-  // TODO
-  // Надо выбрать радиус
   int32_t width = qApp->screens()[0]->size().width();
 
-  Planet *start_planet = new Planet(QPointF(0, 0), width / 16);
+  // TODO
+  // Надо выбрать радиус
+  Planet *start_planet = new Planet(QPointF(0, 0), width / 16 * 3);
   std::shared_ptr<Planet> player_planet(start_planet);
 
   drawer_->DrawPlanet(player_planet);
@@ -37,7 +37,7 @@ void GameScene::NewGame() {
 }
 
 void GameScene::GenerateMap() {
-  std::function<double(QGraphicsItem*, QPointF)> distance =
+  std::function<double(QGraphicsItem *, QPointF)> distance =
       [](QGraphicsItem *left, QPointF right) {
         return (left->pos().x() - right.x()) * (left->pos().x() - right.x()) +
                (left->pos().y() - right.y()) * (left->pos().y() - right.y());
@@ -59,8 +59,8 @@ void GameScene::GenerateMap() {
       // TODO
       // Разбежку расстояний между планетами также нужно выбрать
       uint32_t distance_between = QRandomGenerator::global()->generate() %
-                                      static_cast<uint32_t>(width / 16) +
-                                  static_cast<uint32_t>(width / 7);
+                                      static_cast<uint32_t>(width / 8) +
+                                  static_cast<uint32_t>(width / 3);
 
       QPointF coordinates(
           planet->pos().x() + distance_between * cos(angle * M_PI / 180),
@@ -78,7 +78,8 @@ void GameScene::GenerateMap() {
       if (is_allowed_distance) {
         // TODO
         // Надо выбрать радиус, возможно рандомный
-        drawer_->DrawPlanet(std::make_shared<Planet>(coordinates, width / 16));
+        drawer_->DrawPlanet(
+            std::make_shared<Planet>(coordinates, width / 16 * 3));
         number_of_planets++;
       }
     }
