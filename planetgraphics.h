@@ -5,6 +5,8 @@
 #include <QObject>
 #include <memory>
 
+#include "typeoffset.h"
+
 class Planet;
 
 class PlanetGraphics : public QObject, public QGraphicsItem {
@@ -14,12 +16,20 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
  public:
   PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
+  int type() const override;
+  Planet* GetPlanet();
+
  private:
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
 
   const std::shared_ptr<Planet> planet_;
+
+ public:
+  enum {
+      Type = UserType + TypeOffset::Planet,
+  };
 };
 
 #endif  // PLANETGRAPHICS_H

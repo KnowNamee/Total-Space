@@ -22,13 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
 
   StateMachine::scene = new GameScene();
   StateMachine::window = this;
-  GameView *view = new GameView(StateMachine::scene, this);
 
+  StateMachine::view = new GameView(StateMachine::scene, this);
   StateMachine::DrawMainMenu();
 
-  view->setGeometry(QRect(0, 0, width, height));
-  view->setSceneRect(-width / 2, -height / 2, width, height);
-  view->show();
+  StateMachine::view->setGeometry(QRect(0, 0, width, height));
+  StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
+  StateMachine::view->show();
 }
 
 MainWindow::~MainWindow() {
@@ -61,4 +61,8 @@ void MainWindow::DrawMainMenu() {
 
 void MainWindow::RemovePauseMenu() {
     StateMachine::RemovePauseMenu();
+}
+
+void MainWindow::RemovePlanetMenu() {
+    StateMachine::RemovePlanetMenu();
 }

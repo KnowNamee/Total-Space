@@ -22,7 +22,7 @@ class View : public QObject {
   void KeyReleaseEvent(QKeyEvent* event);
 
  private:
-  QGraphicsItem *target_;
+  QGraphicsItem *target_ = nullptr;
   GameView *view_;
   QTimer *timer_;
 

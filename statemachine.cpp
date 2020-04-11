@@ -3,21 +3,21 @@
 #include "menu.h"
 #include "gamescene.h"
 #include "mainwindow.h"
+#include "gameview.h"
 
 // -----------------------------------------------------------
 
 int StateMachine::current_state_ = StateMainMenu;
 
-MainMenu* StateMachine::main_menu = nullptr;
-PauseMenu* StateMachine::pause_menu = nullptr;
-UnitMenu* StateMachine::unit_menu = nullptr;
+MainMenu*   StateMachine::main_menu   = nullptr;
+PauseMenu*  StateMachine::pause_menu  = nullptr;
+UnitMenu*   StateMachine::unit_menu   = nullptr;
 PlanetMenu* StateMachine::planet_menu = nullptr;
+GameView*   StateMachine::view        = nullptr;
 
-Unit* StateMachine::active_unit_ = nullptr;
 Planet* StateMachine::active_planet_ = nullptr;
 
-GameScene* StateMachine::scene = nullptr;
-
+GameScene*  StateMachine::scene  = nullptr;
 MainWindow* StateMachine::window = nullptr;
 
 // -----------------------------------------------------------
@@ -33,7 +33,6 @@ void StateMachine::StartGame() {
 void StateMachine::EndGame() {
     SetState(StateNone);
     scene->Destroy();
-    // TODO
 }
 
 void StateMachine::HideGame() {
@@ -84,6 +83,7 @@ void StateMachine::RemovePauseMenu() {
 
 void StateMachine::RemovePlanetMenu() {
     delete(planet_menu);
+    active_planet_ = nullptr;
     planet_menu = nullptr;
     SetState(StateGame);
 }
@@ -105,4 +105,12 @@ void StateMachine::SetState(int next_state) {
 
 int StateMachine::State() {
     return current_state_;
+}
+
+Planet* StateMachine::GetActivePlanet() {
+    return active_planet_;
+}
+
+void StateMachine::SetActivePlanet(Planet *planet) {
+    active_planet_ = planet;
 }

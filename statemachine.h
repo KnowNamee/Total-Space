@@ -1,18 +1,16 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-#include <QObject>
-
 class GameScene;
 class Unit;
-class Planet;
-
+class PlanetGraphics;
 class MainMenu;
 class PauseMenu;
 class PlanetMenu;
+class Planet;
 class UnitMenu;
-
 class MainWindow;
+class GameView;
 
 class StateMachine {
  public:
@@ -49,16 +47,18 @@ class StateMachine {
     static void SetState(int next_state);
     static int State();
 
+    static Planet* GetActivePlanet();
+    static void SetActivePlanet(Planet* planet);
+
     static MainMenu* main_menu;
     static PauseMenu* pause_menu;
     static PlanetMenu* planet_menu;
     static UnitMenu* unit_menu;
     static GameScene* scene;
-
+    static GameView* view;
     static MainWindow* window;
 
  private:
-    static Unit* active_unit_;
     static Planet* active_planet_;
 
     static int current_state_;
