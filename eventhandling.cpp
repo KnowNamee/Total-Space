@@ -16,38 +16,47 @@ const int EventHandler::View::kMoveZone = 32;
 
 EventHandler::View::View(GameView *view) : view_(view) { timer_ = nullptr; }
 
-void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
-  double width = view_->rect().width();
-  double height = view_->rect().height();
+bool EventHandler::View::CompareMotion(
+    EventHandler::View::MotionType needed_motion) {
+  return current_motion_ == needed_motion;
+}
 
-  QPointF cursor = QCursor::pos();
+bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - width / kMoveZone ||
-      cursor.y() > height - width / kMoveZone ||
-      cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone) {
+  double width = view_->rect().width();
+  double height = view_->rect().height();
+  return cursor.x() > width - width / kMoveZone ||
+         cursor.y() > height - width / kMoveZone ||
+         cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone;
+}
+
+void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
+  if (IsMouseInMotionZone(QCursor::pos())) {
+    if (CompareMotion(MotionType::kMoveWithMouse)) {
+      return;
+    }
     if (timer_ == nullptr) {
+      current_motion_ = MotionType::kMoveWithMouse;
       timer_ = new QTimer();
       timer_->start(15);
       connect(timer_, SIGNAL(timeout()), this, SLOT(Move()));
     }
-  } else {
-    if (timer_ != nullptr) {
-      delete timer_;
-      timer_ = nullptr;
-    }
+  } else if (CompareMotion(MotionType::kMoveWithMouse)) {
+    delete timer_;
+    timer_ = nullptr;
+    current_motion_ = MotionType::kNoMotion;
   }
 }
 
 void EventHandler::View::Move() {
-  int32_t width = view_->rect().width();
-  int32_t height = view_->rect().height();
+  double width = view_->sceneRect().width();
+  double height = view_->sceneRect().height();
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
-  if (cursor.x() > width - width / kMoveZone ||
-      cursor.y() > height - width / kMoveZone ||
-      cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone) {
+  if (IsMouseInMotionZone(cursor)) {
+    const double kMapSize = 3;
     double x_direction = cursor.x() - width / 2;
     double y_direction = cursor.y() - height / 2;
     double scale_coeff_x =
@@ -57,16 +66,16 @@ void EventHandler::View::Move() {
     // TODO
     // Выбрать скорость перемещения
     double velocity =
-        width / 80 / view_->matrix().m11();  // 20px на моем экране
+        width / view_->matrix().m11() / 80;  // 20px на моем экране
 
     double x_velocity = velocity * scale_coeff_x;
-    const double kMapSize = 3;
     // TODO
     // Размеры карты тоже выбрать надо
     if ((view_->sceneRect().x() >= kMapSize * width && x_velocity > 0) ||
         (view_->sceneRect().x() <= -kMapSize * width && x_velocity < 0)) {
       x_velocity = 0;
     }
+
     double y_velocity = y_direction / abs(y_direction) *
                         sqrt(velocity * velocity - x_velocity * x_velocity);
     if ((view_->sceneRect().y() >= kMapSize * height && y_velocity > 0) ||
@@ -83,20 +92,21 @@ void EventHandler::View::DoubleClick(QMouseEvent *event) {
   QGraphicsItem *item =
       view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
   if (item != nullptr && timer_ == nullptr) {
-    double scale_x = view_->matrix().m11();
-    double scale_y = view_->matrix().m22();
-    double event_x = scale_x * view_->mapToScene(event->pos()).x();
-    double event_y = scale_y * view_->mapToScene(event->pos()).y();
+    double scale = view_->matrix().m11();
 
-    double distance = (event_x - 2 * scale_x * item->pos().x()) *
-                          (event_x - 2 * scale_x * item->pos().x()) +
-                      (event_y - 2 * scale_y * item->pos().y()) *
-                          (event_y - 2 * scale_y * item->pos().y());
-    if (distance > scale_x * scale_x * (item->boundingRect().height() / 2) *
+    //    double event_x = scale_x * view_->mapToScene(event->pos()).x();
+    //    double event_y = scale_y * view_->mapToScene(event->pos()).y();
+    QPointF event_pos = scale * view_->mapToScene(event->pos());
+
+    double distance = (event_pos.x() - 2 * scale * item->pos().x()) *
+                          (event_pos.x() - 2 * scale * item->pos().x()) +
+                      (event_pos.y() - 2 * scale * item->pos().y()) *
+                          (event_pos.y() - 2 * scale * item->pos().y());
+    if (distance > scale * scale * (item->boundingRect().height() / 2) *
                        (item->boundingRect().height() / 2)) {
       return;
     }
-
+    current_motion_ = MotionType::kMoveToPlanet;
     target_ = item;
     timer_ = new QTimer();
     timer_->start(15);
@@ -144,47 +154,60 @@ void EventHandler::View::MoveTo() {
   if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
+    current_motion_ = MotionType::kNoMotion;
     // TODO
     // Открытие меню планеты
     delete timer_;
     timer_ = nullptr;
+    target_ = nullptr;
   }
 }
 
 void EventHandler::View::Scale(QWheelEvent *event) {
   double current_scale = view_->matrix().m11();
   int8_t direction = static_cast<int8_t>(event->delta() / abs(event->delta()));
-  if (direction != scale_direction_) {
-    delete timer_;
-    timer_ = nullptr;
-    scale_direction_ = 0;
-    goal_scale_ = current_scale;
-  }
-  if ((timer_ != nullptr) ||
+
+  if ((!CompareMotion(MotionType::kScale) &&
+       current_motion_ != MotionType::kNoMotion) ||
       (current_scale <= kMinScale && event->delta() < 0) ||
       (current_scale >= kMaxScale && event->delta() > 0)) {
     return;
   }
-  const double kScale = 0.3 * event->delta() / 400;
-  scale_direction_ = direction;
-  goal_scale_ = current_scale + kScale;
-  timer_ = new QTimer();
-  timer_->start(1);
-  connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
-}
-
-void EventHandler::View::ScaleToGoal() {
-  double current_scale = view_->matrix().m11();
-  double scale_velocity = 0.04 * scale_direction_;
-
-  if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
-      (scale_direction_ < 0 && current_scale <= goal_scale_) ||
-      (current_scale + scale_velocity <= kMinScale) ||
-      (current_scale + scale_velocity >= kMaxScale)) {
+  if (direction != scale_direction_) {
+    current_motion_ = MotionType::kNoMotion;
     delete timer_;
     timer_ = nullptr;
     scale_direction_ = 0;
     goal_scale_ = current_scale;
+  }
+  if (timer_ == nullptr) {
+    current_motion_ = MotionType::kScale;
+    const double kScale = event->delta() *  current_scale / 200;
+    scale_direction_ = direction;
+    if (scale_direction_ > 0) {
+      goal_scale_ = std::min(kMaxScale, current_scale + kScale);
+    } else {
+      goal_scale_ = std::max(kMinScale, current_scale + kScale);
+    }
+    timer_ = new QTimer();
+    timer_->start(15);
+    connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
+  }
+}
+
+void EventHandler::View::ScaleToGoal() {
+  double current_scale = view_->matrix().m11();
+  double scale_velocity = 0.06 * scale_direction_ * current_scale;
+
+  if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
+      (scale_direction_ < 0 && current_scale <= goal_scale_) ||
+      (goal_scale_ < kMinScale) || (goal_scale_ > kMaxScale)) {
+    current_motion_ = MotionType::kNoMotion;
+    delete timer_;
+    timer_ = nullptr;
+    scale_direction_ = 0;
+    goal_scale_ = current_scale;
+    return;
   }
 
   QMatrix matrix;
