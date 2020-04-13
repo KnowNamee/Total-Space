@@ -59,6 +59,7 @@ void EventHandler::View::Move() {
     const double kMapSize = 3;
     double x_direction = cursor.x() - width / 2;
     double y_direction = cursor.y() - height / 2;
+
     double scale_coeff_x =
         1. * x_direction /
         (sqrt(x_direction * x_direction + y_direction * y_direction));
@@ -69,6 +70,11 @@ void EventHandler::View::Move() {
         width / view_->matrix().m11() / 80;  // 20px на моем экране
 
     double x_velocity = velocity * scale_coeff_x;
+    double y_velocity = sqrt(velocity * velocity - x_velocity * x_velocity);
+    if (y_direction < 0) {
+      y_velocity *= -1;
+    }
+
     // TODO
     // Размеры карты тоже выбрать надо
     if ((view_->sceneRect().x() >= kMapSize * width && x_velocity > 0) ||
@@ -76,8 +82,6 @@ void EventHandler::View::Move() {
       x_velocity = 0;
     }
 
-    double y_velocity = y_direction / abs(y_direction) *
-                        sqrt(velocity * velocity - x_velocity * x_velocity);
     if ((view_->sceneRect().y() >= kMapSize * height && y_velocity > 0) ||
         (view_->sceneRect().y() <= -kMapSize * height && y_velocity < 0)) {
       y_velocity = 0;
@@ -182,7 +186,7 @@ void EventHandler::View::Scale(QWheelEvent *event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() *  current_scale / 200;
+    const double kScale = event->delta() * current_scale / 200;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QRandomGenerator>
 #include <QScreen>
 #include <functional>
@@ -18,11 +19,11 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::NewGame() {
-  int32_t width = qApp->screens()[0]->size().width();
+  const double kWidth = views()[0]->sceneRect().width();
 
   // TODO
   // Надо выбрать радиус
-  Planet *start_planet = new Planet(QPointF(0, 0), width / 16 * 3);
+  Planet *start_planet = new Planet(QPointF(0, 0), kWidth / 16 * 3);
   std::shared_ptr<Planet> player_planet(start_planet);
 
   drawer_->DrawPlanet(player_planet);

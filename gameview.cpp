@@ -2,9 +2,9 @@
 
 #include <eventhandling.h>
 
-#include "gamescene.h"
-
 #include <QDebug>
+
+#include "gamescene.h"
 
 GameView::GameView(GameScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent) {
@@ -24,7 +24,4 @@ void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
   event_handler_->DoubleClick(event);
 }
 
-void GameView::wheelEvent(QWheelEvent *event)
-{
-  event_handler_->Scale(event);
-}
+void GameView::wheelEvent(QWheelEvent *event) { event_handler_->Scale(event); }
