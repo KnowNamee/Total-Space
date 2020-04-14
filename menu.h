@@ -30,7 +30,6 @@ class MainMenu : public QObject {
     void btnSettingsClick();
     void btnNewGameClick();
     void btnExitClick();
-    // add signals here
 
  private:
     friend class EventHandler::View;
@@ -38,9 +37,6 @@ class MainMenu : public QObject {
     QGraphicsTextItem* txt_total_space_;
     Button* btn_new_game_;
     Button* btn_exit_;
-    // QGraphicsTextItem* btn_settings;
-    // QGraphicsItem* btn_load_;
-    // add buttons here
 };
 
 class PauseMenu : public QObject {
@@ -55,9 +51,6 @@ class PauseMenu : public QObject {
  signals:
     void btnBackClick();
     void btnExitClick();
-    // void btnSettingsClick();
-    // TODO btnSaveClick();
-    // add signals here
 
  private:
     friend class EventHandler::View;
@@ -65,9 +58,6 @@ class PauseMenu : public QObject {
     Button* btn_exit_;
     Button* btn_back_;
     QGraphicsRectItem* background_rect_;
-    // QGraphicsTextItem* btn_settings_;
-    // QGraphicsTextItem* btn_save_;
-    // add buttons here
 };
 
 class PlanetMenu : public QObject {
@@ -82,12 +72,18 @@ class PlanetMenu : public QObject {
     void Show();
 
  signals:
-
+    void btn1Click();
+    void btn2Click();
+    void btn3Click();
 
  private:
     friend class EventHandler::View;
 
-    QGraphicsItem* btn1;
+    Button* btn1_;
+    Button* btn2_;
+    Button* btn3_;
+
+    double radius_;
 };
 
 class UnitMenu : public QObject {
@@ -100,8 +96,6 @@ class UnitMenu : public QObject {
     void Draw();
     void Hide();
     void Show();
-
- signals:
 
  private:
     friend class EventHandler::View;

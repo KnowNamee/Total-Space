@@ -30,6 +30,7 @@ class MainWindow : public QMainWindow {
   void StartGame();
   void DrawMainMenu();
   void RemovePauseMenu();
+  void RemovePlanetMenu();
 
  private:
   Ui::MainWindow *ui;

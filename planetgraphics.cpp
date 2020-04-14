@@ -8,6 +8,14 @@ PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
     : planet_(planet) {
 }
 
+int PlanetGraphics::type() const {
+    return Type;
+}
+
+Planet* PlanetGraphics::GetPlanet() {
+    return planet_.get();
+}
+
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->Coordinates().x() - planet_->Radius(),
                 planet_->Coordinates().y() - planet_->Radius(),
