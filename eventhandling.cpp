@@ -98,8 +98,6 @@ void EventHandler::View::DoubleClick(QMouseEvent *event) {
   if (item != nullptr && timer_ == nullptr) {
     double scale = view_->matrix().m11();
 
-    //    double event_x = scale_x * view_->mapToScene(event->pos()).x();
-    //    double event_y = scale_y * view_->mapToScene(event->pos()).y();
     QPointF event_pos = scale * view_->mapToScene(event->pos());
 
     double distance = (event_pos.x() - 2 * scale * item->pos().x()) *
