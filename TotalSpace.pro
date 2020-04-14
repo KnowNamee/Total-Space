@@ -49,6 +49,7 @@ HEADERS += \
         planetgraphics.h \
         player.h \
         playerbase.h \
+        resources.h \
         unit.h
 
 FORMS += \
