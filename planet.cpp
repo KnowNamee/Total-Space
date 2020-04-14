@@ -8,10 +8,10 @@ void Planet::SetOwner(const std::shared_ptr<PlayerBase> &owner) {
   owner_ = owner;
 }
 
-void Planet::Build(std::shared_ptr<Building> building) {
-  buildings_.push_back(building);
-  income_.tools += building->GetToolsIncome();
-  income_.batteries += building->GetBatteriesIncome();
+void Planet::Build(std::shared_ptr<Building> building_ptr) {
+  buildings_.push_back(building_ptr);
+  income_.tools += building_ptr->GetToolsIncome();
+  income_.batteries += building_ptr->GetBatteriesIncome();
 }
 
 int64_t Planet::GetToolsIncome() const { return income_.tools; }

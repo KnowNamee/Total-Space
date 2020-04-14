@@ -18,7 +18,7 @@ public:
 
   void SetOwner(const std::shared_ptr<PlayerBase> &owner);
 
-  void Build(std::shared_ptr<Building> building);
+  void Build(std::shared_ptr<Building> building_ptr);
 
   int64_t GetBatteriesIncome() const;
   int64_t GetToolsIncome() const;
@@ -28,7 +28,6 @@ public:
 
 private:
   Resources income_;
-
   std::shared_ptr<PlayerBase> owner_;
   const QPointF coordinates_;
   const double radius_;

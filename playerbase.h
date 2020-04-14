@@ -15,9 +15,11 @@ public:
   explicit PlayerBase(const std::shared_ptr<Planet> &planet);
 
   int64_t Tools() const;
-  int64_t Battaries() const;
+  int64_t Batteries() const;
 
   void UpdateResources();
+
+  void AddPlanet(std::shared_ptr<Planet> planet);
 
   const QVector<std::shared_ptr<Planet>> &Planets() const;
   const QVector<std::shared_ptr<Unit>> &Units() const;

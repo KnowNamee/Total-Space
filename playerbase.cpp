@@ -6,13 +6,17 @@ PlayerBase::PlayerBase(const std::shared_ptr<Planet> &planet) {
 }
 
 int64_t PlayerBase::Tools() const { return resources_.tools; }
-int64_t PlayerBase::Battaries() const { return resources_.batteries; }
+int64_t PlayerBase::Batteries() const { return resources_.batteries; }
 
 void PlayerBase::UpdateResources() {
   for (auto planet : Planets()) {
     resources_.tools += planet->GetToolsIncome();
     resources_.batteries += planet->GetBatteriesIncome();
   }
+}
+
+void PlayerBase::AddPlanet(std::shared_ptr<Planet> planet) {
+  planets_.push_back(planet);
 }
 
 const QVector<std::shared_ptr<Planet>> &PlayerBase::Planets() const {
