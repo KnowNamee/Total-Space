@@ -13,24 +13,20 @@ namespace EventHandler {
 class View : public QObject {
   Q_OBJECT
 
-  enum class MotionType {
-    kMoveWithMouse,
-    kMoveToPlanet,
-    kScale,
-    kNoMotion
-  };
+  enum class MotionType { kMoveWithMouse, kMoveToPlanet, kScale, kNoMotion };
 
  public:
   View(GameView *view);
+
   void MouseMoveEvent(QMouseEvent *event);
+  void MouseReleaseEvent(QMouseEvent *event);
   void DoubleClick(QMouseEvent *event);
   void Scale(QWheelEvent *event);
 
- private:
-  bool CompareMotion(MotionType needed_motion);
-  bool IsMouseInMotionZone(QPointF cursor);
+  void KeyReleaseEvent(QKeyEvent *event);
 
-  QGraphicsItem *target_;
+ private:
+  QGraphicsItem *target_ = nullptr;
   GameView *view_;
   QTimer *timer_;
   const double kMaxScale = 1;
@@ -40,6 +36,10 @@ class View : public QObject {
   int8_t scale_direction_ = 0;
 
   static const int kMoveZone;
+
+  bool IsMouseInMotionZone(QPointF cursor);
+  bool CompareMotion(MotionType needed_motion);
+
  private slots:
   void Move();
   void MoveTo();

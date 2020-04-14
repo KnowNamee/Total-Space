@@ -17,11 +17,19 @@ GameView::GameView(GameScene *scene, QWidget *parent)
 }
 
 void GameView::mouseMoveEvent(QMouseEvent *event) {
-  event_handler_->MouseMoveEvent(event);
+    event_handler_->MouseMoveEvent(event);
 }
 
 void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
-  event_handler_->DoubleClick(event);
+    event_handler_->DoubleClick(event);
+}
+
+void GameView::mouseReleaseEvent(QMouseEvent *event) {
+    event_handler_->MouseReleaseEvent(event);
+}
+
+void GameView::keyReleaseEvent(QKeyEvent *event) {
+    event_handler_->KeyReleaseEvent(event);
 }
 
 void GameView::wheelEvent(QWheelEvent *event) { event_handler_->Scale(event); }

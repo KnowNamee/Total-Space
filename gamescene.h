@@ -3,6 +3,8 @@
 
 #include <QGraphicsScene>
 #include <QObject>
+#include <QMouseEvent>
+
 #include <memory>
 
 class Drawer;
@@ -11,10 +13,17 @@ class Player;
 class GameScene : public QGraphicsScene {
   Q_OBJECT
  public:
-  GameScene(QObject *parent);
+  GameScene(QObject *parent = nullptr);
+
+  void Destroy();
+  void HideAll();
+  void ShowAll();
+
+ public slots:
   void NewGame();
 
  private:
+  void SetSceneSettings();
   void GenerateMap();
 
   std::shared_ptr<Drawer> drawer_;

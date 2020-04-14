@@ -10,7 +10,12 @@
 #include <QTimer>
 #include <cmath>
 
+#include "button.h"
 #include "gameview.h"
+#include "mainwindow.h"
+#include "menu.h"
+#include "planetgraphics.h"
+#include "statemachine.h"
 
 const int EventHandler::View::kMoveZone = 32;
 
@@ -32,26 +37,90 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
-  if (IsMouseInMotionZone(QCursor::pos())) {
-    if (CompareMotion(MotionType::kMoveWithMouse)) {
-      return;
+  if (StateMachine::State() == StateMachine::StateGame) {
+    if (IsMouseInMotionZone(QCursor::pos())) {
+      if (CompareMotion(MotionType::kMoveWithMouse)) {
+        return;
+      }
+      if (timer_ == nullptr) {
+        current_motion_ = MotionType::kMoveWithMouse;
+        timer_ = new QTimer();
+        timer_->start(15);
+        connect(timer_, SIGNAL(timeout()), this, SLOT(Move()));
+      }
+    } else if (CompareMotion(MotionType::kMoveWithMouse)) {
+      delete timer_;
+      timer_ = nullptr;
+      current_motion_ = MotionType::kNoMotion;
     }
-    if (timer_ == nullptr) {
-      current_motion_ = MotionType::kMoveWithMouse;
-      timer_ = new QTimer();
-      timer_->start(15);
-      connect(timer_, SIGNAL(timeout()), this, SLOT(Move()));
+  }
+}
+
+void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
+  int state = StateMachine::State();
+  QGraphicsItem *item =
+      view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
+
+  if (item == nullptr) {
+    if (state == StateMachine::StatePlanetMenu) {
+      StateMachine::window->RemovePlanetMenu();
     }
-  } else if (CompareMotion(MotionType::kMoveWithMouse)) {
-    delete timer_;
-    timer_ = nullptr;
-    current_motion_ = MotionType::kNoMotion;
+    return;
+  }
+
+  if (state == StateMachine::StateMainMenu) {
+    MainMenu *menu = StateMachine::main_menu;
+    if (item->type() == Button::Type) {
+      Button *b = dynamic_cast<Button *>(item);
+      if (b == menu->btn_exit_) {
+        emit menu->btnExitClick();
+      } else if (b == menu->btn_new_game_) {
+        emit menu->btnNewGameClick();
+      }
+    }
+  } else if (state == StateMachine::StatePauseMenu) {
+    PauseMenu *menu = StateMachine::pause_menu;
+    if (item->type() == Button::Type) {
+      Button *b = dynamic_cast<Button *>(item);
+      if (b == menu->btn_exit_) {
+        emit menu->btnExitClick();
+      } else if (b == menu->btn_back_) {
+        emit menu->btnBackClick();
+      }
+    }
+  } else if (state == StateMachine::StatePlanetMenu) {
+    PlanetMenu *menu = StateMachine::planet_menu;
+    if (item->type() == Button::Type) {
+      Button *b = dynamic_cast<Button *>(item);
+      if (b == menu->btn1_) {
+        emit menu->btn1Click();
+      } else if (b == menu->btn2_) {
+        emit menu->btn2Click();
+      } else if (b == menu->btn3_) {
+        emit menu->btn3Click();
+      }
+    } else if (item->type() == PlanetGraphics::Type) {
+      Planet *p = dynamic_cast<PlanetGraphics *>(item)->GetPlanet();
+      if (p != StateMachine::GetActivePlanet()) {
+        StateMachine::window->RemovePlanetMenu();
+      }
+    }
   }
 }
 
 void EventHandler::View::Move() {
-  double width = view_->sceneRect().width();
-  double height = view_->sceneRect().height();
+  int state = StateMachine::State();
+  if (state != StateMachine::StateGame) {
+    current_motion_ = MotionType::kNoMotion;
+    if (timer_) {
+      delete (timer_);
+    }
+    timer_ = nullptr;
+    return;
+  }
+
+  int32_t width = view_->rect().width();
+  int32_t height = view_->rect().height();
   QPointF cursor = QCursor::pos();
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
@@ -93,26 +162,49 @@ void EventHandler::View::Move() {
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent *event) {
-  QGraphicsItem *item =
-      view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
-  if (item != nullptr && timer_ == nullptr) {
-    double scale = view_->matrix().m11();
+  if (StateMachine::State() == StateMachine::StateGame) {
+    QGraphicsItem *item =
+        view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
+    if (item != nullptr && timer_ == nullptr &&
+        item->type() == PlanetGraphics::Type) {
+      StateMachine::SetActivePlanet(
+          dynamic_cast<PlanetGraphics *>(item)->GetPlanet());
 
-    QPointF event_pos = scale * view_->mapToScene(event->pos());
+      double scale = view_->matrix().m11();
 
-    double distance = (event_pos.x() - 2 * scale * item->pos().x()) *
-                          (event_pos.x() - 2 * scale * item->pos().x()) +
-                      (event_pos.y() - 2 * scale * item->pos().y()) *
-                          (event_pos.y() - 2 * scale * item->pos().y());
-    if (distance > scale * scale * (item->boundingRect().height() / 2) *
-                       (item->boundingRect().height() / 2)) {
-      return;
+      QPointF event_pos = scale * view_->mapToScene(event->pos());
+
+      double distance = (event_pos.x() - 2 * scale * item->pos().x()) *
+                            (event_pos.x() - 2 * scale * item->pos().x()) +
+                        (event_pos.y() - 2 * scale * item->pos().y()) *
+                            (event_pos.y() - 2 * scale * item->pos().y());
+      if (distance > scale * scale * (item->boundingRect().height() / 2) *
+                         (item->boundingRect().height() / 2)) {
+        return;
+      }
+      current_motion_ = MotionType::kMoveToPlanet;
+      target_ = item;
+      timer_ = new QTimer();
+      timer_->start(15);
+      connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
     }
-    current_motion_ = MotionType::kMoveToPlanet;
-    target_ = item;
-    timer_ = new QTimer();
-    timer_->start(15);
-    connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
+  }
+}
+
+void EventHandler::View::KeyReleaseEvent(QKeyEvent *event) {
+  int state = StateMachine::State();
+  if (state == StateMachine::StatePlanetMenu) {
+    if (event->key() == Qt::Key_Escape) {
+      StateMachine::window->RemovePlanetMenu();
+    }
+  } else if (state == StateMachine::StateGame) {
+    if (event->key() == Qt::Key_Escape) {
+      StateMachine::DrawPauseMenu();
+    }
+  } else if (state == StateMachine::StatePauseMenu) {
+    if (event->key() == Qt::Key_Escape) {
+      StateMachine::RemovePauseMenu();
+    }
   }
 }
 
@@ -157,8 +249,7 @@ void EventHandler::View::MoveTo() {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
     current_motion_ = MotionType::kNoMotion;
-    // TODO
-    // Открытие меню планеты
+    StateMachine::DrawPlanetMenu();
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
@@ -166,6 +257,11 @@ void EventHandler::View::MoveTo() {
 }
 
 void EventHandler::View::Scale(QWheelEvent *event) {
+  if (StateMachine::State() != StateMachine::StateGame &&
+      StateMachine::State() != StateMachine::StatePlanetMenu) {
+    return;
+  }
+
   double current_scale = view_->matrix().m11();
   int8_t direction = static_cast<int8_t>(event->delta() / abs(event->delta()));
 

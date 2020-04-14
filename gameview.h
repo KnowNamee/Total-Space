@@ -18,6 +18,8 @@ class GameView : public QGraphicsView {
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseDoubleClickEvent(QMouseEvent *event) override;
   void wheelEvent(QWheelEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
+  void keyReleaseEvent(QKeyEvent *event) override;
 
   std::shared_ptr<EventHandler::View> event_handler_;
 };

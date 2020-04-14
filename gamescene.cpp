@@ -13,9 +13,32 @@
 #include "drawer.h"
 #include "planet.h"
 #include "player.h"
+#include "statemachine.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
+  SetSceneSettings();
   drawer_ = std::make_shared<Drawer>(this);
+}
+
+void GameScene::Destroy() {
+    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+    while (it.hasNext()) {
+        StateMachine::scene->removeItem(it.next());
+    }
+}
+
+void GameScene::HideAll() {
+    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+    while (it.hasNext()) {
+        it.next()->hide();
+    }
+}
+
+void GameScene::ShowAll() {
+    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+    while (it.hasNext()) {
+        it.next()->show();
+    }
 }
 
 void GameScene::NewGame() {
@@ -35,6 +58,10 @@ void GameScene::NewGame() {
 
   // TODO
   //Здесь должна происходить генерация ботов и присвоение им планет
+}
+
+void GameScene::SetSceneSettings() {
+  // TODO установка background и т.п. как настройки
 }
 
 void GameScene::GenerateMap() {
