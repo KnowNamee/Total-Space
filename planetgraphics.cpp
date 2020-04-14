@@ -2,11 +2,12 @@
 
 #include <QPainter>
 
+#include "gameview.h"
 #include "planet.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
-    : planet_(planet) {
-}
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet,
+                               GameView *view)
+    : planet_(planet), view_(view) {}
 
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->Coordinates().x() - planet_->Radius(),

@@ -21,11 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
   // TODO
   // Это все нужно будет перенести в класс со стартовым экраном
   GameScene *game_scene = new GameScene(this);
-  game_scene->NewGame();
 
   GameView *view = new GameView(game_scene, this);
   view->setGeometry(QRect(0, 0, width, height));
   view->setSceneRect(-width / 2, -height / 2, width, height);
+
+  game_scene->NewGame();
   view->show();
 }
 
