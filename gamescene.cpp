@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "drawer.h"
+#include "loader.h"
 #include "planet.h"
 #include "player.h"
 #include "statemachine.h"
@@ -20,30 +21,32 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
-    while (it.hasNext()) {
-        StateMachine::scene->removeItem(it.next());
-    }
+  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  while (it.hasNext()) {
+    StateMachine::scene->removeItem(it.next());
+  }
 }
 
 void GameScene::HideAll() {
-    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
-    while (it.hasNext()) {
-        it.next()->hide();
-    }
+  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  while (it.hasNext()) {
+    it.next()->hide();
+  }
 }
 
 void GameScene::ShowAll() {
-    QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
-    while (it.hasNext()) {
-        it.next()->show();
-    }
+  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  while (it.hasNext()) {
+    it.next()->show();
+  }
 }
 
 void GameScene::NewGame() {
   // TODO
   // Надо выбрать радиус
   int32_t width = qApp->screens()[0]->size().width();
+
+  Loader::LoadAll();
 
   Planet *start_planet = new Planet(QPointF(0, 0), width / 16);
   std::shared_ptr<Planet> player_planet(start_planet);
@@ -64,7 +67,7 @@ void GameScene::SetSceneSettings() {
 }
 
 void GameScene::GenerateMap() {
-  std::function<double(QGraphicsItem*, QPointF)> distance =
+  std::function<double(QGraphicsItem *, QPointF)> distance =
       [](QGraphicsItem *left, QPointF right) {
         return (left->pos().x() - right.x()) * (left->pos().x() - right.x()) +
                (left->pos().y() - right.y()) * (left->pos().y() - right.y());

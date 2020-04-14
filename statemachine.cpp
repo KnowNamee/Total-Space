@@ -1,104 +1,116 @@
 #include "statemachine.h"
 
-#include "gamescene.h"
-#include "gameview.h"
-#include "mainwindow.h"
 #include "menu.h"
+#include "gamescene.h"
+#include "mainwindow.h"
+#include "gameview.h"
 
 // -----------------------------------------------------------
 
 int StateMachine::current_state_ = StateMainMenu;
 
-MainMenu* StateMachine::main_menu = nullptr;
-PauseMenu* StateMachine::pause_menu = nullptr;
-UnitMenu* StateMachine::unit_menu = nullptr;
+MainMenu*   StateMachine::main_menu   = nullptr;
+PauseMenu*  StateMachine::pause_menu  = nullptr;
+UnitMenu*   StateMachine::unit_menu   = nullptr;
 PlanetMenu* StateMachine::planet_menu = nullptr;
-GameView* StateMachine::view = nullptr;
+GameView*   StateMachine::view        = nullptr;
 
 Planet* StateMachine::active_planet_ = nullptr;
 
-GameScene* StateMachine::scene = nullptr;
+GameScene*  StateMachine::scene  = nullptr;
 MainWindow* StateMachine::window = nullptr;
 
 // -----------------------------------------------------------
 
 void StateMachine::StartGame() {
-  if (State() == StateMainMenu) {
-    RemoveMainMenu();
-  }
-  SetState(StateGame);
-  scene->NewGame();
+    if (State() == StateMainMenu) {
+        RemoveMainMenu();
+    }
+    SetState(StateGame);
+    scene->NewGame();
 }
 
 void StateMachine::EndGame() {
-  SetState(StateNone);
-  scene->Destroy();
+    SetState(StateNone);
+    scene->Destroy();
 }
 
-void StateMachine::HideGame() { scene->HideAll(); }
+void StateMachine::HideGame() {
+    scene->HideAll();
+}
 
-void StateMachine::ShowGame() { scene->ShowAll(); }
+void StateMachine::ShowGame() {
+    scene->ShowAll();
+}
 
 void StateMachine::DrawMainMenu() {
-  if (State() == StatePauseMenu) {
-    RemovePauseMenu();
-    EndGame();
-  }
-  SetState(StateMainMenu);
-  main_menu = new MainMenu();
+    if (State() == StatePauseMenu) {
+        RemovePauseMenu();
+        EndGame();
+    }
+    SetState(StateMainMenu);
+    main_menu = new MainMenu();
 }
 
 void StateMachine::DrawPauseMenu() {
-  SetState(StatePauseMenu);
-  pause_menu = new PauseMenu();
+    SetState(StatePauseMenu);
+    pause_menu = new PauseMenu();
 }
 
 void StateMachine::DrawPlanetMenu() {
-  SetState(StatePlanetMenu);
-  planet_menu = new PlanetMenu();
+    SetState(StatePlanetMenu);
+    planet_menu = new PlanetMenu();
 }
 
 void StateMachine::DrawUnitMenu() {
-  SetState(StateUnitMenu);
-  HideGame();
-  HidePlanetMenu();
-  unit_menu = new UnitMenu();
+    SetState(StateUnitMenu);
+    HideGame();
+    HidePlanetMenu();
+    unit_menu = new UnitMenu();
 }
 
 void StateMachine::RemoveMainMenu() {
-  delete (main_menu);
-  main_menu = nullptr;
-  SetState(StateNone);
+    delete(main_menu);
+    main_menu = nullptr;
+    SetState(StateNone);
 }
 
 void StateMachine::RemovePauseMenu() {
-  delete (pause_menu);
-  pause_menu = nullptr;
-  SetState(StateGame);
+    delete(pause_menu);
+    pause_menu = nullptr;
+    SetState(StateGame);
 }
 
 void StateMachine::RemovePlanetMenu() {
-  delete (planet_menu);
-  active_planet_ = nullptr;
-  planet_menu = nullptr;
-  SetState(StateGame);
+    delete(planet_menu);
+    active_planet_ = nullptr;
+    planet_menu = nullptr;
+    SetState(StateGame);
 }
 
 void StateMachine::RemoveUnitMenu() {
-  delete (unit_menu);
-  unit_menu = nullptr;
-  SetState(StatePlanetMenu);
+    delete(unit_menu);
+    unit_menu = nullptr;
+    SetState(StatePlanetMenu);
 }
 
 void StateMachine::HidePlanetMenu() {
-  assert(planet_menu != nullptr);
-  planet_menu->Hide();
+    assert(planet_menu != nullptr);
+    planet_menu->Hide();
 }
 
-void StateMachine::SetState(int next_state) { current_state_ = next_state; }
+void StateMachine::SetState(int next_state) {
+    current_state_ = next_state;
+}
 
-int StateMachine::State() { return current_state_; }
+int StateMachine::State() {
+    return current_state_;
+}
 
-Planet* StateMachine::GetActivePlanet() { return active_planet_; }
+Planet* StateMachine::GetActivePlanet() {
+    return active_planet_;
+}
 
-void StateMachine::SetActivePlanet(Planet* planet) { active_planet_ = planet; }
+void StateMachine::SetActivePlanet(Planet *planet) {
+    active_planet_ = planet;
+}

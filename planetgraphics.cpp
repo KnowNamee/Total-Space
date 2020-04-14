@@ -1,20 +1,24 @@
 #include "planetgraphics.h"
 
+#include <QDebug>
 #include <QPainter>
 
+#include "loader.h"
 #include "planet.h"
+#include "random"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
+static int randomBetween(int low, int high) {
+  return (qrand() % ((high + 1) - low) + low);
+}
+
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet)
     : planet_(planet) {
+  planet_image_ = Loader::GetPlanetImage(randomBetween(0, 2));
 }
 
-int PlanetGraphics::type() const {
-    return Type;
-}
+int PlanetGraphics::type() const { return Type; }
 
-Planet* PlanetGraphics::GetPlanet() {
-    return planet_.get();
-}
+Planet *PlanetGraphics::GetPlanet() { return planet_.get(); }
 
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->Coordinates().x() - planet_->Radius(),
@@ -25,10 +29,13 @@ QRectF PlanetGraphics::boundingRect() const {
 void PlanetGraphics::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *option,
                            QWidget *widget) {
-  painter->setBrush(Qt::green);
-  painter->drawEllipse(QRectF(planet_->Coordinates().x() - planet_->Radius(),
-                              planet_->Coordinates().y() - planet_->Radius(),
-                              2 * planet_->Radius(), 2 * planet_->Radius()));
+  painter->drawPixmap(
+      static_cast<int>(planet_->Coordinates().x() - planet_->Radius()),
+      static_cast<int>(planet_->Coordinates().y() - planet_->Radius()),
+      static_cast<int>(2 * planet_->Radius()),
+      static_cast<int>(2 * planet_->Radius()), *planet_image_, 0, 0, 1000,
+      1000);
+
   Q_UNUSED(widget)
   Q_UNUSED(option)
 }

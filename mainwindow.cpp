@@ -1,15 +1,16 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QScreen>
 
-#include "gameview.h"
 #include "gamescene.h"
+#include "gameview.h"
+#include "loader.h"
 #include "menu.h"
 #include "statemachine.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -32,37 +33,27 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {
-    if (StateMachine::unit_menu) {
-        StateMachine::RemoveUnitMenu();
-    }
-    if (StateMachine::planet_menu) {
-        StateMachine::RemovePlanetMenu();
-    }
-    if (StateMachine::pause_menu) {
-        StateMachine::RemovePauseMenu();
-    }
-    if (StateMachine::main_menu) {
-        StateMachine::RemoveMainMenu();
-    }
-    delete ui;
-}
-
-void MainWindow::Exit() {
-    QApplication::exit();
-}
-
-void MainWindow::StartGame() {
-    StateMachine::StartGame();
-}
-
-void MainWindow::DrawMainMenu() {
-    StateMachine::DrawMainMenu();
-}
-
-void MainWindow::RemovePauseMenu() {
-    StateMachine::RemovePauseMenu();
-}
-
-void MainWindow::RemovePlanetMenu() {
+  if (StateMachine::unit_menu) {
+    StateMachine::RemoveUnitMenu();
+  }
+  if (StateMachine::planet_menu) {
     StateMachine::RemovePlanetMenu();
+  }
+  if (StateMachine::pause_menu) {
+    StateMachine::RemovePauseMenu();
+  }
+  if (StateMachine::main_menu) {
+    StateMachine::RemoveMainMenu();
+  }
+  delete ui;
 }
+
+void MainWindow::Exit() { QApplication::exit(); }
+
+void MainWindow::StartGame() { StateMachine::StartGame(); }
+
+void MainWindow::DrawMainMenu() { StateMachine::DrawMainMenu(); }
+
+void MainWindow::RemovePauseMenu() { StateMachine::RemovePauseMenu(); }
+
+void MainWindow::RemovePlanetMenu() { StateMachine::RemovePlanetMenu(); }

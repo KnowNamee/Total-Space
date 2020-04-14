@@ -14,15 +14,16 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_INTERFACES()
 
  public:
-  PlanetGraphics(const std::shared_ptr<Planet> &planet);
+  PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
   int type() const override;
-  Planet *GetPlanet();
+  Planet* GetPlanet();
 
  private:
+  std::shared_ptr<QPixmap> planet_image_;
   QRectF boundingRect() const override;
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *widget) override;
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
 
   const std::shared_ptr<Planet> planet_;
 

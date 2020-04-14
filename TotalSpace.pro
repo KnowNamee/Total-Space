@@ -31,6 +31,7 @@ SOURCES += \
         eventhandling.cpp \
         gamescene.cpp \
         gameview.cpp \
+        loader.cpp \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
         eventhandling.h \
         gamescene.h \
         gameview.h \
+        loader.h \
         mainwindow.h \
         menu.h \
         planet.h \
@@ -64,3 +66,9 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    img.qrc
+
+DISTFILES += \
+    ../../../../Downloads/University/game superiority/hui_for_igor.jpg
