@@ -14,10 +14,10 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_INTERFACES()
 
  public:
-  PlanetGraphics(const std::shared_ptr<Planet>& planet);
+  PlanetGraphics(const std::shared_ptr<Planet> &planet);
 
   int type() const override;
-  Planet* GetPlanet();
+  Planet *GetPlanet();
 
  private:
   QRectF boundingRect() const override;
@@ -28,7 +28,7 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
 
  public:
   enum {
-      Type = UserType + TypeOffset::Planet,
+    Type = UserType + TypeOffset::Planet,
   };
 };
 

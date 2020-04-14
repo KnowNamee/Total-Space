@@ -14,54 +14,54 @@ class GameView;
 
 class StateMachine {
  public:
-    StateMachine() = delete;
+  StateMachine() = delete;
 
-    enum {
-        StateMainMenu,
-        StatePauseMenu,
-        StatePlanetMenu,
-        StateUnitMenu,
-        StateGame,
-        StateNone,
-    };
+  enum {
+    StateMainMenu,
+    StatePauseMenu,
+    StatePlanetMenu,
+    StateUnitMenu,
+    StateGame,
+    StateNone,
+  };
 
-    static void StartGame();
-    static void EndGame();
-    static void HideGame();
-    static void ShowGame();
+  static void StartGame();
+  static void EndGame();
+  static void HideGame();
+  static void ShowGame();
 
-    static void DrawMainMenu();
-    static void DrawPauseMenu();
-    static void DrawPlanetMenu();
-    static void DrawUnitMenu();
+  static void DrawMainMenu();
+  static void DrawPauseMenu();
+  static void DrawPlanetMenu();
+  static void DrawUnitMenu();
 
-    static void RemoveMainMenu();
-    static void RemovePauseMenu();
-    static void RemovePlanetMenu();
-    static void RemoveUnitMenu();
+  static void RemoveMainMenu();
+  static void RemovePauseMenu();
+  static void RemovePlanetMenu();
+  static void RemoveUnitMenu();
 
-    static void HidePlanetMenu();
+  static void HidePlanetMenu();
 
-    static void ShowPlanetMenu();
+  static void ShowPlanetMenu();
 
-    static void SetState(int next_state);
-    static int State();
+  static void SetState(int next_state);
+  static int State();
 
-    static Planet* GetActivePlanet();
-    static void SetActivePlanet(Planet* planet);
+  static Planet* GetActivePlanet();
+  static void SetActivePlanet(Planet* planet);
 
-    static MainMenu* main_menu;
-    static PauseMenu* pause_menu;
-    static PlanetMenu* planet_menu;
-    static UnitMenu* unit_menu;
-    static GameScene* scene;
-    static GameView* view;
-    static MainWindow* window;
+  static MainMenu* main_menu;
+  static PauseMenu* pause_menu;
+  static PlanetMenu* planet_menu;
+  static UnitMenu* unit_menu;
+  static GameScene* scene;
+  static GameView* view;
+  static MainWindow* window;
 
  private:
-    static Planet* active_planet_;
+  static Planet* active_planet_;
 
-    static int current_state_;
+  static int current_state_;
 };
 
-#endif // STATEMACHINE_H
+#endif  // STATEMACHINE_H
