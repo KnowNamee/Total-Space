@@ -26,32 +26,39 @@ CONFIG += c++17
 
 SOURCES += \
         building.cpp \
+        button.cpp \
         drawer.cpp \
         eventhandling.cpp \
         gamescene.cpp \
         gameview.cpp \
         main.cpp \
         mainwindow.cpp \
+        menu.cpp \
         planet.cpp \
         planetgraphics.cpp \
         player.cpp \
         playerbase.cpp \
+        statemachine.cpp \
         unit.cpp
 
 HEADERS += \
         building.h \
+        button.h \
         drawer.h \
         eventhandling.h \
         gamescene.h \
         gameview.h \
         mainwindow.h \
+        menu.h \
         planet.h \
         planetgraphics.h \
         player.h \
         playerbase.h \
         resources.h \
-        unit.h
-
+        unit.h \
+        statemachine.h \
+        typeoffset.h
+        
 FORMS += \
         mainwindow.ui
 

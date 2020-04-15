@@ -2,10 +2,19 @@
 
 #include <QPainter>
 
+#include "gameview.h"
 #include "planet.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
-    : planet_(planet) {
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet,
+                               GameView *view)
+    : planet_(planet), view_(view) {}
+
+int PlanetGraphics::type() const {
+    return Type;
+}
+
+Planet* PlanetGraphics::GetPlanet() {
+    return planet_.get();
 }
 
 QRectF PlanetGraphics::boundingRect() const {
