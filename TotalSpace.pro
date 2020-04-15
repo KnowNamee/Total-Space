@@ -34,6 +34,8 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
+        objectsloader.cpp \
+        objectsstorage.cpp \
         planet.cpp \
         planetgraphics.cpp \
         player.cpp \
@@ -50,6 +52,8 @@ HEADERS += \
         gameview.h \
         mainwindow.h \
         menu.h \
+        objectsloader.h \
+        objectsstorage.h \
         planet.h \
         planetgraphics.h \
         player.h \
