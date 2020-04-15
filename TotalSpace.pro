@@ -54,10 +54,11 @@ HEADERS += \
         planetgraphics.h \
         player.h \
         playerbase.h \
-        statemachine.h \
+        resources.h \
         unit.h \
+        statemachine.h \
         typeoffset.h
-
+        
 FORMS += \
         mainwindow.ui
 
