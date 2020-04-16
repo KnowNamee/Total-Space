@@ -11,6 +11,7 @@ void Planet::SetOwner(const std::shared_ptr<PlayerBase> &owner) {
 
 const Resources &Planet::GetIncome() const { return income_; }
 
+// TODO
 // void Planet::Build(std::shared_ptr<Building> building_ptr) {
 //  buildings_.push_back(building_ptr);
 //  income_.tools += building_ptr->GetToolsIncome();

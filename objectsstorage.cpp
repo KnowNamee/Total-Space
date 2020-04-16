@@ -4,9 +4,9 @@
 
 #include "building.h"
 
-std::map<WarBuildingType, const WarBuilding *>
+std::map<WarBuildingType, const WarBuilding*>
                                           ObjectsStorage::type_to_war_building_;
-std::map<EconomicBuildingType, const EconomicBuilding *>
+std::map<EconomicBuildingType, const EconomicBuilding*>
                                      ObjectsStorage::type_to_economic_building_;
 
 void ObjectsStorage::AddBuilding(const EconomicBuilding *building_ptr) {

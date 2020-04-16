@@ -34,7 +34,8 @@ void ObjectsLoader::LoadBuildingsFromJson(const QJsonDocument &document) {
       if (type_it.key() == "economic") {
         LoadEconomicBuilding(building);
       } else {
-        //        LoadWarBuilding(building);
+        // TODO
+        // LoadWarBuilding(building);
       }
     }
   }
