@@ -5,6 +5,7 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "objectsloader.h"
 #include "gamescene.h"
 #include "gameview.h"
 #include "menu.h"
@@ -29,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
   StateMachine::view->setGeometry(QRect(0, 0, width, height));
   StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
   StateMachine::view->show();
+
+  ObjectsLoader::LoadBuildingsFromFile(":/obectsdata/BuildingsInfo.json");
 }
 
 MainWindow::~MainWindow() {

@@ -58,10 +58,10 @@ HEADERS += \
         planetgraphics.h \
         player.h \
         playerbase.h \
-        resources.h \
         unit.h \
         statemachine.h \
-        typeoffset.h
+        typeoffset.h \
+        utility.h
         
 FORMS += \
         mainwindow.ui
@@ -70,3 +70,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    objectsdata.qrc

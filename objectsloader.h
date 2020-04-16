@@ -13,7 +13,7 @@ class ObjectsLoader {
 
  private:
   static void LoadBuildingsFromJson(const QJsonDocument& document);
-  static void LoadBuilding(const QJsonObject& building);
+  static void LoadEconomicBuilding(const QJsonObject& building);
 };
 
 #endif  // OBJECTSLOADER_H

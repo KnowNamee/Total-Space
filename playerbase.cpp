@@ -1,17 +1,19 @@
 #include "playerbase.h"
+
 #include "planet.h"
 
 PlayerBase::PlayerBase(const std::shared_ptr<Planet> &planet) {
   planets_.push_back(planet);
 }
 
-int64_t PlayerBase::Tools() const { return resources_.tools; }
-int64_t PlayerBase::Batteries() const { return resources_.batteries; }
+const Resources &PlayerBase::GetResources() const { return resources_; }
+
+int32_t PlayerBase::GetTools() const { return resources_.GetTools(); }
+int32_t PlayerBase::GetBatteries() const { return resources_.GetBatteries(); }
 
 void PlayerBase::UpdateResources() {
   for (auto planet : Planets()) {
-    resources_.tools += planet->GetToolsIncome();
-    resources_.batteries += planet->GetBatteriesIncome();
+    resources_ += planet->GetIncome();
   }
 }
 

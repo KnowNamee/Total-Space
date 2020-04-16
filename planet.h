@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "playerbase.h"
-#include "resources.h"
+#include "utility.h"
 
 class Building;
 class Unit;
@@ -20,8 +20,9 @@ public:
 
   void Build(std::shared_ptr<Building> building_ptr);
 
-  int64_t GetBatteriesIncome() const;
-  int64_t GetToolsIncome() const;
+  int32_t GetBatteriesIncome() const;
+  int32_t GetToolsIncome() const;
+  const Resources& GetIncome() const;
 
   QPointF Coordinates() const;
   double Radius() const;

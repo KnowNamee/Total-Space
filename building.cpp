@@ -1,6 +1,15 @@
 #include "building.h"
 
-Building::Building() {}
+EconomicBuilding::EconomicBuilding(const QString &caption, const QString &type,
+                                   const Resources &cost,
+                                   const Resources &income,
+                                   const Resources &keeping)
+    : caption_(caption),
+      type_(type),
+      cost_(cost),
+      income_(income),
+      keeping_(keeping) {}
 
-int64_t Building::GetToolsIncome() const { return income_.tools; }
-int64_t Building::GetBatteriesIncome() const { return income_.batteries; }
+const QString &EconomicBuilding::GetCaption() const { return caption_; }
+
+WarBuilding::WarBuilding() {}

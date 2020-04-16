@@ -1,23 +1,32 @@
 #ifndef BUILDING_H
 #define BUILDING_H
 
-#include "resources.h"
 #include <QObject>
 #include <memory>
 
-class Planet;
+#include "utility.h"
 
-class Building : public QObject {
+class EconomicBuilding : public QObject {
   Q_OBJECT
-public:
-  Building();
+ public:
+  EconomicBuilding(const QString& caption, const QString& type,
+                   const Resources& cost, const Resources& income,
+                   const Resources& keeping);
+  const Resources& GetIncome() const;
+  const QString& GetCaption() const;
 
-  int64_t GetBatteriesIncome() const;
-  int64_t GetToolsIncome() const;
-
-private:
-  const std::shared_ptr<Planet> parent_;
-  Resources income_;
+ private:
+  const QString caption_;
+  const QString type_;
+  const Resources cost_;
+  const Resources income_;
+  const Resources keeping_;
 };
 
-#endif // BUILDING_H
+class WarBuilding : public QObject {
+  Q_OBJECT
+ public:
+  WarBuilding();
+};
+
+#endif  // BUILDING_H
