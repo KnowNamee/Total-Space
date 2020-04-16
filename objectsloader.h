@@ -9,10 +9,10 @@ class ObjectsLoader {
  public:
   ObjectsLoader() = delete;
 
-  static void LoadBuildingsFromFile(const QString& file_name);
+  static void LoadDataFromFile(const QString& file_name);
 
  private:
-  static void LoadBuildingsFromJson(const QJsonDocument& document);
+  static void LoadDataFromJson(const QJsonDocument& document);
   static void LoadEconomicBuilding(const QJsonObject& building);
 };
 
