@@ -6,14 +6,15 @@ class QJsonDocument;
 class QJsonObject;
 
 class ObjectsLoader {
- public:
+public:
   ObjectsLoader() = delete;
 
-  static void LoadBuildingsFromFile(const QString& file_name);
+  static void LoadBuildingsFromFile(const QString &file_name);
 
- private:
-  static void LoadBuildingsFromJson(const QJsonDocument& document);
-  static void LoadEconomicBuilding(const QJsonObject& building);
+private:
+  static void LoadBuildingsFromJson(const QJsonDocument &document);
+  static void LoadEconomicBuilding(const QJsonObject &building);
+  static void LoadUnit(const QJsonObject &unit);
 };
 
-#endif  // OBJECTSLOADER_H
+#endif // OBJECTSLOADER_H
