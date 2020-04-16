@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
   StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
   StateMachine::view->show();
 
-  ObjectsLoader::LoadBuildingsFromFile(":/obectsdata/BuildingsInfo.json");
+  ObjectsLoader::LoadDataFromFile(":/obectsdata/BuildingsInfo.json");
 }
 
 MainWindow::~MainWindow() {

@@ -9,7 +9,7 @@
 #include "building.h"
 #include "objectsstorage.h"
 
-void ObjectsLoader::LoadBuildingsFromFile(const QString &file_name) {
+void ObjectsLoader::LoadDataFromFile(const QString &file_name) {
   QFile file(file_name);
   file.open(QIODevice::ReadOnly);
   QJsonParseError error;
@@ -17,27 +17,28 @@ void ObjectsLoader::LoadBuildingsFromFile(const QString &file_name) {
   qDebug() << "GameObjectRepository: json parsed, error ="
            << error.errorString();
   Q_ASSERT(error.error == QJsonParseError::NoError);
-  LoadBuildingsFromJson(document);
+  LoadDataFromJson(document);
 }
 
-void ObjectsLoader::LoadBuildingsFromJson(const QJsonDocument &document) {
+void ObjectsLoader::LoadDataFromJson(const QJsonDocument &document) {
   Q_ASSERT(document.isObject());
   auto root_object = document.object();
+
+  // TODO добавить другие функции обработки
+  std::vector<std::function<void(const QJsonObject &)>> functions_to_apply = {
+      LoadEconomicBuilding};
+
+  size_t function_type = 0;
   for (auto type_it = root_object.begin(); type_it != root_object.end();
        ++type_it) {
     Q_ASSERT(type_it->isObject());
-
     auto type_object = type_it->toObject();
     for (auto it = type_object.begin(); it != type_object.end(); ++it) {
       Q_ASSERT(it->isObject());
       auto building = it->toObject();
-      if (type_it.key() == "economic") {
-        LoadEconomicBuilding(building);
-      } else {
-        // TODO
-        // LoadWarBuilding(building);
-      }
+      functions_to_apply[function_type](building);
     }
+    function_type++;
   }
 }
 
