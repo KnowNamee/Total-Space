@@ -2,18 +2,15 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QRandomGenerator>
 
 #include "loader.h"
 #include "planet.h"
-#include "random"
-
-static int randomBetween(int low, int high) {
-  return (qrand() % ((high + 1) - low) + low);
-}
 
 PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet)
     : planet_(planet) {
-  planet_image_ = Loader::GetPlanetImage(randomBetween(0, 2));
+  planet_image_ =
+      Loader::GetPlanetImage(QRandomGenerator::global()->generate() % 3);
 }
 
 int PlanetGraphics::type() const { return Type; }

@@ -16,7 +16,6 @@
 #include "statemachine.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
-  SetSceneSettings();
   drawer_ = std::make_shared<Drawer>(this);
 }
 
@@ -46,8 +45,6 @@ void GameScene::NewGame() {
   // Надо выбрать радиус
   int32_t width = qApp->screens()[0]->size().width();
 
-  Loader::LoadAll();
-
   Planet *start_planet = new Planet(QPointF(0, 0), width / 16);
   std::shared_ptr<Planet> player_planet(start_planet);
 
@@ -56,6 +53,7 @@ void GameScene::NewGame() {
   player_ = std::make_shared<Player>(player_planet);
 
   player_planet->SetOwner(player_);
+  SetSceneSettings();
   GenerateMap();
 
   // TODO
@@ -63,7 +61,13 @@ void GameScene::NewGame() {
 }
 
 void GameScene::SetSceneSettings() {
-  // TODO установка background и т.п. как настройки
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+  background =
+      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kMainBackground),
+                    width * 8, height * 8);
+  background->setZValue(-5);
+  StateMachine::scene->addItem(background);
 }
 
 void GameScene::GenerateMap() {

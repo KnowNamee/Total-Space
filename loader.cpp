@@ -3,23 +3,29 @@
 #include <QVector>
 #include <memory>
 
-#include "random"
-std::shared_ptr<QPixmap> Loader::planet_image_first_ = nullptr;
-std::shared_ptr<QPixmap> Loader::planet_image_second_ = nullptr;
-std::shared_ptr<QPixmap> Loader::planet_image_third_ = nullptr;
 std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
 QVector<std::shared_ptr<QPixmap>> Loader::planet_pictures_;
+QMap<ButtonsEnum, std::shared_ptr<QPixmap>> Loader::button_images_;
 
 void Loader::LoadAll() {
-  planet_image_first_ = std::make_shared<QPixmap>(":/Img/1.png");
-  planet_image_second_ = std::make_shared<QPixmap>(":/Img/2.png");
-  planet_image_third_ = std::make_shared<QPixmap>(":/Img/3.png");
-  //  background_image_ =
-  //  std::make_shared<QPixmap>(":/Sprites/start_screen.jpg");
+  planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/1.png"));
+  planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/2.png"));
+  planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/3.png"));
 
-  planet_pictures_.push_back(planet_image_first_);
-  planet_pictures_.push_back(planet_image_second_);
-  planet_pictures_.push_back(planet_image_third_);
+  button_images_[ButtonsEnum::kNewGameButton] =
+      std::make_shared<QPixmap>(":/Img/new_game_button.png");
+  button_images_[ButtonsEnum::kExitButton] =
+      std::make_shared<QPixmap>(":/Img/exit_button.png");
+  button_images_[ButtonsEnum::kBackground] =
+      std::make_shared<QPixmap>(":/Img/start_background.jpg");
+  button_images_[ButtonsEnum::kSimpleButton] =
+      std::make_shared<QPixmap>(":/Img/simple_button.png");
+  button_images_[ButtonsEnum::kBackToGameButton] =
+      std::make_shared<QPixmap>(":/Img/back_button.png");
+  button_images_[ButtonsEnum::kToMenuButton] =
+      std::make_shared<QPixmap>(":/Img/to_main_menu_button.png");
+  button_images_[ButtonsEnum::kMainBackground] =
+      std::make_shared<QPixmap>(":/Img/main_background.jpg");
 }
 
 std::shared_ptr<QPixmap> Loader::GetPlanetImage(int number) {
@@ -28,4 +34,8 @@ std::shared_ptr<QPixmap> Loader::GetPlanetImage(int number) {
 
 std::shared_ptr<QPixmap> Loader::GetBackgroundImage() {
   return background_image_;
+}
+
+std::shared_ptr<QPixmap> Loader::GetButtonImage(ButtonsEnum type) {
+  return button_images_[type];
 }

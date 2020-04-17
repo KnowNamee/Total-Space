@@ -26,11 +26,11 @@ CONFIG += c++17
 
 SOURCES += \
         building.cpp \
-        button.cpp \
         drawer.cpp \
         eventhandling.cpp \
         gamescene.cpp \
         gameview.cpp \
+        imageitem.cpp \
         loader.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -44,11 +44,11 @@ SOURCES += \
 
 HEADERS += \
         building.h \
-        button.h \
         drawer.h \
         eventhandling.h \
         gamescene.h \
         gameview.h \
+        imageitem.h \
         loader.h \
         mainwindow.h \
         menu.h \

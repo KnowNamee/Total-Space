@@ -13,7 +13,7 @@
 
 #include "eventhandling.h"
 
-class Button;
+class ImageItem;
 class GameScene;
 class MainWindow;
 
@@ -34,9 +34,9 @@ class MainMenu : public QObject {
  private:
   friend class EventHandler::View;
 
-  QGraphicsTextItem* txt_total_space_;
-  Button* btn_new_game_;
-  Button* btn_exit_;
+  ImageItem* txt_total_space_;
+  ImageItem* btn_new_game_;
+  ImageItem* btn_exit_;
 };
 
 class PauseMenu : public QObject {
@@ -55,8 +55,8 @@ class PauseMenu : public QObject {
  private:
   friend class EventHandler::View;
 
-  Button* btn_exit_;
-  Button* btn_back_;
+  ImageItem* btn_exit_;
+  ImageItem* btn_back_;
   QGraphicsRectItem* background_rect_;
 };
 
@@ -79,9 +79,9 @@ class PlanetMenu : public QObject {
  private:
   friend class EventHandler::View;
 
-  Button* btn1_;
-  Button* btn2_;
-  Button* btn3_;
+  ImageItem* btn1_;
+  ImageItem* btn2_;
+  ImageItem* btn3_;
 
   double radius_;
 };

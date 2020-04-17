@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   delete ui->mainToolBar;
   showFullScreen();
+  Loader::LoadAll();
 
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
@@ -25,10 +26,11 @@ MainWindow::MainWindow(QWidget *parent)
   StateMachine::window = this;
 
   StateMachine::view = new GameView(StateMachine::scene, this);
-  StateMachine::DrawMainMenu();
-
   StateMachine::view->setGeometry(QRect(0, 0, width, height));
   StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
+
+  StateMachine::DrawMainMenu();
+
   StateMachine::view->show();
 }
 
