@@ -26,11 +26,12 @@ CONFIG += c++17
 
 SOURCES += \
         building.cpp \
-        button.cpp \
         drawer.cpp \
         eventhandling.cpp \
         gamescene.cpp \
         gameview.cpp \
+        imageitem.cpp \
+        loader.cpp \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
@@ -43,11 +44,12 @@ SOURCES += \
 
 HEADERS += \
         building.h \
-        button.h \
         drawer.h \
         eventhandling.h \
         gamescene.h \
         gameview.h \
+        imageitem.h \
+        loader.h \
         mainwindow.h \
         menu.h \
         planet.h \
@@ -66,3 +68,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    img.qrc

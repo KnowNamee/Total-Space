@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/Img">
+        <file>1.png</file>
+        <file>2.png</file>
+        <file>3.png</file>
+        <file>back_button.png</file>
+        <file>exit_button.png</file>
+        <file>main_background.jpg</file>
+        <file>new_game_button.png</file>
+        <file>simple_button.png</file>
+        <file>start_background.jpg</file>
+        <file>to_main_menu_button.png</file>
+    </qresource>
+</RCC>
