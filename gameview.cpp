@@ -2,6 +2,8 @@
 
 #include <eventhandling.h>
 
+#include <QDebug>
+
 #include "gamescene.h"
 
 GameView::GameView(GameScene *scene, QWidget *parent)
@@ -10,22 +12,24 @@ GameView::GameView(GameScene *scene, QWidget *parent)
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameStyle(QFrame::NoFrame);
-
+  scale(0.5, 0.5);
   event_handler_ = std::make_shared<EventHandler::View>(this);
 }
 
 void GameView::mouseMoveEvent(QMouseEvent *event) {
-  event_handler_->MouseMoveEvent(event);
+    event_handler_->MouseMoveEvent(event);
 }
 
 void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
-  event_handler_->DoubleClick(event);
+    event_handler_->DoubleClick(event);
 }
 
 void GameView::mouseReleaseEvent(QMouseEvent *event) {
-  event_handler_->MouseReleaseEvent(event);
+    event_handler_->MouseReleaseEvent(event);
 }
 
 void GameView::keyReleaseEvent(QKeyEvent *event) {
-  event_handler_->KeyReleaseEvent(event);
+    event_handler_->KeyReleaseEvent(event);
 }
+
+void GameView::wheelEvent(QWheelEvent *event) { event_handler_->Scale(event); }

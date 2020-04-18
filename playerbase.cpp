@@ -1,15 +1,28 @@
 #include "playerbase.h"
+#include "planet.h"
 
-PlayerBase::PlayerBase(const std::shared_ptr<Planet>& planet) {
+PlayerBase::PlayerBase(const std::shared_ptr<Planet> &planet) {
   planets_.push_back(planet);
 }
 
-int64_t PlayerBase::Money() const { return money_; }
+int64_t PlayerBase::Tools() const { return resources_.tools; }
+int64_t PlayerBase::Batteries() const { return resources_.batteries; }
 
-const QVector<std::shared_ptr<Planet>>& PlayerBase::Planets() const {
+void PlayerBase::UpdateResources() {
+  for (auto planet : Planets()) {
+    resources_.tools += planet->GetToolsIncome();
+    resources_.batteries += planet->GetBatteriesIncome();
+  }
+}
+
+void PlayerBase::AddPlanet(std::shared_ptr<Planet> planet) {
+  planets_.push_back(planet);
+}
+
+const QVector<std::shared_ptr<Planet>> &PlayerBase::Planets() const {
   return planets_;
 }
 
-const QVector<std::shared_ptr<Unit>>& PlayerBase::Units() const {
+const QVector<std::shared_ptr<Unit>> &PlayerBase::Units() const {
   return units_;
 }

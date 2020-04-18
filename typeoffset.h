@@ -4,8 +4,8 @@
 namespace TypeOffset {
 
 enum {
-    Planet,
-    Button,
+  Planet,
+  Button,
 };
 
 }  // namespace TypeOffset

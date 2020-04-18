@@ -26,11 +26,10 @@ MainWindow::MainWindow(QWidget *parent)
   StateMachine::window = this;
 
   StateMachine::view = new GameView(StateMachine::scene, this);
-  StateMachine::view->setGeometry(QRect(0, 0, width, height));
-  StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
-
   StateMachine::DrawMainMenu();
 
+  StateMachine::view->setGeometry(QRect(0, 0, width, height));
+  StateMachine::view->setSceneRect(-width / 2, -height / 2, width, height);
   StateMachine::view->show();
 }
 

@@ -56,9 +56,11 @@ HEADERS += \
         planetgraphics.h \
         player.h \
         playerbase.h \
+        resources.h \
+        unit.h \
         statemachine.h \
-        unit.h
-
+        typeoffset.h
+        
 FORMS += \
         mainwindow.ui
 
@@ -69,6 +71,3 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     img.qrc
-
-DISTFILES += \
-    ../../../../Downloads/University/game superiority/hui_for_igor.jpg

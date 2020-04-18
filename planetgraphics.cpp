@@ -4,11 +4,13 @@
 #include <QPainter>
 #include <QRandomGenerator>
 
+#include "gameview.h"
 #include "loader.h"
 #include "planet.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet)
-    : planet_(planet) {
+PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet,
+                               GameView *view)
+    : planet_(planet), view_(view) {
   planet_image_ =
       Loader::GetPlanetImage(QRandomGenerator::global()->generate() % 3);
 }

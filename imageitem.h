@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef IMAGEITEM_H
+#define IMAGEITEM_H
 
 #include <QGraphicsItem>
 
@@ -29,4 +29,4 @@ class ImageItem : public QGraphicsItem {
   };
 };
 
-#endif  // BUTTON_H
+#endif  // IMAGEITEM_H
