@@ -1,7 +1,6 @@
 #include "menu.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -79,6 +78,7 @@ void PauseMenu::Draw() {
   GameView* view = StateMachine::view;
   QPointF center =
       view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
+
   QRectF rect = view->sceneRect();
 
   rect.setX(center.x() - view->rect().width() / view->matrix().m11());
@@ -109,6 +109,7 @@ void PauseMenu::Draw() {
   btn_exit_->setPos(btn_back_->pos() +
                     QPoint(0, static_cast<int>(height / 18)) /
                         view->matrix().m11());
+
 }
 
 PlanetMenu::PlanetMenu() {
