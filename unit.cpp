@@ -1,8 +1,6 @@
 #include "unit.h"
 #include "utility.h"
 
-Unit::Unit() {}
-
 Unit::Unit(const QString &caption, const int32_t &power, const Resources &cost)
     : caption_(caption), power_(power), cost_(cost) {}
 

@@ -31,7 +31,10 @@ enum class WarBuildingType {
   // TODO Добавить типы военных построек
 };
 enum class UnitType {
-  // TODO Добавить типы юнитов
+  kMarine,
+  kRanger,
+  kFalcon,
+  kRover,
 };
 
 #endif // RESOURCES_H

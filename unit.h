@@ -8,7 +8,6 @@
 class Unit : public QObject {
   Q_OBJECT
 public:
-  Unit();
   Unit(const QString &caption, const int32_t &power, const Resources &cost);
 
   const QString &GetCaption() const;
