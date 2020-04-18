@@ -9,10 +9,8 @@
 #include "loader.h"
 #include "statemachine.h"
 
-ImageItem::ImageItem(const QPixmap &image, int width, int height) {
-  image_ = image;
-  size_ = QSize(width, height);
-}
+ImageItem::ImageItem(const QPixmap *image, int width, int height)
+    : image_(image), size_(QSize(width, height)) {}
 
 int ImageItem::type() const { return Type; }
 
@@ -23,8 +21,8 @@ QRectF ImageItem::boundingRect() const {
 void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                       QWidget *widget) {
   QRectF rect = boundingRect();
-  painter->drawPixmap(rect, image_,
-                      QRectF(0, 0, image_.width(), image_.height()));
+  painter->drawPixmap(rect, *image_,
+                      QRectF(0, 0, image_->width(), image_->height()));
 
   Q_UNUSED(option)
   Q_UNUSED(widget)

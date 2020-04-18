@@ -21,7 +21,7 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   Planet* GetPlanet();
 
  private:
-  std::shared_ptr<QPixmap> planet_image_;
+  QPixmap* planet_image_;
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;

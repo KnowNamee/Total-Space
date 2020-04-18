@@ -35,15 +35,15 @@ void MainMenu::Draw() {
   GameView* view = StateMachine::view;
 
   btn_exit_ =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kExitButton),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
   btn_new_game_ =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kNewGameButton),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kNewGameButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
   txt_total_space_ =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kBackground),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
                     static_cast<int>(width / view->matrix().m11()),
                     static_cast<int>(height / view->matrix().m11()));
 
@@ -91,11 +91,11 @@ void PauseMenu::Draw() {
   background_rect_->setBrush(QColor(Qt::black));
 
   btn_back_ =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kBackToGameButton),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackToGameButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
   btn_exit_ =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
 
@@ -131,11 +131,11 @@ void PlanetMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  btn1_ = new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+  btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                         width / 12, height / 15);
-  btn2_ = new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+  btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                         width / 12, height / 15);
-  btn3_ = new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+  btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                         width / 12, height / 15);
 
   StateMachine::scene->addItem(btn1_);

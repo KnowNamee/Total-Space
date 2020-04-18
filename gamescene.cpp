@@ -66,7 +66,7 @@ void GameScene::SetSceneSettings() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
   background =
-      new ImageItem(*Loader::GetButtonImage(ButtonsEnum::kMainBackground),
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kMainBackground),
                     width * 8, height * 8);
   background->setZValue(-5);
   StateMachine::scene->addItem(background);

@@ -17,9 +17,9 @@ class Loader : public QGraphicsItem {
  public:
   Loader() = delete;
   static void LoadAll();
-  static std::shared_ptr<QPixmap> GetPlanetImage(int number);
-  static std::shared_ptr<QPixmap> GetBackgroundImage();
-  static std::shared_ptr<QPixmap> GetButtonImage(ButtonsEnum);
+  static QPixmap* GetPlanetImage(int number);
+  static QPixmap* GetBackgroundImage();
+  static QPixmap* GetButtonImage(ButtonsEnum);
 
  private:
   static QVector<std::shared_ptr<QPixmap>> planet_pictures_;

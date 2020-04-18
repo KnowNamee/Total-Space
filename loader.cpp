@@ -28,14 +28,12 @@ void Loader::LoadAll() {
       std::make_shared<QPixmap>(":/Img/main_background.jpg");
 }
 
-std::shared_ptr<QPixmap> Loader::GetPlanetImage(int number) {
-  return planet_pictures_[number];
+QPixmap *Loader::GetPlanetImage(int number) {
+  return planet_pictures_[number].get();
 }
 
-std::shared_ptr<QPixmap> Loader::GetBackgroundImage() {
-  return background_image_;
-}
+QPixmap *Loader::GetBackgroundImage() { return background_image_.get(); }
 
-std::shared_ptr<QPixmap> Loader::GetButtonImage(ButtonsEnum type) {
-  return button_images_[type];
+QPixmap *Loader::GetButtonImage(ButtonsEnum type) {
+  return button_images_[type].get();
 }
