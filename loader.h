@@ -1,5 +1,6 @@
 #ifndef LOADER_H
 #define LOADER_H
+
 #include <QGraphicsItem>
 #include <memory>
 
