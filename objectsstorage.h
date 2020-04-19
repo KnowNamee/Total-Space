@@ -15,9 +15,9 @@ class ObjectsStorage {
 public:
   ObjectsStorage() = delete;
 
-  static void AddBuilding(const EconomicBuilding *building);
-  static void AddBuilding(const WarBuilding *building);
-  static void AddUnit(const Unit *unit);
+  static void AddBuilding(const EconomicBuilding* building);
+  static void AddBuilding(const WarBuilding* building);
+  static void AddUnit(const Unit* unit);
 
 private:
   static const std::map<QString, EconomicBuildingType>

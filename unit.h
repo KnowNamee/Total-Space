@@ -8,11 +8,11 @@
 class Unit : public QObject {
   Q_OBJECT
 public:
-  Unit(const QString &caption, const int32_t &power, const Resources &cost);
+  Unit(const QString& caption, const int32_t& power, const Resources& cost);
 
-  const QString &GetCaption() const;
-  const Resources &GetCost() const;
-  const int32_t &GetPower() const;
+  const QString& GetCaption() const;
+  const Resources& GetCost() const;
+  const int32_t& GetPower() const;
 
 private:
   QString caption_;

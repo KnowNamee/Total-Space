@@ -12,11 +12,11 @@ public:
   int32_t GetBatteries() const { return batteries_; }
   int32_t GetTools() const { return tools_; }
 
-  const Resources operator+(const Resources &rhs) {
+  const Resources operator+(const Resources& rhs) {
     return Resources(batteries_ + rhs.batteries_, tools_ + rhs.tools_);
   }
 
-  Resources &operator+=(const Resources &rhs) {
+  Resources &operator+=(const Resources& rhs) {
     *this = *this + rhs;
     return *this;
   }

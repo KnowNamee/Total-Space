@@ -10,7 +10,7 @@
 #include "objectsstorage.h"
 #include "unit.h"
 
-void ObjectsLoader::LoadDataFromFile(const QString &file_name) {
+void ObjectsLoader::LoadDataFromFile(const QString& file_name) {
   QFile file(file_name);
   file.open(QIODevice::ReadOnly);
   QJsonParseError error;
@@ -21,7 +21,7 @@ void ObjectsLoader::LoadDataFromFile(const QString &file_name) {
   LoadDataFromJson(document);
 }
 
-void ObjectsLoader::LoadDataFromJson(const QJsonDocument &document) {
+void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   Q_ASSERT(document.isObject());
   auto root_object = document.object();
 
@@ -43,7 +43,7 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument &document) {
   }
 }
 
-void ObjectsLoader::LoadEconomicBuildings(const QJsonObject &building) {
+void ObjectsLoader::LoadEconomicBuildings(const QJsonObject& building) {
   QString caption = building.value("caption").toString();
   QString type = building.value("type").toString();
   Resources cost(building.value("batteries_cost").toInt(),
@@ -57,7 +57,7 @@ void ObjectsLoader::LoadEconomicBuildings(const QJsonObject &building) {
   ObjectsStorage::AddBuilding(building_ptr);
 }
 
-void ObjectsLoader::LoadUnits(const QJsonObject &unit) {
+void ObjectsLoader::LoadUnits(const QJsonObject& unit) {
   QString caption = unit.value("caption").toString();
   int32_t power = unit.value("power").toInt();
   Resources cost(unit.value("batteries_cost").toInt(),
