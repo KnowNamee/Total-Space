@@ -12,7 +12,7 @@ class PlayerBase {
 public:
   PlayerBase() = default;
 
-  explicit PlayerBase(const std::shared_ptr<Planet> &planet);
+  explicit PlayerBase(const std::shared_ptr<Planet>& planet);
 
   const Resources& GetResources() const;
   int32_t GetTools() const;
@@ -20,10 +20,10 @@ public:
 
   void UpdateResources();
 
-  void AddPlanet(std::shared_ptr<Planet> planet);
+  void AddPlanet(const std::shared_ptr<Planet>& planet);
 
-  const QVector<std::shared_ptr<Planet>> &Planets() const;
-  const QVector<std::shared_ptr<Unit>> &Units() const;
+  const QVector<std::shared_ptr<Planet>>& Planets() const;
+  const QVector<std::shared_ptr<Unit>>& Units() const;
 
 protected:
   Resources resources_;

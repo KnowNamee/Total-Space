@@ -34,7 +34,6 @@ void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   // rect.setY(y() / view->matrix().m11());
   //  rect.setY(center.y() - view->rect().height() / (30 *
   //  view->matrix().m11()));
-
   painter->fillRect(rect, QColor(Qt::red));
   painter->drawText(rect, str_);
   Q_UNUSED(option)

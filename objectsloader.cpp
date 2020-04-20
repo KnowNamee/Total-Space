@@ -43,7 +43,7 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   }
 }
 
-void ObjectsLoader::LoadEconomicBuildings(const QJsonObject& building) {
+void ObjectsLoader::LoadEconomicBuilding(const QJsonObject& building) {
   QString caption = building.value("caption").toString();
   QString type = building.value("type").toString();
   Resources cost(building.value("batteries_cost").toInt(),

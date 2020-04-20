@@ -10,6 +10,6 @@ EconomicBuilding::EconomicBuilding(const QString &caption, const QString &type,
       income_(income),
       keeping_(keeping) {}
 
-const QString &EconomicBuilding::GetCaption() const { return caption_; }
+const QString& EconomicBuilding::GetCaption() const { return caption_; }
 
 WarBuilding::WarBuilding() {}

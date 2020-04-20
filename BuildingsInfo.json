@@ -19,6 +19,16 @@
             "tools_income": 200,
             "keeping_batteries": 13,
             "keeping_tools": 1
-          }
+          },
+        "battery factory": {
+            "caption": "Battery Factory",
+            "type": "batteries",
+            "batteries_cost": 300,
+            "tools_cost": 2300,
+            "batteries_income": 200,
+            "tools_income": 0,
+            "keeping_batteries": 1,
+            "keeping_tools": 13
+        }
     }
 }
