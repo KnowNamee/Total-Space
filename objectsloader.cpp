@@ -9,7 +9,7 @@
 #include "building.h"
 #include "objectsstorage.h"
 
-void ObjectsLoader::LoadDataFromFile(const QString &file_name) {
+void ObjectsLoader::LoadDataFromFile(const QString& file_name) {
   QFile file(file_name);
   file.open(QIODevice::ReadOnly);
   QJsonParseError error;
@@ -20,12 +20,12 @@ void ObjectsLoader::LoadDataFromFile(const QString &file_name) {
   LoadDataFromJson(document);
 }
 
-void ObjectsLoader::LoadDataFromJson(const QJsonDocument &document) {
+void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   Q_ASSERT(document.isObject());
   auto root_object = document.object();
 
   // TODO добавить другие функции обработки
-  std::vector<std::function<void(const QJsonObject &)>> functions_to_apply = {
+  std::vector<std::function<void(const QJsonObject&)>> functions_to_apply = {
       LoadEconomicBuilding};
 
   size_t function_type = 0;
@@ -42,7 +42,7 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument &document) {
   }
 }
 
-void ObjectsLoader::LoadEconomicBuilding(const QJsonObject &building) {
+void ObjectsLoader::LoadEconomicBuilding(const QJsonObject& building) {
   QString caption = building.value("caption").toString();
   QString type = building.value("type").toString();
   Resources cost(building.value("batteries_cost").toInt(),
