@@ -1,4 +1,5 @@
 #include "planet.h"
+
 #include "building.h"
 
 Planet::Planet(QPointF coordinates, double radius)
@@ -8,14 +9,17 @@ void Planet::SetOwner(const std::shared_ptr<PlayerBase> &owner) {
   owner_ = owner;
 }
 
-void Planet::Build(std::shared_ptr<Building> building_ptr) {
-  buildings_.push_back(building_ptr);
-  income_.tools += building_ptr->GetToolsIncome();
-  income_.batteries += building_ptr->GetBatteriesIncome();
-}
+const Resources &Planet::GetIncome() const { return income_; }
 
-int64_t Planet::GetToolsIncome() const { return income_.tools; }
-int64_t Planet::GetBatteriesIncome() const { return income_.batteries; }
+// TODO
+// void Planet::Build(std::shared_ptr<Building> building_ptr) {
+//  buildings_.push_back(building_ptr);
+//  income_.tools += building_ptr->GetToolsIncome();
+//  income_.batteries += building_ptr->GetBatteriesIncome();
+//}
+
+int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
+int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 
 QPointF Planet::Coordinates() const { return coordinates_; }
 

@@ -1,0 +1,34 @@
+{
+    "economic": {
+        "forge": {
+            "caption": "Forge",
+            "type": "tools",
+            "batteries_cost": 1000,
+            "tools_cost": 150,
+            "batteries_income": 0,
+            "tools_income": 100,
+            "keeping_batteries": 10,
+            "keeping_tools": 0
+          },
+        "workshop": {
+            "caption": "Workshop",
+            "type": "tools",
+            "batteries_cost": 2300,
+            "tools_cost": 300,
+            "batteries_income": 0,
+            "tools_income": 200,
+            "keeping_batteries": 13,
+            "keeping_tools": 1
+          },
+        "battery factory": {
+            "caption": "Battery Factory",
+            "type": "batteries",
+            "batteries_cost": 300,
+            "tools_cost": 2300,
+            "batteries_income": 200,
+            "tools_income": 0,
+            "keeping_batteries": 1,
+            "keeping_tools": 13
+        }
+    }
+}

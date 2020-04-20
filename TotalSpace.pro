@@ -35,6 +35,8 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
+        objectsloader.cpp \
+        objectsstorage.cpp \
         planet.cpp \
         planetgraphics.cpp \
         player.cpp \
@@ -52,14 +54,16 @@ HEADERS += \
         loader.h \
         mainwindow.h \
         menu.h \
+        objectsloader.h \
+        objectsstorage.h \
         planet.h \
         planetgraphics.h \
         player.h \
         playerbase.h \
-        resources.h \
         unit.h \
         statemachine.h \
-        typeoffset.h
+        typeoffset.h \
+        utility.h
         
 FORMS += \
         mainwindow.ui
@@ -70,4 +74,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    objectsdata.qrc
     img.qrc

@@ -1,7 +1,7 @@
 #ifndef PLAYERBASE_H
 #define PLAYERBASE_H
 
-#include "resources.h"
+#include "utility.h"
 #include <QObject>
 #include <memory>
 
@@ -12,17 +12,18 @@ class PlayerBase {
 public:
   PlayerBase() = default;
 
-  explicit PlayerBase(const std::shared_ptr<Planet> &planet);
+  explicit PlayerBase(const std::shared_ptr<Planet>& planet);
 
-  int64_t Tools() const;
-  int64_t Batteries() const;
+  const Resources& GetResources() const;
+  int32_t GetTools() const;
+  int32_t GetBatteries() const;
 
   void UpdateResources();
 
-  void AddPlanet(std::shared_ptr<Planet> planet);
+  void AddPlanet(const std::shared_ptr<Planet>& planet);
 
-  const QVector<std::shared_ptr<Planet>> &Planets() const;
-  const QVector<std::shared_ptr<Unit>> &Units() const;
+  const QVector<std::shared_ptr<Planet>>& Planets() const;
+  const QVector<std::shared_ptr<Unit>>& Units() const;
 
 protected:
   Resources resources_;
