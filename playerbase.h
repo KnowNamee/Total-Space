@@ -1,7 +1,7 @@
 #ifndef PLAYERBASE_H
 #define PLAYERBASE_H
 
-#include "utility.h"
+#include "util/utility.h"
 #include <QObject>
 #include <memory>
 

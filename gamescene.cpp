@@ -14,7 +14,7 @@
 #include "loader.h"
 #include "planet.h"
 #include "player.h"
-#include "statemachine.h"
+#include "core/statemachine.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
   //  SetSceneSettings();

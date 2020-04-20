@@ -46,8 +46,9 @@ SOURCES += \
 
 HEADERS += \
         building.h \
+    core/eventhandling.h \
+    core/statemachine.h \
         drawer.h \
-        eventhandling.h \
         gamescene.h \
         gameview.h \
         imageitem.h \
@@ -61,10 +62,9 @@ HEADERS += \
         player.h \
         playerbase.h \
         unit.h \
-        statemachine.h \
-        typeoffset.h \
-        utility.h
-        
+         \
+    util/typeoffset.h \
+        util/utility.h
 FORMS += \
         mainwindow.ui
 
@@ -74,5 +74,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    img.qrc \
     objectsdata.qrc
-    img.qrc

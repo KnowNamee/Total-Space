@@ -4,7 +4,7 @@
 #include <QObject>
 #include <memory>
 
-#include "utility.h"
+#include "util/utility.h"
 
 class EconomicBuilding : public QObject {
   Q_OBJECT

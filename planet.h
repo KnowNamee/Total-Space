@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "playerbase.h"
-#include "utility.h"
+#include "util/utility.h"
 
 class Building;
 class Unit;

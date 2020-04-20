@@ -7,7 +7,7 @@
 
 #include "gameview.h"
 #include "loader.h"
-#include "statemachine.h"
+#include "core/statemachine.h"
 
 ImageItem::ImageItem(const QPixmap *image, int width, int height)
     : image_(image), size_(QSize(width, height)) {}

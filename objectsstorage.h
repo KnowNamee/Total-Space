@@ -5,7 +5,7 @@
 #include <map>
 #include <memory>
 
-#include "utility.h"
+#include "util/utility.h"
 
 class EconomicBuilding;
 class WarBuilding;

@@ -10,7 +10,7 @@
 #include "gameview.h"
 #include "loader.h"
 #include "menu.h"
-#include "statemachine.h"
+#include "core/statemachine.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)

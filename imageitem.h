@@ -4,7 +4,7 @@
 #include <QGraphicsItem>
 
 #include "memory"
-#include "typeoffset.h"
+#include "util/typeoffset.h"
 
 class ImageItem : public QGraphicsItem {
   Q_INTERFACES()

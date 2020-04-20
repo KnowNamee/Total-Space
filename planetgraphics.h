@@ -5,7 +5,7 @@
 #include <QObject>
 #include <memory>
 
-#include "typeoffset.h"
+#include "util/typeoffset.h"
 
 class Planet;
 class GameView;

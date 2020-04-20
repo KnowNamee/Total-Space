@@ -12,7 +12,7 @@
 #include "loader.h"
 #include "mainwindow.h"
 #include "planet.h"
-#include "statemachine.h"
+#include "core/statemachine.h"
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));

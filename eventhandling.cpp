@@ -1,4 +1,4 @@
-#include "eventhandling.h"
+#include "core/eventhandling.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -16,7 +16,7 @@
 #include "mainwindow.h"
 #include "menu.h"
 #include "planetgraphics.h"
-#include "statemachine.h"
+#include "core/statemachine.h"
 
 const int EventHandler::View::kMoveZone = 32;
 

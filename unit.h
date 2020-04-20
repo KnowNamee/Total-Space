@@ -1,7 +1,7 @@
 #ifndef UNIT_H
 #define UNIT_H
 
-#include "utility.h"
+#include "util/utility.h"
 #include <QObject>
 #include <QString>
 

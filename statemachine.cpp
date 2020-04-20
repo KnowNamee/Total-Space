@@ -1,4 +1,4 @@
-#include "statemachine.h"
+#include "core/statemachine.h"
 
 #include "gamescene.h"
 #include "gameview.h"
@@ -27,6 +27,7 @@ void StateMachine::StartGame() {
     RemoveMainMenu();
   }
   SetState(StateGame);
+  view->SetNewGameSettings();
   scene->NewGame();
 }
 

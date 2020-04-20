@@ -3,7 +3,7 @@
 
 #include <QGraphicsItem>
 
-#include "eventhandling.h"
+#include "core/eventhandling.h"
 
 class ImageItem;
 class GameScene;
