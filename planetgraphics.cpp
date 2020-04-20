@@ -1,21 +1,23 @@
 #include "planetgraphics.h"
 
+#include <QDebug>
 #include <QPainter>
+#include <QRandomGenerator>
 
 #include "gameview.h"
+#include "loader.h"
 #include "planet.h"
 
 PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet,
                                GameView *view)
-    : planet_(planet), view_(view) {}
-
-int PlanetGraphics::type() const {
-    return Type;
+    : planet_(planet), view_(view) {
+  planet_image_ =
+      Loader::GetPlanetImage(QRandomGenerator::global()->generate() % 3);
 }
 
-Planet* PlanetGraphics::GetPlanet() {
-    return planet_.get();
-}
+int PlanetGraphics::type() const { return Type; }
+
+Planet *PlanetGraphics::GetPlanet() { return planet_.get(); }
 
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->Coordinates().x() - planet_->Radius(),
@@ -26,10 +28,13 @@ QRectF PlanetGraphics::boundingRect() const {
 void PlanetGraphics::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *option,
                            QWidget *widget) {
-  painter->setBrush(Qt::green);
-  painter->drawEllipse(QRectF(planet_->Coordinates().x() - planet_->Radius(),
-                              planet_->Coordinates().y() - planet_->Radius(),
-                              2 * planet_->Radius(), 2 * planet_->Radius()));
+  painter->drawPixmap(
+      static_cast<int>(planet_->Coordinates().x() - planet_->Radius()),
+      static_cast<int>(planet_->Coordinates().y() - planet_->Radius()),
+      static_cast<int>(2 * planet_->Radius()),
+      static_cast<int>(2 * planet_->Radius()), *planet_image_, 0, 0, 1000,
+      1000);
+
   Q_UNUSED(widget)
   Q_UNUSED(option)
 }

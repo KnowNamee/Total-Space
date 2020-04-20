@@ -8,6 +8,7 @@
 #include "objectsloader.h"
 #include "gamescene.h"
 #include "gameview.h"
+#include "loader.h"
 #include "menu.h"
 #include "statemachine.h"
 #include "ui_mainwindow.h"
@@ -17,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   delete ui->mainToolBar;
   showFullScreen();
+  Loader::LoadAll();
 
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();

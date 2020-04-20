@@ -10,7 +10,8 @@
 #include <QTimer>
 #include <cmath>
 
-#include "button.h"
+
+#include "imageitem.h"
 #include "gameview.h"
 #include "mainwindow.h"
 #include "menu.h"
@@ -70,8 +71,10 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
 
   if (state == StateMachine::StateMainMenu) {
     MainMenu *menu = StateMachine::main_menu;
-    if (item->type() == Button::Type) {
-      Button *b = dynamic_cast<Button *>(item);
+
+    if (item->type() == ImageItem::Type) {
+      ImageItem *b = dynamic_cast<ImageItem *>(item);
+
       if (b == menu->btn_exit_) {
         emit menu->btnExitClick();
       } else if (b == menu->btn_new_game_) {
@@ -80,8 +83,10 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
     }
   } else if (state == StateMachine::StatePauseMenu) {
     PauseMenu *menu = StateMachine::pause_menu;
-    if (item->type() == Button::Type) {
-      Button *b = dynamic_cast<Button *>(item);
+
+    if (item->type() == ImageItem::Type) {
+      ImageItem *b = dynamic_cast<ImageItem *>(item);
+
       if (b == menu->btn_exit_) {
         emit menu->btnExitClick();
       } else if (b == menu->btn_back_) {
@@ -90,8 +95,10 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
     }
   } else if (state == StateMachine::StatePlanetMenu) {
     PlanetMenu *menu = StateMachine::planet_menu;
-    if (item->type() == Button::Type) {
-      Button *b = dynamic_cast<Button *>(item);
+
+    if (item->type() == ImageItem::Type) {
+      ImageItem *b = dynamic_cast<ImageItem *>(item);
+      
       if (b == menu->btn1_) {
         emit menu->btn1Click();
       } else if (b == menu->btn2_) {

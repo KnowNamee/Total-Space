@@ -1,12 +1,15 @@
 #include "menu.h"
 
+#include <QApplication>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QScreen>
 
-#include "button.h"
 #include "gamescene.h"
 #include "gameview.h"
+#include "imageitem.h"
+#include "loader.h"
 #include "mainwindow.h"
 #include "planet.h"
 #include "statemachine.h"
@@ -25,9 +28,23 @@ MainMenu::~MainMenu() {
 }
 
 void MainMenu::Draw() {
-  txt_total_space_ = new Button("Total Space");
-  btn_exit_ = new Button("Exit");
-  btn_new_game_ = new Button("New game");
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  GameView* view = StateMachine::view;
+
+  btn_exit_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
+                    static_cast<int>(width / (5 * view->matrix().m11())),
+                    static_cast<int>(height / (12 * view->matrix().m11())));
+  btn_new_game_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kNewGameButton),
+                    static_cast<int>(width / (5 * view->matrix().m11())),
+                    static_cast<int>(height / (12 * view->matrix().m11())));
+  txt_total_space_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
+                    static_cast<int>(width / view->matrix().m11()),
+                    static_cast<int>(height / view->matrix().m11()));
 
   StateMachine::scene->addItem(txt_total_space_);
   StateMachine::scene->addItem(btn_exit_);
@@ -35,11 +52,9 @@ void MainMenu::Draw() {
 
   QPointF cp = StateMachine::view->sceneRect().center() / 2;
 
-  GameView* view = StateMachine::view;
-
-  txt_total_space_->setPos(cp - QPoint(100, 0) / view->matrix().m11());
-  btn_exit_->setPos(cp - QPoint(200, 0) / view->matrix().m11());
-  btn_new_game_->setPos(cp - QPoint(300, 0) / view->matrix().m11());
+  btn_new_game_->setPos(cp - QPoint(0, height / 49) / view->matrix().m11());
+  btn_exit_->setPos(cp + QPoint(0, height / 28) / view->matrix().m11());
+  txt_total_space_->setPos(cp);
 }
 
 PauseMenu::PauseMenu() {
@@ -57,8 +72,10 @@ PauseMenu::~PauseMenu() {
 }
 
 void PauseMenu::Draw() {
-  GameView* view = StateMachine::view;
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
 
+  GameView* view = StateMachine::view;
   QPointF center =
       view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
 
@@ -73,17 +90,26 @@ void PauseMenu::Draw() {
   background_rect_->setOpacity(0.7);
   background_rect_->setBrush(QColor(Qt::black));
 
-  btn_back_ = new Button("Back");
-  btn_exit_ = new Button("Exit");
+  btn_back_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackToGameButton),
+                    static_cast<int>(width / (5 * view->matrix().m11())),
+                    static_cast<int>(height / (12 * view->matrix().m11())));
+  btn_exit_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
+                    static_cast<int>(width / (5 * view->matrix().m11())),
+                    static_cast<int>(height / (12 * view->matrix().m11())));
 
   StateMachine::scene->addItem(background_rect_);
   StateMachine::scene->addItem(btn_back_);
   StateMachine::scene->addItem(btn_exit_);
 
   btn_back_->setPos(view->sceneRect().center() / 2 -
-                    QPoint(100, 0) / view->matrix().m11());
-  btn_exit_->setPos(view->sceneRect().center() / 2 -
-                    QPoint(0, 100) / view->matrix().m11());
+                    QPoint(0, static_cast<int>(height / 14)) /
+                        view->matrix().m11());
+  btn_exit_->setPos(btn_back_->pos() +
+                    QPoint(0, static_cast<int>(height / 18)) /
+                        view->matrix().m11());
+
 }
 
 PlanetMenu::PlanetMenu() {
@@ -103,9 +129,15 @@ PlanetMenu::~PlanetMenu() {
 }
 
 void PlanetMenu::Draw() {
-  btn1_ = new Button("btn1");
-  btn2_ = new Button("btn2");
-  btn3_ = new Button("btn3");
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                        width / 12, height / 15);
+  btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                        width / 12, height / 15);
+  btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                        width / 12, height / 15);
 
   StateMachine::scene->addItem(btn1_);
   StateMachine::scene->addItem(btn2_);
@@ -122,8 +154,9 @@ void PlanetMenu::Draw() {
   btn2_->setPos(p->Coordinates() + vec2);
   btn3_->setPos(p->Coordinates() + vec3);
 
-  btn2_->setX(btn2_->x() - 35);    // 35 - 1/2 of button width
-  btn1_->setX(btn1_->x() - 17.5);  // 35 - 1/2 of button width
+  btn1_->setY(btn1_->y() - radius_ / 48);
+  btn2_->setX(btn2_->x() + radius_ / 48);
+  btn3_->setX(btn3_->x() - radius_ / 48);
 }
 
 void PlanetMenu::Hide() {

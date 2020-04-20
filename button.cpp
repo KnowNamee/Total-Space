@@ -13,6 +13,7 @@ int Button::type() const { return Type; }
 
 QRectF Button::boundingRect() const {
   // TODO возврат относительно размера png
+
   if (StateMachine::State() == StateMachine::StatePlanetMenu) {
     return QRectF(pos(), QSize(70, 15));
   }
@@ -22,6 +23,7 @@ QRectF Button::boundingRect() const {
 void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                    QWidget *widget) {
   QRectF rect = boundingRect();
+
   //  GameView *view = StateMachine::view;
 
   //  rect.setSize(rect.size() / view->matrix().m11());
