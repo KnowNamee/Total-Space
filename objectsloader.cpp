@@ -8,6 +8,7 @@
 
 #include "building.h"
 #include "objectsstorage.h"
+#include "unit.h"
 
 void ObjectsLoader::LoadDataFromFile(const QString& file_name) {
   QFile file(file_name);
@@ -25,8 +26,8 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   auto root_object = document.object();
 
   // TODO добавить другие функции обработки
-  std::vector<std::function<void(const QJsonObject&)>> functions_to_apply = {
-      LoadEconomicBuilding};
+  std::vector<std::function<void(const QJsonObject &)>> functions_to_apply = {
+      LoadEconomicBuildings, LoadUnits};
 
   size_t function_type = 0;
   for (auto type_it = root_object.begin(); type_it != root_object.end();
@@ -54,4 +55,13 @@ void ObjectsLoader::LoadEconomicBuilding(const QJsonObject& building) {
   EconomicBuilding *building_ptr =
       new EconomicBuilding(caption, type, cost, income, keeping);
   ObjectsStorage::AddBuilding(building_ptr);
+}
+
+void ObjectsLoader::LoadUnits(const QJsonObject& unit) {
+  QString caption = unit.value("caption").toString();
+  int32_t power = unit.value("power").toInt();
+  Resources cost(unit.value("batteries_cost").toInt(),
+                 unit.value("tools_cost").toInt());
+  Unit *unit_ptr = new Unit(caption, power, cost);
+  ObjectsStorage::AddUnit(unit_ptr);
 }
