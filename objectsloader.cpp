@@ -27,7 +27,7 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
 
   // TODO добавить другие функции обработки
   std::vector<std::function<void(const QJsonObject &)>> functions_to_apply = {
-      LoadEconomicBuildings, LoadUnits};
+      LoadEconomicBuilding, LoadUnits};
 
   size_t function_type = 0;
   for (auto type_it = root_object.begin(); type_it != root_object.end();

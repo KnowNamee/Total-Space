@@ -13,7 +13,7 @@ public:
 
 private:
   static void LoadDataFromJson(const QJsonDocument& document);
-  static void LoadEconomicBuildings(const QJsonObject& building);
+  static void LoadEconomicBuilding(const QJsonObject& building);
   static void LoadUnits(const QJsonObject& unit);
 };
 
