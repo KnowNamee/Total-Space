@@ -17,7 +17,6 @@
 #include "core/statemachine.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
-  //  SetSceneSettings();
   drawer_ = std::make_shared<Drawer>(this);
 }
 
