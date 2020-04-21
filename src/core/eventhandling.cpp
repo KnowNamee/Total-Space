@@ -11,11 +11,11 @@
 #include <cmath>
 
 
-#include "imageitem.h"
-#include "gameview.h"
+#include "graphics/imageitem.h"
+#include "scene/gameview.h"
 #include "mainwindow.h"
 #include "menu.h"
-#include "planetgraphics.h"
+#include "graphics/planetgraphics.h"
 #include "core/statemachine.h"
 
 const int EventHandler::View::kMoveZone = 32;

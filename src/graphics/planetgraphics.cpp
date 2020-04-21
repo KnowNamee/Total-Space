@@ -1,12 +1,12 @@
-#include "planetgraphics.h"
+#include "graphics/planetgraphics.h"
 
 #include <QDebug>
 #include <QPainter>
 #include <QRandomGenerator>
 
-#include "gameview.h"
-#include "loader.h"
-#include "planet.h"
+#include "scene/gameview.h"
+#include "data/loader.h"
+#include "objects/planet.h"
 
 PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet> &planet,
                                GameView *view)

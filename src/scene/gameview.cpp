@@ -1,9 +1,9 @@
-#include "gameview.h"
+#include "scene/gameview.h"
 
 #include <QDebug>
 
 #include "core/eventhandling.h"
-#include "gamescene.h"
+#include "scene/gamescene.h"
 
 GameView::GameView(GameScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent) {

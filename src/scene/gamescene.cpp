@@ -1,4 +1,4 @@
-#include "gamescene.h"
+#include "scene/gamescene.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -10,10 +10,10 @@
 #include <functional>
 #include <memory>
 
-#include "drawer.h"
-#include "loader.h"
-#include "planet.h"
-#include "player.h"
+#include "graphics/drawer.h"
+#include "data/loader.h"
+#include "objects/planet.h"
+#include "objects/player.h"
 #include "core/statemachine.h"
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {

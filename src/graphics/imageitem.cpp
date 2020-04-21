@@ -1,12 +1,12 @@
-#include "imageitem.h"
+#include "graphics/imageitem.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QPainter>
 #include <QScreen>
 
-#include "gameview.h"
-#include "loader.h"
+#include "scene/gameview.h"
+#include "data/loader.h"
 #include "core/statemachine.h"
 
 ImageItem::ImageItem(const QPixmap *image, int width, int height)

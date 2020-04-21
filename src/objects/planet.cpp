@@ -1,6 +1,6 @@
-#include "planet.h"
+#include "objects/planet.h"
 
-#include "building.h"
+#include "objects/building.h"
 
 Planet::Planet(QPointF coordinates, double radius)
     : coordinates_(coordinates), radius_(radius) {}

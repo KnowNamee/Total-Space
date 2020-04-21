@@ -1,7 +1,7 @@
 #include "core/statemachine.h"
 
-#include "gamescene.h"
-#include "gameview.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 #include "mainwindow.h"
 #include "menu.h"
 

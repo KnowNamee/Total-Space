@@ -25,43 +25,43 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++17
 
 SOURCES += \
-        building.cpp \
         core/eventhandling.cpp \
-        drawer.cpp \
-        gamescene.cpp \
-        gameview.cpp \
-        imageitem.cpp \
-        loader.cpp \
+        core/statemachine.cpp \
+        data/loader.cpp \
+        data/objectsloader.cpp \
+        data/objectsstorage.cpp \
+        graphics/drawer.cpp \
+        graphics/imageitem.cpp \
+        graphics/planetgraphics.cpp \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
-        objectsloader.cpp \
-        objectsstorage.cpp \
-        planet.cpp \
-        planetgraphics.cpp \
-        player.cpp \
-        playerbase.cpp \
-        statemachine.cpp \
-        unit.cpp
+        objects/building.cpp \
+        objects/planet.cpp \
+        objects/player.cpp \
+        objects/playerbase.cpp \
+        objects/unit.cpp \
+        scene/gamescene.cpp \
+        scene/gameview.cpp
 
 HEADERS += \
-        building.h \
     core/eventhandling.h \
     core/statemachine.h \
+    data/loader.h \
     data/objectsloader.h \
     data/objectsstorage.h \
-        drawer.h \
-        gamescene.h \
-        gameview.h \
-        imageitem.h \
-        loader.h \
+    graphics/drawer.h \
+    graphics/imageitem.h \
+    graphics/planetgraphics.h \
         mainwindow.h \
         menu.h \
-        planet.h \
-        planetgraphics.h \
-        player.h \
-        playerbase.h \
-        unit.h \
+    objects/building.h \
+    objects/planet.h \
+    objects/player.h \
+    objects/playerbase.h \
+    objects/unit.h \
+    scene/gamescene.h \
+    scene/gameview.h \
          \
     util/typeoffset.h \
         util/utility.h
@@ -74,5 +74,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    ../img.qrc \
-    ../objectsdata.qrc \
+    ../data/objectsdata.qrc \
+    ../img/img.qrc \

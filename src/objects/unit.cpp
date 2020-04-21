@@ -1,4 +1,4 @@
-#include "unit.h"
+#include "objects/unit.h"
 #include "util/utility.h"
 
 Unit::Unit(const QString& caption, const int32_t& power, const Resources& cost)

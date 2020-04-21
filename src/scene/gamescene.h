@@ -6,7 +6,7 @@
 #include <QObject>
 #include <memory>
 
-#include "imageitem.h"
+#include "graphics/imageitem.h"
 
 class Drawer;
 class Player;

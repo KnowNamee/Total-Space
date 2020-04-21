@@ -1,4 +1,4 @@
-#include "building.h"
+#include "objects/building.h"
 
 EconomicBuilding::EconomicBuilding(const QString &caption, const QString &type,
                                    const Resources &cost,

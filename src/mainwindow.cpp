@@ -5,10 +5,10 @@
 #include <QGraphicsView>
 #include <QScreen>
 
-#include "objectsloader.h"
-#include "gamescene.h"
-#include "gameview.h"
-#include "loader.h"
+#include "data/objectsloader.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
+#include "data/loader.h"
 #include "menu.h"
 #include "core/statemachine.h"
 #include "ui_mainwindow.h"

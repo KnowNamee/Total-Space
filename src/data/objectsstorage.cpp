@@ -1,9 +1,9 @@
-#include "objectsstorage.h"
+#include "data/objectsstorage.h"
 
 #include <QString>
 
-#include "building.h"
-#include "unit.h"
+#include "objects/building.h"
+#include "objects/unit.h"
 
 const std::map<QString, EconomicBuildingType>
     ObjectsStorage::economic_caption_to_type_ = {

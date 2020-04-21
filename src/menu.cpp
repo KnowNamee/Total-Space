@@ -6,12 +6,12 @@
 #include <QGraphicsView>
 #include <QScreen>
 
-#include "gamescene.h"
-#include "gameview.h"
-#include "imageitem.h"
-#include "loader.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
+#include "graphics/imageitem.h"
+#include "data/loader.h"
 #include "mainwindow.h"
-#include "planet.h"
+#include "objects/planet.h"
 #include "core/statemachine.h"
 
 MainMenu::MainMenu() {

@@ -1,9 +1,9 @@
-#include "drawer.h"
+#include "graphics/drawer.h"
 
-#include "gamescene.h"
-#include "gameview.h"
-#include "planet.h"
-#include "planetgraphics.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
+#include "objects/planet.h"
+#include "graphics/planetgraphics.h"
 
 Drawer::Drawer(GameScene *game_scene) : QObject(), game_scene_(game_scene) {}
 

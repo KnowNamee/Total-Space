@@ -1,4 +1,4 @@
-#include "objectsloader.h"
+#include "data/objectsloader.h"
 
 #include <QDebug>
 #include <QFile>
@@ -6,9 +6,9 @@
 #include <QJsonObject>
 #include <QString>
 
-#include "building.h"
-#include "objectsstorage.h"
-#include "unit.h"
+#include "objects/building.h"
+#include "data/objectsstorage.h"
+#include "objects/unit.h"
 
 void ObjectsLoader::LoadDataFromFile(const QString& file_name) {
   QFile file(file_name);
