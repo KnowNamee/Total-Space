@@ -28,8 +28,6 @@ std::map<UnitType, const Unit*> ObjectsStorage::type_to_unit_;
 void ObjectsStorage::AddBuilding(const Building* building_ptr) {
   type_to_building_[ObjectsStorage::building_caption_to_type_.at(
       building_ptr->GetCaption())] = building_ptr;
-  std::map<BuildingType, const Building*> map = type_to_building_;
-  int l = 0;
 }
 
 void ObjectsStorage::AddUnit(const Unit* unit) {
