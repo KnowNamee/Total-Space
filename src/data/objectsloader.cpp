@@ -2,12 +2,13 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
 
-#include "objects/building.h"
 #include "data/objectsstorage.h"
+#include "objects/building.h"
 #include "objects/unit.h"
 
 void ObjectsLoader::LoadDataFromFile(const QString& file_name) {
@@ -26,8 +27,8 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   auto root_object = document.object();
 
   // TODO добавить другие функции обработки
-  std::vector<std::function<void(const QJsonObject &)>> functions_to_apply = {
-      LoadEconomicBuilding, LoadUnits};
+  std::vector<std::function<void(const QJsonObject&)>> functions_to_apply = {
+      LoadBuilding, LoadUnits};
 
   size_t function_type = 0;
   for (auto type_it = root_object.begin(); type_it != root_object.end();
@@ -43,17 +44,27 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
   }
 }
 
-void ObjectsLoader::LoadEconomicBuilding(const QJsonObject& building) {
+void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
   QString caption = building.value("caption").toString();
+  QString unit_caption = building.value("unit").toString();
   QString type = building.value("type").toString();
+
+  QVector<BuildingType> upgrades_vector;
+  QJsonArray upgrades = building.value("upgrades").toArray();
+  foreach (QJsonValue upgrade, upgrades) {
+    upgrades_vector.push_back(
+        ObjectsStorage::GetBuildingType(upgrade.toString()));
+  }
+
   Resources cost(building.value("batteries_cost").toInt(),
                  building.value("tools_cost").toInt());
   Resources income(building.value("batteries_income").toInt(),
                    building.value("tools_income").toInt());
-  Resources keeping(building.value("keeping_batteries").toInt(),
-                    building.value("keeping_tools").toInt());
-  EconomicBuilding *building_ptr =
-      new EconomicBuilding(caption, type, cost, income, keeping);
+
+  Building* building_ptr =
+      new Building(caption, type, upgrades_vector,
+                   ObjectsStorage::GetUnitType(unit_caption), cost, income);
+
   ObjectsStorage::AddBuilding(building_ptr);
 }
 
@@ -62,6 +73,6 @@ void ObjectsLoader::LoadUnits(const QJsonObject& unit) {
   int32_t power = unit.value("power").toInt();
   Resources cost(unit.value("batteries_cost").toInt(),
                  unit.value("tools_cost").toInt());
-  Unit *unit_ptr = new Unit(caption, power, cost);
+  Unit* unit_ptr = new Unit(caption, power, cost);
   ObjectsStorage::AddUnit(unit_ptr);
 }

@@ -5,35 +5,46 @@
 #include "objects/building.h"
 #include "objects/unit.h"
 
-const std::map<QString, EconomicBuildingType>
-    ObjectsStorage::economic_caption_to_type_ = {
-       std::make_pair("Forge", EconomicBuildingType::kForge),
-       std::make_pair("Workshop", EconomicBuildingType::kWorkshop),
-       std::make_pair("Battery Factory", EconomicBuildingType::kBatteryFactory)};
-
-const std::map<QString, WarBuildingType> ObjectsStorage::war_caption_to_type_;
+const std::map<QString, BuildingType>
+    ObjectsStorage::building_caption_to_type_ = {
+        std::make_pair("Forge", BuildingType::kForge),
+        std::make_pair("Workshop", BuildingType::kWorkshop),
+        std::make_pair("Battery Factory", BuildingType::kBatteryFactory),
+        std::make_pair("Assembly Shop", BuildingType::kAssemblyShop),
+        std::make_pair("Electronics", BuildingType::kElectronics),
+        std::make_pair("Robots Line", BuildingType::kRobotsLine)};
 
 const std::map<QString, UnitType> ObjectsStorage::unit_caption_to_type_ = {
+    std::make_pair("No Unit", UnitType::kNoUnit),
     std::make_pair("Rover", UnitType::kRover),
     std::make_pair("Falcon", UnitType::kFalcon),
     std::make_pair("Marine", UnitType::kMarine),
-    std::make_pair("Ranger", UnitType::kRanger)};
+    std::make_pair("Ranger", UnitType::kRanger),
+    std::make_pair("Droid", UnitType::kDroid)};
 
-std::map<WarBuildingType, const WarBuilding*>
-                                          ObjectsStorage::type_to_war_building_;
-std::map<EconomicBuildingType, const EconomicBuilding*>
-                                     ObjectsStorage::type_to_economic_building_;
+std::map<BuildingType, const Building*> ObjectsStorage::type_to_building_;
 std::map<UnitType, const Unit*> ObjectsStorage::type_to_unit_;
 
-void ObjectsStorage::AddBuilding(const EconomicBuilding* building_ptr) {
-  type_to_economic_building_
-    [ObjectsStorage::economic_caption_to_type_.at(building_ptr->GetCaption())]
-          = building_ptr;
+void ObjectsStorage::AddBuilding(const Building* building_ptr) {
+  type_to_building_[ObjectsStorage::building_caption_to_type_.at(
+      building_ptr->GetCaption())] = building_ptr;
+  std::map<BuildingType, const Building*> map = type_to_building_;
+  int l = 0;
 }
 
-void ObjectsStorage::AddBuilding(const WarBuilding* building_ptr) {}
-
 void ObjectsStorage::AddUnit(const Unit* unit) {
-  type_to_unit_
-    [ObjectsStorage::unit_caption_to_type_.at(unit->GetCaption())] = unit;
+  type_to_unit_[ObjectsStorage::unit_caption_to_type_.at(unit->GetCaption())] =
+      unit;
+}
+
+const Resources& ObjectsStorage::GetIncome(BuildingType building) {
+  return type_to_building_.at(building)->GetIncome();
+}
+
+UnitType ObjectsStorage::GetUnitType(const QString& caption) {
+  return unit_caption_to_type_.at(caption);
+}
+
+BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
+  return building_caption_to_type_.at(caption);
 }

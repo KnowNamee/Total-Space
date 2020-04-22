@@ -22,14 +22,14 @@ public:
 
   void AddPlanet(const std::shared_ptr<Planet>& planet);
 
-  const QVector<std::shared_ptr<Planet>>& Planets() const;
-  const QVector<std::shared_ptr<Unit>>& Units() const;
+  const QVector<std::shared_ptr<Planet>>& GetPlanets() const;
+  int64_t GetArmyPower() const;
 
-protected:
+private:
   Resources resources_;
+  int64_t army_power_;
 
-  QVector<std::shared_ptr<Planet>> planets_;
-  QVector<std::shared_ptr<Unit>> units_;
+  QVector<std::shared_ptr<Planet>> planets_; 
 };
 
 #endif // PLAYERBASE_H

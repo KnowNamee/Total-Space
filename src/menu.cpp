@@ -145,14 +145,14 @@ void PlanetMenu::Draw() {
 
   // TODO определить зависимость множителя от радиуса планеты
   Planet* p = StateMachine::GetActivePlanet();
-  radius_ = -(p->Radius() * 1.3 / 2);
+  radius_ = -(p->GetRadius() * 1.3 / 2);
   QPointF vec1(0, radius_);
   QPointF vec2(vec1 * QTransform().rotate(60));
   QPointF vec3(vec1 * QTransform().rotate(-60));
 
-  btn1_->setPos(p->Coordinates() + vec1);
-  btn2_->setPos(p->Coordinates() + vec2);
-  btn3_->setPos(p->Coordinates() + vec3);
+  btn1_->setPos(p->GetCoordinates() + vec1);
+  btn2_->setPos(p->GetCoordinates() + vec2);
+  btn3_->setPos(p->GetCoordinates() + vec3);
 
   btn1_->setY(btn1_->y() - radius_ / 48);
   btn2_->setX(btn2_->x() + radius_ / 48);
