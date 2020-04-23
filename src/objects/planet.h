@@ -28,6 +28,8 @@ public:
   QPointF GetCoordinates() const;
   double GetRadius() const;
 
+  const QVector<BuildingType>& GetBuildings() const;
+
 private:
   Resources income_;
   std::shared_ptr<PlayerBase> owner_;

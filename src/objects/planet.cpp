@@ -26,3 +26,7 @@ int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
 
 double Planet::GetRadius() const { return radius_; }
+
+const QVector<BuildingType>& Planet::GetBuildings() const {
+  return buildings_;
+}
