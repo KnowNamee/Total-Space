@@ -37,7 +37,7 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
          cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone;
 }
 
-void EventHandler::View::MouseMoveEvent(QMouseEvent*) {
+void EventHandler::View::MouseMoveEvent() {
   if (StateMachine::State() == StateMachine::StateGame) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {

@@ -22,7 +22,9 @@ void GameView::SetNewGameSettings() {
 }
 
 void GameView::mouseMoveEvent(QMouseEvent* event) {
-  event_handler_->MouseMoveEvent(event);
+  Q_UNUSED(event);
+
+  event_handler_->MouseMoveEvent();
 }
 
 void GameView::mouseDoubleClickEvent(QMouseEvent* event) {

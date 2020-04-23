@@ -18,7 +18,7 @@ class View : public QObject {
  public:
   View(GameView *view);
 
-  void MouseMoveEvent(QMouseEvent* event);
+  void MouseMoveEvent();
   void MouseReleaseEvent(QMouseEvent* event);
   void DoubleClick(QMouseEvent* event);
   void Scale(QWheelEvent* event);
