@@ -5,9 +5,9 @@
 #include <QPoint>
 #include <memory>
 
-#include "playerbase.h"
 #include "util/utility.h"
 
+class PlayerBase;
 class Building;
 class Unit;
 
@@ -18,22 +18,23 @@ public:
 
   void SetOwner(const std::shared_ptr<PlayerBase> &owner);
 
-  void Build(std::shared_ptr<Building> building_ptr);
+  void Build(BuildingType building);
+  void AddUnit(UnitType unit);
 
   int32_t GetBatteriesIncome() const;
   int32_t GetToolsIncome() const;
   const Resources& GetIncome() const;
 
-  QPointF Coordinates() const;
-  double Radius() const;
+  QPointF GetCoordinates() const;
+  double GetRadius() const;
 
 private:
   Resources income_;
   std::shared_ptr<PlayerBase> owner_;
   const QPointF coordinates_;
   const double radius_;
-  QVector<std::shared_ptr<Building>> buildings_;
-  QVector<std::shared_ptr<Unit>> units_on_planet_;
+  QVector<BuildingType> buildings_;
+  QVector<UnitType> units_on_planet_;
 };
 
 #endif // PLANET_H

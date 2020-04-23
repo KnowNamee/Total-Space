@@ -16,26 +16,27 @@
 #include "objects/player.h"
 #include "core/statemachine.h"
 
-GameScene::GameScene(QObject *parent) : QGraphicsScene(parent) {
+GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
 }
 
 void GameScene::Destroy() {
-  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
   while (it.hasNext()) {
     StateMachine::scene->removeItem(it.next());
   }
+  player_ = nullptr;
 }
 
 void GameScene::HideAll() {
-  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
   while (it.hasNext()) {
     it.next()->hide();
   }
 }
 
 void GameScene::ShowAll() {
-  QListIterator<QGraphicsItem *> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
   while (it.hasNext()) {
     it.next()->show();
   }
@@ -72,7 +73,7 @@ void GameScene::SetSceneSettings() {
 }
 
 void GameScene::GenerateMap() {
-  std::function<double(QGraphicsItem *, QPointF)> distance =
+  std::function<double(QGraphicsItem*, QPointF)> distance =
       [](QGraphicsItem *left, QPointF right) {
         return (left->pos().x() - right.x()) * (left->pos().x() - right.x()) +
                (left->pos().y() - right.y()) * (left->pos().y() - right.y());

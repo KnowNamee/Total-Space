@@ -18,17 +18,17 @@ class View : public QObject {
  public:
   View(GameView *view);
 
-  void MouseMoveEvent(QMouseEvent *event);
-  void MouseReleaseEvent(QMouseEvent *event);
-  void DoubleClick(QMouseEvent *event);
-  void Scale(QWheelEvent *event);
+  void MouseMoveEvent();
+  void MouseReleaseEvent(QMouseEvent* event);
+  void DoubleClick(QMouseEvent* event);
+  void Scale(QWheelEvent* event);
 
   void KeyReleaseEvent(QKeyEvent *event);
 
  private:
-  QGraphicsItem *target_ = nullptr;
-  GameView *view_;
-  QTimer *timer_;
+  QGraphicsItem* target_ = nullptr;
+  GameView* view_;
+  QTimer* timer_;
   const double kMaxScale = 1;
   const double kMinScale = 1. / 3;
   double goal_scale_;

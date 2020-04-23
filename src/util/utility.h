@@ -4,7 +4,7 @@
 #include <cstdint>
 
 class Resources {
-public:
+ public:
   Resources() : batteries_(0), tools_(0) {}
   Resources(int32_t batteries, int32_t tools)
       : batteries_(batteries), tools_(tools) {}
@@ -16,25 +16,32 @@ public:
     return Resources(batteries_ + rhs.batteries_, tools_ + rhs.tools_);
   }
 
-  Resources &operator+=(const Resources& rhs) {
+  Resources& operator+=(const Resources& rhs) {
     *this = *this + rhs;
     return *this;
   }
 
-private:
+ private:
   int32_t batteries_;
   int32_t tools_;
 };
 
-enum class EconomicBuildingType { kBatteryFactory, kForge, kWorkshop };
-enum class WarBuildingType {
-  // TODO Добавить типы военных построек
+enum class BuildingType {
+  kBatteryFactory,
+  kForge,
+  kWorkshop,
+  kAssemblyShop,
+  kElectronics,
+  kRobotsLine
 };
+
 enum class UnitType {
+  kNoUnit,
   kMarine,
+  kDroid,
   kRanger,
   kFalcon,
   kRover,
 };
 
-#endif // RESOURCES_H
+#endif  // RESOURCES_H

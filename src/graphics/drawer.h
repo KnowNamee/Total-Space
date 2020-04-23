@@ -10,12 +10,12 @@ class Planet;
 class Drawer : public QObject {
   Q_OBJECT
  public:
-  Drawer(GameScene *game_scene);
+  Drawer(GameScene* game_scene);
 
   void DrawPlanet(const std::shared_ptr<Planet>& planet);
 
  private:
-  GameScene *game_scene_;
+  GameScene* game_scene_;
 };
 
 #endif  // DRAWER_H

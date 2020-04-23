@@ -12,7 +12,7 @@ int32_t PlayerBase::GetTools() const { return resources_.GetTools(); }
 int32_t PlayerBase::GetBatteries() const { return resources_.GetBatteries(); }
 
 void PlayerBase::UpdateResources() {
-  for (auto planet : Planets()) {
+  for (const auto& planet : GetPlanets()) {
     resources_ += planet->GetIncome();
   }
 }
@@ -21,10 +21,8 @@ void PlayerBase::AddPlanet(const std::shared_ptr<Planet>& planet) {
   planets_.push_back(planet);
 }
 
-const QVector<std::shared_ptr<Planet>>& PlayerBase::Planets() const {
-  return planets_;
-}
+int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 
-const QVector<std::shared_ptr<Unit>>& PlayerBase::Units() const {
-  return units_;
+const QVector<std::shared_ptr<Planet>>& PlayerBase::GetPlanets() const {
+  return planets_;
 }

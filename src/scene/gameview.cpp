@@ -5,7 +5,7 @@
 #include "core/eventhandling.h"
 #include "scene/gamescene.h"
 
-GameView::GameView(GameScene *scene, QWidget *parent)
+GameView::GameView(GameScene* scene, QWidget* parent)
     : QGraphicsView(scene, parent) {
   setMouseTracking(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -21,20 +21,22 @@ void GameView::SetNewGameSettings() {
                     kScaleCoefficient, matrix().dx(), matrix().dy()));
 }
 
-void GameView::mouseMoveEvent(QMouseEvent *event) {
-  event_handler_->MouseMoveEvent(event);
+void GameView::mouseMoveEvent(QMouseEvent* event) {
+  Q_UNUSED(event);
+
+  event_handler_->MouseMoveEvent();
 }
 
-void GameView::mouseDoubleClickEvent(QMouseEvent *event) {
+void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
   event_handler_->DoubleClick(event);
 }
 
-void GameView::mouseReleaseEvent(QMouseEvent *event) {
+void GameView::mouseReleaseEvent(QMouseEvent* event) {
   event_handler_->MouseReleaseEvent(event);
 }
 
-void GameView::keyReleaseEvent(QKeyEvent *event) {
+void GameView::keyReleaseEvent(QKeyEvent*event) {
   event_handler_->KeyReleaseEvent(event);
 }
 
-void GameView::wheelEvent(QWheelEvent *event) { event_handler_->Scale(event); }
+void GameView::wheelEvent(QWheelEvent* event) { event_handler_->Scale(event); }
