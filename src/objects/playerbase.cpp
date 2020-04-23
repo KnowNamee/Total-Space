@@ -12,7 +12,7 @@ int32_t PlayerBase::GetTools() const { return resources_.GetTools(); }
 int32_t PlayerBase::GetBatteries() const { return resources_.GetBatteries(); }
 
 void PlayerBase::UpdateResources() {
-  for (auto planet : GetPlanets()) {
+  for (const auto& planet : GetPlanets()) {
     resources_ += planet->GetIncome();
   }
 }

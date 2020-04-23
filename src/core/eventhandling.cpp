@@ -20,7 +20,7 @@
 
 const int EventHandler::View::kMoveZone = 32;
 
-EventHandler::View::View(GameView *view) : view_(view) { timer_ = nullptr; }
+EventHandler::View::View(GameView* view) : view_(view) { timer_ = nullptr; }
 
 bool EventHandler::View::CompareMotion(
     EventHandler::View::MotionType needed_motion) {
@@ -37,7 +37,7 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
          cursor.x() < width / kMoveZone || cursor.y() < width / kMoveZone;
 }
 
-void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
+void EventHandler::View::MouseMoveEvent(QMouseEvent*) {
   if (StateMachine::State() == StateMachine::StateGame) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
@@ -57,9 +57,9 @@ void EventHandler::View::MouseMoveEvent(QMouseEvent *) {
   }
 }
 
-void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
+void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
   int state = StateMachine::State();
-  QGraphicsItem *item =
+  QGraphicsItem* item =
       view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
 
   if (item == nullptr) {
@@ -70,10 +70,10 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
   }
 
   if (state == StateMachine::StateMainMenu) {
-    MainMenu *menu = StateMachine::main_menu;
+    MainMenu* menu = StateMachine::main_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem *b = dynamic_cast<ImageItem *>(item);
+      ImageItem* b = dynamic_cast<ImageItem*>(item);
 
       if (b == menu->btn_exit_) {
         emit menu->btnExitClick();
@@ -85,7 +85,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
     PauseMenu *menu = StateMachine::pause_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem *b = dynamic_cast<ImageItem *>(item);
+      ImageItem* b = dynamic_cast<ImageItem*>(item);
 
       if (b == menu->btn_exit_) {
         emit menu->btnExitClick();
@@ -94,10 +94,10 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
       }
     }
   } else if (state == StateMachine::StatePlanetMenu) {
-    PlanetMenu *menu = StateMachine::planet_menu;
+    PlanetMenu* menu = StateMachine::planet_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem *b = dynamic_cast<ImageItem *>(item);
+      ImageItem* b = dynamic_cast<ImageItem*>(item);
       
       if (b == menu->btn1_) {
         emit menu->btn1Click();
@@ -107,7 +107,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent *event) {
         emit menu->btn3Click();
       }
     } else if (item->type() == PlanetGraphics::Type) {
-      Planet *p = dynamic_cast<PlanetGraphics *>(item)->GetPlanet();
+      Planet* p = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
       if (p != StateMachine::GetActivePlanet()) {
         StateMachine::window->RemovePlanetMenu();
       }
@@ -168,14 +168,14 @@ void EventHandler::View::Move() {
   }
 }
 
-void EventHandler::View::DoubleClick(QMouseEvent *event) {
+void EventHandler::View::DoubleClick(QMouseEvent* event) {
   if (StateMachine::State() == StateMachine::StateGame) {
-    QGraphicsItem *item =
+    QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
       StateMachine::SetActivePlanet(
-          dynamic_cast<PlanetGraphics *>(item)->GetPlanet());
+          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
 
       double scale = view_->matrix().m11();
 
@@ -198,7 +198,7 @@ void EventHandler::View::DoubleClick(QMouseEvent *event) {
   }
 }
 
-void EventHandler::View::KeyReleaseEvent(QKeyEvent *event) {
+void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
   int state = StateMachine::State();
   if (state == StateMachine::StatePlanetMenu) {
     if (event->key() == Qt::Key_Escape) {
@@ -263,7 +263,7 @@ void EventHandler::View::MoveTo() {
   }
 }
 
-void EventHandler::View::Scale(QWheelEvent *event) {
+void EventHandler::View::Scale(QWheelEvent* event) {
   if (StateMachine::State() != StateMachine::StateGame &&
       StateMachine::State() != StateMachine::StatePlanetMenu) {
     return;

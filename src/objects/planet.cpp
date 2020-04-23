@@ -5,11 +5,11 @@
 Planet::Planet(QPointF coordinates, double radius)
     : coordinates_(coordinates), radius_(radius) {}
 
-void Planet::SetOwner(const std::shared_ptr<PlayerBase> &owner) {
+void Planet::SetOwner(const std::shared_ptr<PlayerBase>& owner) {
   owner_ = owner;
 }
 
-const Resources &Planet::GetIncome() const { return income_; }
+const Resources& Planet::GetIncome() const { return income_; }
 
  void Planet::Build(BuildingType building) {
   buildings_.push_back(building);

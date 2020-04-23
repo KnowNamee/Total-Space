@@ -12,7 +12,7 @@ class GameView;
 
 class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_OBJECT
-  Q_INTERFACES()
+  Q_INTERFACES(QGraphicsItem)
 
  public:
   PlanetGraphics(const std::shared_ptr<Planet>& planet, GameView* view);
