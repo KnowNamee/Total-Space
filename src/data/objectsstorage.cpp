@@ -47,6 +47,7 @@ UnitType ObjectsStorage::GetUnitType(const QString& caption) {
 BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
   return building_caption_to_type_.at(caption);
 }
+
 std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
   std::set<BuildingType> first_level_buildings;
   for (auto building_pair : type_to_building_) {

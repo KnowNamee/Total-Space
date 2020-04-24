@@ -20,6 +20,7 @@ class ObjectsStorage {
   static const Resources& GetIncome(BuildingType building);
   static UnitType GetUnitType(const QString& caption);
   static BuildingType GetBuildingType(const QString& caption);
+
   static std::set<BuildingType> GetFirstLevelBuildings();
   static std::set<BuildingType> GetUpgrades(BuildingType building);
   static UnitType GetBuildingUnit(BuildingType building);

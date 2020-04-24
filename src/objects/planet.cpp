@@ -1,7 +1,5 @@
 #include "objects/planet.h"
 
-#include <QSet>
-
 #include "data/objectsstorage.h"
 
 Planet::Planet(QPointF coordinates, double radius)
