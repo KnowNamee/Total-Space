@@ -18,6 +18,6 @@ const QString& Building::GetCaption() const { return caption_; }
 
 int32_t Building::GetLevel() const { return level_; }
 
-const QVector<BuildingType> &Building::GetUpgrades() const { return upgrades_; }
+const QVector<BuildingType>& Building::GetUpgrades() const { return upgrades_; }
 
 UnitType Building::GetUnit() const { return unit_; }

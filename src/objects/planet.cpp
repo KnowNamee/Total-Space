@@ -47,7 +47,7 @@ std::set<BuildingType> Planet::GetAvailableBuildings() const {
 
 std::set<UnitType> Planet::GetAvailableUnits() const {
   std::set<UnitType> available_units;
-  foreach (BuildingType building, buildings_) {
+  for (BuildingType building : buildings_) {
     UnitType unit = ObjectsStorage::GetBuildingUnit(building);
     if (unit == UnitType::kNoUnit) {
       continue;

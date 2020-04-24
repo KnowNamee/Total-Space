@@ -1,7 +1,6 @@
 #include "data/objectsstorage.h"
 
 #include <QString>
-#include <QSet>
 
 #include "objects/building.h"
 #include "objects/unit.h"
@@ -50,7 +49,7 @@ BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
 
 std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
   std::set<BuildingType> first_level_buildings;
-  for (auto building_pair : type_to_building_) {
+  for (const auto& building_pair : type_to_building_) {
     if (building_pair.second->GetLevel() == 1)  {
       first_level_buildings.insert(building_pair.first);
     }

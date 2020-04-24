@@ -51,7 +51,7 @@ void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
 
   QVector<BuildingType> upgrades_vector;
   QJsonArray upgrades = building.value("upgrades").toArray();
-  foreach (QJsonValue upgrade, upgrades) {
+  for (QJsonValue upgrade : upgrades) {
     upgrades_vector.push_back(
         ObjectsStorage::GetBuildingType(upgrade.toString()));
   }
