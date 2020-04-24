@@ -1,6 +1,7 @@
 #include "data/objectsstorage.h"
 
 #include <QString>
+#include <QSet>
 
 #include "objects/building.h"
 #include "objects/unit.h"
@@ -45,4 +46,25 @@ UnitType ObjectsStorage::GetUnitType(const QString& caption) {
 
 BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
   return building_caption_to_type_.at(caption);
+}
+std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
+  std::set<BuildingType> first_level_buildings;
+  for (auto building_pair : type_to_building_) {
+    if (building_pair.second->GetLevel() == 1)  {
+      first_level_buildings.insert(building_pair.first);
+    }
+  }
+  return first_level_buildings;
+}
+
+std::set<BuildingType> ObjectsStorage::GetUpgrades(BuildingType building) {
+  std::set<BuildingType> upgrades;
+  for(BuildingType upgrade : type_to_building_.at(building)->GetUpgrades()) {
+    upgrades.insert(upgrade);
+  }
+  return upgrades;
+}
+
+UnitType ObjectsStorage::GetBuildingUnit(BuildingType building) {
+  return type_to_building_.at(building)->GetUnit();
 }

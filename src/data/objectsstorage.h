@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <map>
+#include <set>
 #include <memory>
 
 #include "util/utility.h"
@@ -19,6 +20,9 @@ class ObjectsStorage {
   static const Resources& GetIncome(BuildingType building);
   static UnitType GetUnitType(const QString& caption);
   static BuildingType GetBuildingType(const QString& caption);
+  static std::set<BuildingType> GetFirstLevelBuildings();
+  static std::set<BuildingType> GetUpgrades(BuildingType building);
+  static UnitType GetBuildingUnit(BuildingType building);
 
  private:
   static const std::map<QString, BuildingType> building_caption_to_type_;
