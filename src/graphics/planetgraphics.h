@@ -15,7 +15,7 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_INTERFACES(QGraphicsItem)
 
  public:
-  PlanetGraphics(const std::shared_ptr<Planet>& planet, GameView* view);
+  PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
   int type() const override;
   Planet* GetPlanet();

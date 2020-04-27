@@ -1,0 +1,70 @@
+{
+    "economic": {
+        "forge": {
+            "caption": "Forge",
+            "type": "tools",
+            "unit": "No Unit",
+            "upgrades": ["Workshop", "Assembly Shop"],
+            "level": 1,
+            "batteries_cost": 1000,
+            "tools_cost": 150,
+            "batteries_income": -10,
+            "tools_income": 100
+          },
+        "workshop": {
+            "caption": "Workshop",
+            "type": "tools",
+            "unit": "No Unit",
+            "upgrades": [],
+            "level": 2,
+            "batteries_cost": 2300,
+            "tools_cost": 300,
+            "batteries_income": -15,
+            "tools_income": 200
+          },
+        "assembly shop": {
+            "caption": "Assembly Shop",
+            "type": "war",
+            "unit": "Rover",
+            "upgrades": [],
+            "level": 2,
+            "batteries_cost": 2500,
+            "tools_cost": 300,
+            "batteries_income": 20,
+            "tools_income": -5
+          },
+        "electronics": {
+            "caption": "Electronics",
+            "type": "batteries",
+            "unit": "No Unit",
+            "upgrades": ["Battery Factory", "Robots Line"],
+            "level": 1,
+            "batteries_cost": 150,
+            "tools_cost": 1000,
+            "batteries_income": 200,
+            "tools_income": -10
+          },
+        "robots line": {
+            "caption": "Robots Line",
+            "type": "war",
+            "unit": "Droid",
+            "upgrades": [],
+            "level": 2,
+            "batteries_cost": 400,
+            "tools_cost": 2500,
+            "batteries_income": -20,
+            "tools_income": 40
+          },
+        "battery factory": {
+            "caption": "Battery Factory",
+            "type": "batteries",
+            "unit": "No Unit",
+            "upgrades": [],
+            "level": 2,
+            "batteries_cost": 300,
+            "tools_cost": 2300,
+            "batteries_income": 200,
+            "tools_income": -15
+        }
+    }
+}
