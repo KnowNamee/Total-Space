@@ -86,7 +86,7 @@ void GameScene::GenerateMap() {
       QRandomGenerator::global()->generate() % 10 + 20;
 
   while (number_of_planets < required_number_of_planets) {
-    foreach (QGraphicsItem *planet, items()) {
+    for (QGraphicsItem* planet : items()) {
       if (number_of_planets > required_number_of_planets) {
         break;
       }
@@ -103,7 +103,7 @@ void GameScene::GenerateMap() {
           planet->pos().y() + distance_between * sin(angle * M_PI / 180));
 
       bool is_allowed_distance = true;
-      foreach (QGraphicsItem *another_planet, items()) {
+      for (QGraphicsItem* another_planet : items()) {
         if (distance(another_planet, coordinates) <
             distance_between * distance_between) {
           is_allowed_distance = false;

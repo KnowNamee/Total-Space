@@ -8,7 +8,6 @@
 #include "util/typeoffset.h"
 
 class Planet;
-class GameView;
 
 class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_OBJECT
@@ -27,7 +26,6 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
              QWidget* widget) override;
 
   const std::shared_ptr<Planet> planet_;
-  const GameView* view_;
 
  public:
   enum {
