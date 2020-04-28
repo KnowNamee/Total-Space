@@ -121,45 +121,6 @@ void GameScene::GenerateMap() {
       }
     }
   }
-  //  while (number_of_planets < required_number_of_planets) {
-  //    for (QGraphicsItem* planet : items()) {
-  //      if (number_of_planets > required_number_of_planets) {
-  //        break;
-  //      }
-
-  //      int32_t angle = QRandomGenerator::global()->generate() % 360;
-  //      // TODO
-  //      // Разбежку расстояний между планетами также нужно выбрать
-  //      uint32_t distance_between = QRandomGenerator::global()->generate() %
-  //                                      static_cast<uint32_t>(kWidth / 3) +
-  //                                  static_cast<uint32_t>(kWidth / 6);
-
-  //      QPointF coordinates(
-  //          planet->pos().x() + distance_between * cos(angle * M_PI / 180),
-  //          planet->pos().y() + distance_between * sin(angle * M_PI / 180));
-
-  //        bool is_allowed_distance = true;
-  //        for (QGraphicsItem* another_planet : items()) {
-  //          if (Distance(another_planet->pos(), coordinates) <
-  //          distance_between
-  //              || 2 * abs(coordinates.x()) > kMapSize * kWidth - kWidth / 2
-  //              || 2 * abs(coordinates.y()) > kMapSize * kHeight - kHeight /
-  //              2)
-  //              {
-  //            is_allowed_distance = false;
-  //            break;
-  //          }
-  //        }
-
-  //        if (is_allowed_distance) {
-  //          // TODO
-  //          // Надо выбрать радиус, возможно рандомный
-  //          drawer_->DrawPlanet(
-  //              std::make_shared<Planet>(coordinates, kWidth / 6));
-  //          number_of_planets++;
-  //        }
-  //    }
-  //  }
 }
 
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
