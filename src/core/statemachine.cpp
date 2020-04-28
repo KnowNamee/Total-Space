@@ -1,9 +1,11 @@
 #include "core/statemachine.h"
 
-#include "scene/gamescene.h"
-#include "scene/gameview.h"
 #include "mainwindow.h"
 #include "menu.h"
+#include "objects/planet.h"
+#include "objects/player.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
 // -----------------------------------------------------------
 
@@ -55,7 +57,7 @@ void StateMachine::DrawPauseMenu() {
 }
 
 void StateMachine::DrawPlanetMenu() {
-  SetState(StatePlanetMenu);
+  SetState(StatePlanetMenu);  
   planet_menu = new PlanetMenu();
 }
 
@@ -64,6 +66,11 @@ void StateMachine::DrawUnitMenu() {
   HideGame();
   HidePlanetMenu();
   unit_menu = new UnitMenu();
+}
+
+void StateMachine::DrawAttackMenu() {
+  // TODO
+  // Отрисовка меню атаки, возможно создание отдельного класса для этого
 }
 
 void StateMachine::RemoveMainMenu() {

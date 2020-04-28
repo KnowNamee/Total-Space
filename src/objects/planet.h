@@ -31,6 +31,7 @@ public:
   double GetRadius() const;
   const QVector<BuildingType>& GetBuildings() const;
   const QVector<UnitType>& GetUnits() const;
+  PlayerBase* GetOwner() const;
 
   std::set<BuildingType> GetAvailableBuildings() const;
   std::set<UnitType> GetAvailableUnits() const;

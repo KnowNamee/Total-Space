@@ -10,17 +10,19 @@
 #include <QTimer>
 #include <cmath>
 
-
+#include "core/statemachine.h"
 #include "graphics/imageitem.h"
-#include "scene/gameview.h"
+#include "graphics/planetgraphics.h"
 #include "mainwindow.h"
 #include "menu.h"
-#include "graphics/planetgraphics.h"
-#include "core/statemachine.h"
+#include "objects/planet.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
-const int EventHandler::View::kMoveZone = 32;
-
-EventHandler::View::View(GameView* view) : view_(view) { timer_ = nullptr; }
+EventHandler::View::View(GameView* view)
+    : view_(view), kMapSize(view_->GetScene()->GetMapSize()) {
+  timer_ = nullptr;
+}
 
 bool EventHandler::View::CompareMotion(
     EventHandler::View::MotionType needed_motion) {
@@ -82,7 +84,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       }
     }
   } else if (state == StateMachine::StatePauseMenu) {
-    PauseMenu *menu = StateMachine::pause_menu;
+    PauseMenu* menu = StateMachine::pause_menu;
 
     if (item->type() == ImageItem::Type) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
@@ -98,7 +100,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
     if (item->type() == ImageItem::Type) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
-      
+
       if (b == menu->btn1_) {
         emit menu->btn1Click();
       } else if (b == menu->btn2_) {
@@ -132,7 +134,6 @@ void EventHandler::View::Move() {
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
   if (IsMouseInMotionZone(cursor)) {
-    const double kMapSize = 3;
     double x_direction = cursor.x() - width / 2;
     double y_direction = cursor.y() - height / 2;
 
@@ -153,13 +154,23 @@ void EventHandler::View::Move() {
 
     // TODO
     // Размеры карты тоже выбрать надо
-    if ((view_->sceneRect().x() >= kMapSize * width && x_velocity > 0) ||
-        (view_->sceneRect().x() <= -kMapSize * width && x_velocity < 0)) {
+    const double kScaleCoefficient = view_->matrix().m11() - 1 / 3;
+    const double kSizeCoeff = 0.7;
+    if ((view_->sceneRect().x() >=
+             (kScaleCoefficient + kSizeCoeff * kMapSize) * width &&
+         x_velocity > 0) ||
+        (view_->sceneRect().x() <=
+             -((kScaleCoefficient + kSizeCoeff * kMapSize) * width) &&
+         x_velocity < 0)) {
       x_velocity = 0;
     }
 
-    if ((view_->sceneRect().y() >= kMapSize * height && y_velocity > 0) ||
-        (view_->sceneRect().y() <= -kMapSize * height && y_velocity < 0)) {
+    if ((view_->sceneRect().y() >=
+             (kScaleCoefficient + kSizeCoeff * kMapSize) * height &&
+         y_velocity > 0) ||
+        (view_->sceneRect().y() <=
+             -((kScaleCoefficient + kSizeCoeff * kMapSize) * height) &&
+         y_velocity < 0)) {
       y_velocity = 0;
     }
 
@@ -191,6 +202,7 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
       }
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
+      qDebug() << target_->pos();
       timer_ = new QTimer();
       timer_->start(15);
       connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));

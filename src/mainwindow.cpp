@@ -59,6 +59,8 @@ void MainWindow::StartGame() { StateMachine::StartGame(); }
 
 void MainWindow::DrawMainMenu() { StateMachine::DrawMainMenu(); }
 
+void MainWindow::DrawAttackMenu() { StateMachine::DrawAttackMenu(); }
+
 void MainWindow::RemovePauseMenu() { StateMachine::RemovePauseMenu(); }
 
 void MainWindow::RemovePlanetMenu() { StateMachine::RemovePlanetMenu(); }
