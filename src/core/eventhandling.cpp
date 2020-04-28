@@ -202,7 +202,6 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
       }
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
-      qDebug() << target_->pos();
       timer_ = new QTimer();
       timer_->start(15);
       connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));

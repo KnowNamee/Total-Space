@@ -47,7 +47,7 @@ void GameScene::NewGame() {
 
   // TODO
   // Надо выбрать радиус
-  Planet* start_planet = new Planet(QPointF(0, 0), kWidth / 6);
+  Planet* start_planet = new Planet(QPointF(0, 0), kWidth / 16 * 3);
   std::shared_ptr<Planet> player_planet(start_planet);
   drawer_->DrawPlanet(player_planet);
 
