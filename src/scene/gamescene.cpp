@@ -128,7 +128,7 @@ double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
                    (lhs.y() - rhs.y()) * (lhs.y() - rhs.y()));
 }
 
-std::vector<UnitType> GameScene::GetNearestPlanets() {
+std::vector<UnitType> GameScene::GetNearestUnits() {
   Planet* planet = StateMachine::GetActivePlanet();
   std::vector<UnitType> nearby_units;
   for (QGraphicsItem* item : items()) {

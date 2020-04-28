@@ -26,7 +26,7 @@ class GameScene : public QGraphicsScene {
   void ShowAll();
   Player* GetPlayer() const;
   double GetMapSize() const;
-  std::vector<UnitType> GetNearestPlanets();
+  std::vector<UnitType> GetNearestUnits();
 
  public slots:
   void NewGame();
