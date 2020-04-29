@@ -4,10 +4,10 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "core/menu.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "data/objectsloader.h"
-#include "menu.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 #include "ui_mainwindow.h"

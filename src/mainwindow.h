@@ -3,17 +3,6 @@
 
 #include <QMainWindow>
 
-class Menu;
-class MainMenu;
-class PauseMenu;
-class UnitMenu;
-class PlanetMenu;
-class GameScene;
-class Controller;
-
-class Unit;
-class Planet;
-
 namespace Ui {
 class MainWindow;
 }

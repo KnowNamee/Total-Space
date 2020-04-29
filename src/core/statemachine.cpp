@@ -5,6 +5,8 @@
 #include "core/menu.h"
 #include "core/menugraph.h"
 #include "mainwindow.h"
+#include "objects/planet.h"
+#include "objects/player.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 
@@ -72,7 +74,6 @@ Controller::MenuType Controller::GetMenuType() { return current_state_; }
 
 // !!! WARNING !!!
 // GAME MENU должно удаляться последним !!!
-
 void Controller::Destroy() {
   Controller::SetPlanetMenu(nullptr);
   Controller::SetUnitMenu(nullptr);

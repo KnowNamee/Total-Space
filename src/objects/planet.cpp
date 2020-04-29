@@ -32,6 +32,8 @@ double Planet::GetRadius() const { return radius_; }
 const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
+PlayerBase* Planet::GetOwner() const { return owner_.get(); }
+
 std::set<BuildingType> Planet::GetAvailableBuildings() const {
   std::set<BuildingType> available_buildings;
   std::set<BuildingType> first_levels =
