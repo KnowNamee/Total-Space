@@ -1,9 +1,13 @@
 #include "menu.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
+#include <QSizePolicy>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QPushButton>
 #include <QScreen>
 
 #include "scene/gamescene.h"
@@ -33,6 +37,8 @@ void MainMenu::Draw() {
 
   GameView* view = StateMachine::view;
 
+//  QPushButton* a = new QPushButton();
+//  a->setGeometry(QRect(0,0,100,100));
   btn_exit_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
@@ -49,6 +55,8 @@ void MainMenu::Draw() {
   StateMachine::scene->addItem(txt_total_space_);
   StateMachine::scene->addItem(btn_exit_);
   StateMachine::scene->addItem(btn_new_game_);
+//  StateMachine::scene->addWidget(a);
+
 
   QPointF cp = StateMachine::view->sceneRect().center() / 2;
 
@@ -114,7 +122,7 @@ void PauseMenu::Draw() {
 
 PlanetMenu::PlanetMenu() {
   connect(this, SIGNAL(btn1Click()), StateMachine::window,
-          SLOT(RemovePlanetMenu()));
+          SLOT(DrawUnitMenu()));
   connect(this, SIGNAL(btn2Click()), StateMachine::window,
           SLOT(RemovePlanetMenu()));
   connect(this, SIGNAL(btn3Click()), StateMachine::window,
@@ -171,8 +179,63 @@ void PlanetMenu::Show() {
   btn3_->show();
 }
 
-UnitMenu::UnitMenu() { this->Draw(); }
+ShopItem::ShopItem() {
+    QPointF posit = StateMachine::GetActivePlanet()->GetCoordinates();
+    size_ = QSize(300, 200);
+    setPos(posit);
 
-UnitMenu::~UnitMenu() {}
+    proxy_to_btn_ = new QGraphicsProxyWidget();
+    buy_btn_ = new QPushButton();
+    buy_btn_->setText("Buy");
+    buy_btn_->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-void UnitMenu::Draw() {}
+    proxy_to_btn_->setWidget(buy_btn_);
+
+    layout = new QGraphicsLinearLayout();
+    layout->addItem(proxy_to_btn_);
+    layout->setGeometry(QRectF(posit.x(), posit.y() + size_.height() * 0.7, size_.width(), size_.height() * 0.3));
+    layout->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
+
+    widget_ = new QGraphicsWidget();
+    widget_->setLayout(layout);
+//    widget_->setPos(2 * pos().x(), 2 * (pos().y() + size_.height() * 0.35));
+    widget_->setGeometry(2 * pos().x(), 2 * (pos().y() + size_.height() * 0.35), size_.width(), size_.height() * 0.3);
+}
+ShopItem::~ShopItem() {
+    qDebug() << "Yo!";
+}
+QRectF ShopItem::boundingRect() const { return QRectF(pos(), size_); }
+
+void ShopItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
+    QRectF rect = boundingRect();
+    painter->setBrush(Qt::gray);
+    painter->drawRect(rect);
+    StateMachine::scene->addItem(widget_);
+}
+
+void ShopItem::Remove() {
+    StateMachine::scene->removeItem(widget_);
+//    delete buy_btn_;
+    delete widget_;
+    delete layout;
+//    delete proxy_to_btn_;
+}
+
+UnitMenu::UnitMenu() {
+    ShopItem* a = new ShopItem;
+    items_.push_back(a);
+    this->Draw();
+}
+
+UnitMenu::~UnitMenu() {
+    StateMachine::scene->removeItem(items_[0]);
+    items_[0]->Remove();
+//    delete items_[0];
+}
+
+void UnitMenu::Draw() {
+    StateMachine::scene->addItem(items_[0]);
+}

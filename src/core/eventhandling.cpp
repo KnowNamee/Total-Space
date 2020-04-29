@@ -212,6 +212,10 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
     if (event->key() == Qt::Key_Escape) {
       StateMachine::RemovePauseMenu();
     }
+  } else if (state == StateMachine::StateUnitMenu) {
+    if (event->key() == Qt::Key_Escape) {
+      StateMachine::RemoveUnitMenu();
+    }
   }
 }
 

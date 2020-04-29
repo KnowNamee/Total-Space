@@ -29,6 +29,7 @@ class MainWindow : public QMainWindow {
   void Exit();
   void StartGame();
   void DrawMainMenu();
+  void DrawUnitMenu();
   void RemovePauseMenu();
   void RemovePlanetMenu();
 

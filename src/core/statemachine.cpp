@@ -61,8 +61,8 @@ void StateMachine::DrawPlanetMenu() {
 
 void StateMachine::DrawUnitMenu() {
   SetState(StateUnitMenu);
-  HideGame();
-  HidePlanetMenu();
+//  HideGame();
+//  HidePlanetMenu();
   unit_menu = new UnitMenu();
 }
 

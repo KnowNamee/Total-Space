@@ -2,10 +2,16 @@
 #define MENU_H
 
 #include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
+#include <QGraphicsWidget>
+#include <QGraphicsLinearLayout>
+#include <QPushButton>
 
 #include "core/eventhandling.h"
+#include "graphics/imageitem.h"
+#include "util/utility.h"
 
-class ImageItem;
+//class ImageItem;
 class GameScene;
 class MainWindow;
 
@@ -78,6 +84,29 @@ class PlanetMenu : public QObject {
   double radius_;
 };
 
+class ShopItem : public QGraphicsItem {
+public:
+  ShopItem();
+  ~ShopItem() override;
+
+  void Draw();
+  void Remove();
+
+
+private:
+  QRectF boundingRect() const override;
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
+
+  QSize size_;
+  QPushButton* buy_btn_;
+  QGraphicsWidget* widget_;
+  QGraphicsLinearLayout* layout;
+  QGraphicsProxyWidget* proxy_to_btn_;
+  QString item_name_;
+  Resources item_cost_;
+};
+
 class UnitMenu : public QObject {
   Q_OBJECT
 
@@ -91,5 +120,7 @@ class UnitMenu : public QObject {
 
  private:
   friend class EventHandler::View;
+
+  std::vector<ShopItem*> items_;
 };
 #endif  // MENU_H

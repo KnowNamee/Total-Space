@@ -58,6 +58,7 @@ void MainWindow::Exit() { QApplication::exit(); }
 void MainWindow::StartGame() { StateMachine::StartGame(); }
 
 void MainWindow::DrawMainMenu() { StateMachine::DrawMainMenu(); }
+void MainWindow::DrawUnitMenu() { StateMachine::DrawUnitMenu(); }
 
 void MainWindow::RemovePauseMenu() { StateMachine::RemovePauseMenu(); }
 
