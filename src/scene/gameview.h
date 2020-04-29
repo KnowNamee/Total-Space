@@ -15,6 +15,8 @@ class GameView : public QGraphicsView {
   GameView(GameScene* scene, QWidget* parent);
   void SetNewGameSettings();
 
+  std::shared_ptr<EventHandler::View> EventHandler();
+
  private:
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;

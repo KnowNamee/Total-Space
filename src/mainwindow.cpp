@@ -5,12 +5,12 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "core/statemachine.h"
+#include "data/loader.h"
 #include "data/objectsloader.h"
+#include "menu.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
-#include "data/loader.h"
-#include "menu.h"
-#include "core/statemachine.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget* parent)
@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
 
   StateMachine::scene = new GameScene();
   StateMachine::window = this;
+  StateMachine::LoadMenuGraph();
 
   StateMachine::view = new GameView(StateMachine::scene, this);
   StateMachine::view->setGeometry(QRect(0, 0, width, height));

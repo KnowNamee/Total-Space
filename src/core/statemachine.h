@@ -1,6 +1,8 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
+#include <memory>
+
 class GameScene;
 class Unit;
 class PlanetGraphics;
@@ -11,6 +13,8 @@ class Planet;
 class UnitMenu;
 class MainWindow;
 class GameView;
+class MenuGraph;
+class GameMenu;
 
 class StateMachine {
  public:
@@ -21,8 +25,7 @@ class StateMachine {
     StatePauseMenu,
     StatePlanetMenu,
     StateUnitMenu,
-    StateGame,
-    StateNone,
+    StateGameMenu,
   };
 
   static void StartGame();
@@ -50,6 +53,10 @@ class StateMachine {
   static Planet* GetActivePlanet();
   static void SetActivePlanet(Planet* planet);
 
+  static bool SwitchMenu(int menu);
+  static void LoadMenuGraph();
+  static const MenuGraph* Graph();
+
   static MainMenu* main_menu;
   static PauseMenu* pause_menu;
   static PlanetMenu* planet_menu;
@@ -57,11 +64,14 @@ class StateMachine {
   static GameScene* scene;
   static GameView* view;
   static MainWindow* window;
+  static GameMenu* game_menu;
 
  private:
   static Planet* active_planet_;
+  static std::unique_ptr<MenuGraph> menu_graph_;
 
   static int current_state_;
+  static int kMenuCount;
 };
 
 #endif  // STATEMACHINE_H

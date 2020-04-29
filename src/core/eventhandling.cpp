@@ -10,13 +10,12 @@
 #include <QTimer>
 #include <cmath>
 
-
+#include "core/statemachine.h"
 #include "graphics/imageitem.h"
-#include "scene/gameview.h"
+#include "graphics/planetgraphics.h"
 #include "mainwindow.h"
 #include "menu.h"
-#include "graphics/planetgraphics.h"
-#include "core/statemachine.h"
+#include "scene/gameview.h"
 
 const int EventHandler::View::kMoveZone = 32;
 
@@ -38,7 +37,7 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent() {
-  if (StateMachine::State() == StateMachine::StateGame) {
+  if (StateMachine::State() == StateMachine::StateGameMenu) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -64,7 +63,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
   if (item == nullptr) {
     if (state == StateMachine::StatePlanetMenu) {
-      StateMachine::window->RemovePlanetMenu();
+      StateMachine::SwitchMenu(StateMachine::StateGameMenu);
     }
     return;
   }
@@ -82,7 +81,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       }
     }
   } else if (state == StateMachine::StatePauseMenu) {
-    PauseMenu *menu = StateMachine::pause_menu;
+    PauseMenu* menu = StateMachine::pause_menu;
 
     if (item->type() == ImageItem::Type) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
@@ -98,7 +97,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
     if (item->type() == ImageItem::Type) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
-      
+
       if (b == menu->btn1_) {
         emit menu->btn1Click();
       } else if (b == menu->btn2_) {
@@ -109,7 +108,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     } else if (item->type() == PlanetGraphics::Type) {
       Planet* p = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
       if (p != StateMachine::GetActivePlanet()) {
-        StateMachine::window->RemovePlanetMenu();
+        StateMachine::SwitchMenu(StateMachine::StateGameMenu);
       }
     }
   }
@@ -117,7 +116,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
 void EventHandler::View::Move() {
   int state = StateMachine::State();
-  if (state != StateMachine::StateGame) {
+  if (state != StateMachine::StateGameMenu) {
     current_motion_ = MotionType::kNoMotion;
     if (timer_) {
       delete (timer_);
@@ -169,7 +168,7 @@ void EventHandler::View::Move() {
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent* event) {
-  if (StateMachine::State() == StateMachine::StateGame) {
+  if (StateMachine::State() == StateMachine::StateGameMenu) {
     QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
@@ -202,15 +201,15 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
   int state = StateMachine::State();
   if (state == StateMachine::StatePlanetMenu) {
     if (event->key() == Qt::Key_Escape) {
-      StateMachine::window->RemovePlanetMenu();
+      StateMachine::SwitchMenu(StateMachine::StateGameMenu);
     }
-  } else if (state == StateMachine::StateGame) {
+  } else if (state == StateMachine::StateGameMenu) {
     if (event->key() == Qt::Key_Escape) {
-      StateMachine::DrawPauseMenu();
+      StateMachine::SwitchMenu(StateMachine::StatePauseMenu);
     }
   } else if (state == StateMachine::StatePauseMenu) {
     if (event->key() == Qt::Key_Escape) {
-      StateMachine::RemovePauseMenu();
+      StateMachine::SwitchMenu(StateMachine::StateGameMenu);
     }
   }
 }
@@ -256,7 +255,8 @@ void EventHandler::View::MoveTo() {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
     current_motion_ = MotionType::kNoMotion;
-    StateMachine::DrawPlanetMenu();
+    qDebug() << "planet menu : "
+             << StateMachine::SwitchMenu(StateMachine::StatePlanetMenu);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
@@ -264,7 +264,7 @@ void EventHandler::View::MoveTo() {
 }
 
 void EventHandler::View::Scale(QWheelEvent* event) {
-  if (StateMachine::State() != StateMachine::StateGame &&
+  if (StateMachine::State() != StateMachine::StateGameMenu &&
       StateMachine::State() != StateMachine::StatePlanetMenu) {
     return;
   }
@@ -298,6 +298,10 @@ void EventHandler::View::Scale(QWheelEvent* event) {
     timer_->start(15);
     connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
   }
+}
+
+EventHandler::View::MotionType EventHandler::View::GetMotionType() {
+  return current_motion_;
 }
 
 void EventHandler::View::ScaleToGoal() {

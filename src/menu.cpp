@@ -6,13 +6,14 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "core/statemachine.h"
+#include "data/loader.h"
+#include "graphics/imageitem.h"
+#include "mainwindow.h"
+#include "menugraph.h"
+#include "objects/planet.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
-#include "graphics/imageitem.h"
-#include "data/loader.h"
-#include "mainwindow.h"
-#include "objects/planet.h"
-#include "core/statemachine.h"
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
@@ -55,6 +56,23 @@ void MainMenu::Draw() {
   btn_new_game_->setPos(cp - QPoint(0, height / 49) / view->matrix().m11());
   btn_exit_->setPos(cp + QPoint(0, height / 28) / view->matrix().m11());
   txt_total_space_->setPos(cp);
+}
+
+bool MainMenu::SwitchTo(int menu) {
+  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+    return false;
+  }
+  delete (StateMachine::main_menu);
+  StateMachine::main_menu = nullptr;
+
+  if (menu == StateMachine::StateGameMenu) {
+    StateMachine::view->SetNewGameSettings();
+    StateMachine::scene->NewGame();
+    StateMachine::SetState(StateMachine::StateGameMenu);
+    qDebug() << "state : GameMenu";
+  }
+
+  return true;
 }
 
 PauseMenu::PauseMenu() {
@@ -109,7 +127,28 @@ void PauseMenu::Draw() {
   btn_exit_->setPos(btn_back_->pos() +
                     QPoint(0, static_cast<int>(height / 18)) /
                         view->matrix().m11());
+}
 
+bool PauseMenu::SwitchTo(int menu) {
+  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+    return false;
+  }
+  delete (StateMachine::pause_menu);
+  StateMachine::pause_menu = nullptr;
+
+  if (menu == StateMachine::StateGameMenu) {
+    StateMachine::SetState(StateMachine::StateGameMenu);
+    qDebug() << "state : GameMenu";
+  }
+
+  if (menu == StateMachine::StateMainMenu) {
+    StateMachine::EndGame();
+    StateMachine::main_menu = new MainMenu();
+    StateMachine::SetState(StateMachine::StateMainMenu);
+    qDebug() << "state : MainMenu";
+  }
+
+  return true;
 }
 
 PlanetMenu::PlanetMenu() {
@@ -171,8 +210,45 @@ void PlanetMenu::Show() {
   btn3_->show();
 }
 
+bool PlanetMenu::SwitchTo(int menu) {
+  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+    return false;
+  }
+
+  if (menu == StateMachine::StateGameMenu) {
+    delete (StateMachine::planet_menu);
+    StateMachine::planet_menu = nullptr;
+    StateMachine::SetState(StateMachine::StateGameMenu);
+  }
+
+  return true;
+}
+
 UnitMenu::UnitMenu() { this->Draw(); }
 
 UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
+
+bool GameMenu::SwitchTo(int menu) {
+  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+    return false;
+  }
+
+  if (menu == StateMachine::StatePlanetMenu) {
+    StateMachine::planet_menu = new PlanetMenu();
+    StateMachine::SetState(StateMachine::StatePlanetMenu);
+    qDebug() << "state : PlanetMenu";
+  }
+
+  if (menu == StateMachine::StatePauseMenu) {
+    if (StateMachine::view->EventHandler()->GetMotionType() !=
+        EventHandler::View::MotionType::kNoMotion) {
+      return false;
+    }
+    StateMachine::pause_menu = new PauseMenu();
+    StateMachine::SetState(StateMachine::StatePauseMenu);
+    qDebug() << "state : PauseMenu";
+  }
+  return true;
+}

@@ -21,6 +21,10 @@ void GameView::SetNewGameSettings() {
                     kScaleCoefficient, matrix().dx(), matrix().dy()));
 }
 
+std::shared_ptr<EventHandler::View> GameView::EventHandler() {
+  return event_handler_;
+}
+
 void GameView::mouseMoveEvent(QMouseEvent* event) {
   Q_UNUSED(event);
 
@@ -35,7 +39,7 @@ void GameView::mouseReleaseEvent(QMouseEvent* event) {
   event_handler_->MouseReleaseEvent(event);
 }
 
-void GameView::keyReleaseEvent(QKeyEvent*event) {
+void GameView::keyReleaseEvent(QKeyEvent* event) {
   event_handler_->KeyReleaseEvent(event);
 }
 

@@ -17,6 +17,7 @@ class MainMenu : public QObject {
   ~MainMenu();
 
   void Draw();
+  bool SwitchTo(int menu);
 
  signals:
   void btnSettingsClick();
@@ -39,6 +40,7 @@ class PauseMenu : public QObject {
   ~PauseMenu();
 
   void Draw();
+  bool SwitchTo(int menu);
 
  signals:
   void btnBackClick();
@@ -62,6 +64,8 @@ class PlanetMenu : public QObject {
   void Draw();
   void Hide();
   void Show();
+
+  bool SwitchTo(int menu);
 
  signals:
   void btn1Click();
@@ -92,4 +96,16 @@ class UnitMenu : public QObject {
  private:
   friend class EventHandler::View;
 };
+
+class GameMenu : public QObject {
+  Q_OBJECT
+
+ public:
+  GameMenu();
+
+  bool SwitchTo(int menu);
+
+ private:
+};
+
 #endif  // MENU_H

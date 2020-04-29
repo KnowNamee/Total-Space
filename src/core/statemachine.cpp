@@ -1,18 +1,23 @@
 #include "core/statemachine.h"
 
-#include "scene/gamescene.h"
-#include "scene/gameview.h"
+#include <memory>
+
 #include "mainwindow.h"
 #include "menu.h"
+#include "menugraph.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
 // -----------------------------------------------------------
 
 int StateMachine::current_state_ = StateMainMenu;
+int StateMachine::kMenuCount = 6;
 
 MainMenu* StateMachine::main_menu = nullptr;
 PauseMenu* StateMachine::pause_menu = nullptr;
 UnitMenu* StateMachine::unit_menu = nullptr;
 PlanetMenu* StateMachine::planet_menu = nullptr;
+GameMenu* StateMachine::game_menu = nullptr;
 GameView* StateMachine::view = nullptr;
 
 Planet* StateMachine::active_planet_ = nullptr;
@@ -20,21 +25,53 @@ Planet* StateMachine::active_planet_ = nullptr;
 GameScene* StateMachine::scene = nullptr;
 MainWindow* StateMachine::window = nullptr;
 
+std::unique_ptr<MenuGraph> StateMachine::menu_graph_ = nullptr;
+
 // -----------------------------------------------------------
+
+bool StateMachine::SwitchMenu(int menu) {
+  switch (State()) {
+    case StateGameMenu:
+      game_menu->SwitchTo(menu);
+      break;
+    case StateMainMenu:
+      main_menu->SwitchTo(menu);
+      break;
+    case StatePlanetMenu:
+      planet_menu->SwitchTo(menu);
+      break;
+    case StatePauseMenu:
+      pause_menu->SwitchTo(menu);
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+void StateMachine::LoadMenuGraph() {
+  QVector<QVector<int>> connections(kMenuCount);
+
+  connections[StateMainMenu] = {StateGameMenu};
+  connections[StateGameMenu] = {StatePlanetMenu, StatePauseMenu};
+  connections[StatePlanetMenu] = {StateGameMenu};
+  connections[StatePauseMenu] = {StateMainMenu, StateGameMenu};
+
+  menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
+}
+
+const MenuGraph* StateMachine::Graph() { return menu_graph_.get(); }
 
 void StateMachine::StartGame() {
   if (State() == StateMainMenu) {
     RemoveMainMenu();
   }
-  SetState(StateGame);
+  SetState(StateGameMenu);
   view->SetNewGameSettings();
   scene->NewGame();
 }
 
-void StateMachine::EndGame() {
-  SetState(StateNone);
-  scene->Destroy();
-}
+void StateMachine::EndGame() { scene->Destroy(); }
 
 void StateMachine::HideGame() { scene->HideAll(); }
 
@@ -69,20 +106,19 @@ void StateMachine::DrawUnitMenu() {
 void StateMachine::RemoveMainMenu() {
   delete (main_menu);
   main_menu = nullptr;
-  SetState(StateNone);
 }
 
 void StateMachine::RemovePauseMenu() {
   delete (pause_menu);
   pause_menu = nullptr;
-  SetState(StateGame);
+  SetState(StateGameMenu);
 }
 
 void StateMachine::RemovePlanetMenu() {
   delete (planet_menu);
   active_planet_ = nullptr;
   planet_menu = nullptr;
-  SetState(StateGame);
+  SetState(StateGameMenu);
 }
 
 void StateMachine::RemoveUnitMenu() {

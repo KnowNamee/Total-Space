@@ -36,6 +36,7 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         menu.cpp \
+        menugraph.cpp \
         objects/building.cpp \
         objects/planet.cpp \
         objects/player.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     graphics/planetgraphics.h \
         mainwindow.h \
         menu.h \
+  menugraph.h \
     objects/building.h \
     objects/planet.h \
     objects/player.h \
