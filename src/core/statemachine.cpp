@@ -11,13 +11,14 @@
 // -----------------------------------------------------------
 
 Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
-int Controller::kMenuCount = 6;
+int Controller::kMenuCount = 5;
 
-MainMenu* Controller::main_menu = nullptr;
-PauseMenu* Controller::pause_menu = nullptr;
-UnitMenu* Controller::unit_menu = nullptr;
-PlanetMenu* Controller::planet_menu = nullptr;
-GameMenu* Controller::game_menu = nullptr;
+MainMenu* Controller::main_menu_ = nullptr;
+UnitMenu* Controller::unit_menu_ = nullptr;
+PauseMenu* Controller::pause_menu_ = nullptr;
+PlanetMenu* Controller::planet_menu_ = nullptr;
+GameMenu* Controller::game_menu_ = nullptr;
+
 GameView* Controller::view = nullptr;
 
 Planet* Controller::active_planet_ = nullptr;
@@ -29,21 +30,16 @@ std::unique_ptr<MenuGraph> Controller::menu_graph_ = nullptr;
 
 // -----------------------------------------------------------
 
-bool Controller::SwitchMenu(MenuType menu) {
+void Controller::SwitchMenu(MenuType menu) {
   if (current_state_ == MenuType::kGame) {
-    game_menu->SwitchTo(menu);
-    return true;
+    game_menu_->SwitchTo(menu);
   } else if (current_state_ == MenuType::kMain) {
-    main_menu->SwitchTo(menu);
-    return true;
+    main_menu_->SwitchTo(menu);
   } else if (current_state_ == MenuType::kPause) {
-    pause_menu->SwitchTo(menu);
-    return true;
+    pause_menu_->SwitchTo(menu);
   } else if (current_state_ == MenuType::kPlanet) {
-    planet_menu->SwitchTo(menu);
-    return true;
+    planet_menu_->SwitchTo(menu);
   }
-  return false;
 }
 
 void Controller::LoadMenuGraph() {
@@ -67,6 +63,53 @@ void Controller::SetMenuType(MenuType next_state) {
 
 Controller::MenuType Controller::GetMenuType() { return current_state_; }
 
+// !!! WARNING !!!
+// GAME MENU должно удаляться последним !!!
+
+void Controller::Destroy() {
+  Controller::SetPlanetMenu(nullptr);
+  Controller::SetUnitMenu(nullptr);
+  Controller::SetPauseMenu(nullptr);
+  Controller::SetMainMenu(nullptr);
+  Controller::SetGameMenu(
+      nullptr);  // ! эта строка должна идти последней всегда
+}
+
 Planet* Controller::GetActivePlanet() { return active_planet_; }
 
 void Controller::SetActivePlanet(Planet* planet) { active_planet_ = planet; }
+
+MainMenu* Controller::GetMainMenu() { return main_menu_; }
+
+UnitMenu* Controller::GetUnitMenu() { return unit_menu_; }
+
+PauseMenu* Controller::GetPauseMenu() { return pause_menu_; }
+
+PlanetMenu* Controller::GetPlanetMenu() { return planet_menu_; }
+
+GameMenu* Controller::GetGameMenu() { return game_menu_; }
+
+void Controller::SetMainMenu(MainMenu* menu) {
+  delete (main_menu_);
+  main_menu_ = menu;
+}
+
+void Controller::SetUnitMenu(UnitMenu* menu) {
+  delete (unit_menu_);
+  unit_menu_ = menu;
+}
+
+void Controller::SetPauseMenu(PauseMenu* menu) {
+  delete (pause_menu_);
+  pause_menu_ = menu;
+}
+
+void Controller::SetPlanetMenu(PlanetMenu* menu) {
+  delete (planet_menu_);
+  planet_menu_ = menu;
+}
+
+void Controller::SetGameMenu(GameMenu* menu) {
+  delete (game_menu_);
+  game_menu_ = menu;
+}

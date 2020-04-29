@@ -68,7 +68,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
   }
 
   if (state == Controller::MenuType::kMain) {
-    MainMenu* menu = Controller::main_menu;
+    MainMenu* menu = Controller::GetMainMenu();
 
     if (item->type() == ImageItem::Type) {
       ImageItem* button = dynamic_cast<ImageItem*>(item);
@@ -80,7 +80,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       }
     }
   } else if (state == Controller::MenuType::kPause) {
-    PauseMenu* menu = Controller::pause_menu;
+    PauseMenu* menu = Controller::GetPauseMenu();
 
     if (item->type() == ImageItem::Type) {
       ImageItem* button = dynamic_cast<ImageItem*>(item);
@@ -92,17 +92,17 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       }
     }
   } else if (state == Controller::MenuType::kPlanet) {
-    PlanetMenu* menu = Controller::planet_menu;
+    PlanetMenu* menu = Controller::GetPlanetMenu();
 
     if (item->type() == ImageItem::Type) {
       ImageItem* button = dynamic_cast<ImageItem*>(item);
 
       if (button == menu->btn1_) {
-        Controller::SwitchMenu(Controller::MenuType::kMain);
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       } else if (button == menu->btn2_) {
-        Controller::SwitchMenu(Controller::MenuType::kMain);
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       } else if (button == menu->btn3_) {
-        Controller::SwitchMenu(Controller::MenuType::kMain);
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     } else if (item->type() == PlanetGraphics::Type) {
       Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();

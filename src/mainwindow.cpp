@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget* parent)
   Controller::view->setGeometry(QRect(0, 0, width, height));
   Controller::view->setSceneRect(-width / 2, -height / 2, width, height);
 
-  Controller::main_menu = new MainMenu();
+  Controller::SetMainMenu(new MainMenu());
 
   Controller::view->show();
 
@@ -38,18 +38,7 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow() {
-  if (Controller::unit_menu) {
-    delete (Controller::unit_menu);
-  }
-  if (Controller::planet_menu) {
-    delete (Controller::planet_menu);
-  }
-  if (Controller::pause_menu) {
-    delete (Controller::pause_menu);
-  }
-  if (Controller::main_menu) {
-    delete (Controller::main_menu);
-  }
+  Controller::Destroy();
   delete ui;
 }
 

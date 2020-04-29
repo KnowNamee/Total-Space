@@ -1,6 +1,7 @@
 #include "menu.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -56,19 +57,16 @@ void MainMenu::Draw() {
   txt_total_space_->setPos(cp);
 }
 
-bool MainMenu::SwitchTo(Controller::MenuType menu) {
+void MainMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
-    return false;
+    return;
   }
-  delete (Controller::main_menu);
-  Controller::main_menu = nullptr;
+  Controller::SetMainMenu(nullptr);
 
   if (menu == Controller::MenuType::kGame) {
-    Controller::game_menu = new GameMenu();
+    Controller::SetGameMenu(new GameMenu());
     Controller::SetMenuType(Controller::MenuType::kGame);
   }
-
-  return true;
 }
 
 PauseMenu::PauseMenu() { this->Draw(); }
@@ -119,25 +117,21 @@ void PauseMenu::Draw() {
                         view->matrix().m11());
 }
 
-bool PauseMenu::SwitchTo(Controller::MenuType menu) {
+void PauseMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
-    return false;
+    return;
   }
-  delete (Controller::pause_menu);
-  Controller::pause_menu = nullptr;
 
   if (menu == Controller::MenuType::kGame) {
+    Controller::SetPauseMenu(nullptr);
     Controller::SetMenuType(Controller::MenuType::kGame);
   }
 
   if (menu == Controller::MenuType::kMain) {
-    delete (Controller::game_menu);
-    Controller::game_menu = nullptr;
-    Controller::main_menu = new MainMenu();
+    Controller::SetPauseMenu(nullptr);
+    Controller::SetMainMenu(new MainMenu());
     Controller::SetMenuType(Controller::MenuType::kMain);
   }
-
-  return true;
 }
 
 PlanetMenu::PlanetMenu() { this->Draw(); }
@@ -191,18 +185,15 @@ void PlanetMenu::Show() {
   btn3_->show();
 }
 
-bool PlanetMenu::SwitchTo(Controller::MenuType menu) {
+void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
-    return false;
+    return;
   }
 
   if (menu == Controller::MenuType::kGame) {
-    delete (Controller::planet_menu);
-    Controller::planet_menu = nullptr;
+    Controller::SetPlanetMenu(nullptr);
     Controller::SetMenuType(Controller::MenuType::kGame);
   }
-
-  return true;
 }
 
 UnitMenu::UnitMenu() { this->Draw(); }
@@ -211,30 +202,37 @@ UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
 
-GameMenu::GameMenu() {
-  Controller::view->SetNewGameSettings();
-  Controller::scene->NewGame();
-}
+GameMenu::GameMenu() { this->Draw(); }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
-bool GameMenu::SwitchTo(Controller::MenuType menu) {
+void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
-    return false;
+    return;
   }
 
   if (menu == Controller::MenuType::kPlanet) {
-    Controller::planet_menu = new PlanetMenu();
+    Controller::SetPlanetMenu(new PlanetMenu());
     Controller::SetMenuType(Controller::MenuType::kPlanet);
   }
 
   if (menu == Controller::MenuType::kPause) {
     if (Controller::view->EventHandler()->GetMotionType() !=
         EventHandler::View::MotionType::kNoMotion) {
-      return false;
+      return;
     }
-    Controller::pause_menu = new PauseMenu();
+    Controller::SetPauseMenu(new PauseMenu());
     Controller::SetMenuType(Controller::MenuType::kPause);
   }
-  return true;
 }
+
+void GameMenu::Draw() {
+  Controller::view->SetNewGameSettings();
+  Controller::scene->NewGame();
+}
+
+Menu::Menu() {}
+
+void Menu::Draw() {}
+
+void Menu::SwitchTo(Controller::MenuType menu) { Q_UNUSED(menu) }

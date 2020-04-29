@@ -10,19 +10,27 @@ class ImageItem;
 class GameScene;
 class MainWindow;
 
-class MainMenu : public QObject {
+class Menu : public QObject {
+  Q_OBJECT
+
+ public:
+  Menu();
+
+  virtual void Draw();
+  virtual void SwitchTo(Controller::MenuType menu);
+};
+
+class MainMenu : public Menu {
   Q_OBJECT
 
  public:
   MainMenu();
-  ~MainMenu();
+  ~MainMenu() override;
 
-  void Draw();
-  bool SwitchTo(Controller::MenuType menu);
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
 
  signals:
-  void btnSettingsClick();
-  void btnNewGameClick();
   void btnExitClick();
 
  private:
@@ -33,19 +41,15 @@ class MainMenu : public QObject {
   ImageItem* btn_exit_;
 };
 
-class PauseMenu : public QObject {
+class PauseMenu : public Menu {
   Q_OBJECT
 
  public:
   PauseMenu();
-  ~PauseMenu();
+  ~PauseMenu() override;
 
-  void Draw();
-  bool SwitchTo(Controller::MenuType menu);
-
- signals:
-  void btnBackClick();
-  void btnExitClick();
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
 
  private:
   friend class EventHandler::View;
@@ -55,23 +59,18 @@ class PauseMenu : public QObject {
   QGraphicsRectItem* background_rect_;
 };
 
-class PlanetMenu : public QObject {
+class PlanetMenu : public Menu {
   Q_OBJECT
 
  public:
   PlanetMenu();
-  ~PlanetMenu();
+  ~PlanetMenu() override;
 
-  void Draw();
+  void Draw() override;
   void Hide();
   void Show();
 
-  bool SwitchTo(Controller::MenuType menu);
-
- signals:
-  void btn1Click();
-  void btn2Click();
-  void btn3Click();
+  void SwitchTo(Controller::MenuType menu) override;
 
  private:
   friend class EventHandler::View;
@@ -83,14 +82,14 @@ class PlanetMenu : public QObject {
   double radius_;
 };
 
-class UnitMenu : public QObject {
+class UnitMenu : public Menu {
   Q_OBJECT
 
  public:
   UnitMenu();
-  ~UnitMenu();
+  ~UnitMenu() override;
 
-  void Draw();
+  void Draw() override;
   void Hide();
   void Show();
 
@@ -98,16 +97,18 @@ class UnitMenu : public QObject {
   friend class EventHandler::View;
 };
 
-class GameMenu : public QObject {
+class GameMenu : public Menu {
   Q_OBJECT
 
  public:
   GameMenu();
-  ~GameMenu();
+  ~GameMenu() override;
 
-  bool SwitchTo(Controller::MenuType menu);
+  void SwitchTo(Controller::MenuType menu) override;
+  void Draw() override;
 
  private:
+  friend class EventHandler::View;
 };
 
 #endif  // MENU_H
