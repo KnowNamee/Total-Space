@@ -2,9 +2,9 @@
 
 #include <memory>
 
+#include "core/menu.h"
+#include "core/menugraph.h"
 #include "mainwindow.h"
-#include "menu.h"
-#include "menugraph.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 
@@ -31,14 +31,21 @@ std::unique_ptr<MenuGraph> Controller::menu_graph_ = nullptr;
 // -----------------------------------------------------------
 
 void Controller::SwitchMenu(MenuType menu) {
-  if (current_state_ == MenuType::kGame) {
-    game_menu_->SwitchTo(menu);
-  } else if (current_state_ == MenuType::kMain) {
-    main_menu_->SwitchTo(menu);
-  } else if (current_state_ == MenuType::kPause) {
-    pause_menu_->SwitchTo(menu);
-  } else if (current_state_ == MenuType::kPlanet) {
-    planet_menu_->SwitchTo(menu);
+  switch (current_state_) {
+    case MenuType::kGame:
+      game_menu_->SwitchTo(menu);
+      break;
+    case MenuType::kMain:
+      main_menu_->SwitchTo(menu);
+      break;
+    case MenuType::kPause:
+      pause_menu_->SwitchTo(menu);
+      break;
+    case MenuType::kPlanet:
+      planet_menu_->SwitchTo(menu);
+      break;
+    default:
+      break;
   }
 }
 

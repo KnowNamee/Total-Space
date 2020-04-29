@@ -35,8 +35,8 @@ SOURCES += \
         graphics/planetgraphics.cpp \
         main.cpp \
         mainwindow.cpp \
-        menu.cpp \
-        menugraph.cpp \
+        core/menu.cpp \
+        core/menugraph.cpp \
         objects/building.cpp \
         objects/planet.cpp \
         objects/player.cpp \
@@ -55,8 +55,8 @@ HEADERS += \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
         mainwindow.h \
-        menu.h \
-  menugraph.h \
+        core/menu.h \
+  core/menugraph.h \
     objects/building.h \
     objects/planet.h \
     objects/player.h \

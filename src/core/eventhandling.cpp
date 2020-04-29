@@ -9,11 +9,11 @@
 #include <QTimer>
 #include <cmath>
 
+#include "core/menu.h"
 #include "core/statemachine.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "mainwindow.h"
-#include "menu.h"
 #include "scene/gameview.h"
 
 const int EventHandler::View::kMoveZone = 32;
