@@ -49,10 +49,12 @@ bool Controller::SwitchMenu(MenuType menu) {
 void Controller::LoadMenuGraph() {
   QVector<QVector<MenuType>> connections(kMenuCount);
 
-  connections[int(MenuType::kMain)] = {MenuType::kGame};
-  connections[int(MenuType::kGame)] = {MenuType::kPlanet, MenuType::kPause};
-  connections[int(MenuType::kPlanet)] = {MenuType::kGame};
-  connections[int(MenuType::kPause)] = {MenuType::kMain, MenuType::kGame};
+  connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame};
+  connections[static_cast<int>(MenuType::kGame)] = {MenuType::kPlanet,
+                                                    MenuType::kPause};
+  connections[static_cast<int>(MenuType::kPlanet)] = {MenuType::kGame};
+  connections[static_cast<int>(MenuType::kPause)] = {MenuType::kMain,
+                                                     MenuType::kGame};
 
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }
