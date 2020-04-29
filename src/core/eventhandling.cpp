@@ -1,7 +1,6 @@
 #include "core/eventhandling.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QObject>
@@ -77,7 +76,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       if (b == menu->btn_exit_) {
         emit menu->btnExitClick();
       } else if (b == menu->btn_new_game_) {
-        emit menu->btnNewGameClick();
+        Controller::SwitchMenu(Controller::MenuType::Game);
       }
     }
   } else if (state == Controller::MenuType::Pause) {
@@ -87,9 +86,9 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
 
       if (b == menu->btn_exit_) {
-        emit menu->btnExitClick();
+        Controller::SwitchMenu(Controller::MenuType::Main);
       } else if (b == menu->btn_back_) {
-        emit menu->btnBackClick();
+        Controller::SwitchMenu(Controller::MenuType::Game);
       }
     }
   } else if (state == Controller::MenuType::Planet) {
@@ -99,11 +98,11 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       ImageItem* b = dynamic_cast<ImageItem*>(item);
 
       if (b == menu->btn1_) {
-        emit menu->btn1Click();
+        Controller::SwitchMenu(Controller::MenuType::Main);
       } else if (b == menu->btn2_) {
-        emit menu->btn2Click();
+        Controller::SwitchMenu(Controller::MenuType::Main);
       } else if (b == menu->btn3_) {
-        emit menu->btn3Click();
+        Controller::SwitchMenu(Controller::MenuType::Main);
       }
     } else if (item->type() == PlanetGraphics::Type) {
       Planet* p = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
@@ -255,8 +254,7 @@ void EventHandler::View::MoveTo() {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
     current_motion_ = MotionType::kNoMotion;
-    qDebug() << "planet menu : "
-             << Controller::SwitchMenu(Controller::MenuType::Planet);
+    Controller::SwitchMenu(Controller::MenuType::Planet);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;

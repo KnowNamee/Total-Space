@@ -27,10 +27,6 @@ class MainWindow : public QMainWindow {
 
  public slots:
   void Exit();
-  void StartGame();
-  void DrawMainMenu();
-  void RemovePauseMenu();
-  void RemovePlanetMenu();
 
  private:
   Ui::MainWindow* ui;

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QScreen>
@@ -31,7 +30,7 @@ MainWindow::MainWindow(QWidget* parent)
   Controller::view->setGeometry(QRect(0, 0, width, height));
   Controller::view->setSceneRect(-width / 2, -height / 2, width, height);
 
-  Controller::DrawMainMenu();
+  Controller::main_menu = new MainMenu();
 
   Controller::view->show();
 
@@ -40,26 +39,18 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow() {
   if (Controller::unit_menu) {
-    Controller::RemoveUnitMenu();
+    delete (Controller::unit_menu);
   }
   if (Controller::planet_menu) {
-    Controller::RemovePlanetMenu();
+    delete (Controller::planet_menu);
   }
   if (Controller::pause_menu) {
-    Controller::RemovePauseMenu();
+    delete (Controller::pause_menu);
   }
   if (Controller::main_menu) {
-    Controller::RemoveMainMenu();
+    delete (Controller::main_menu);
   }
   delete ui;
 }
 
 void MainWindow::Exit() { QApplication::exit(); }
-
-void MainWindow::StartGame() { Controller::StartGame(); }
-
-void MainWindow::DrawMainMenu() { Controller::DrawMainMenu(); }
-
-void MainWindow::RemovePauseMenu() { Controller::RemovePauseMenu(); }
-
-void MainWindow::RemovePlanetMenu() { Controller::RemovePlanetMenu(); }

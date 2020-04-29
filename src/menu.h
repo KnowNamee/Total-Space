@@ -103,6 +103,7 @@ class GameMenu : public QObject {
 
  public:
   GameMenu();
+  ~GameMenu();
 
   bool SwitchTo(Controller::MenuType menu);
 

@@ -28,34 +28,18 @@ class Controller {
     Game,
   };
 
-  static void StartGame();
-  static void EndGame();
   static void HideGame();
   static void ShowGame();
 
-  static void DrawMainMenu();
-  static void DrawPauseMenu();
-  static void DrawPlanetMenu();
-  static void DrawUnitMenu();
-
-  static void RemoveMainMenu();
-  static void RemovePauseMenu();
-  static void RemovePlanetMenu();
-  static void RemoveUnitMenu();
-
-  static void HidePlanetMenu();
-
-  static void ShowPlanetMenu();
-
+  static bool SwitchMenu(MenuType menu);
   static void SetMenuType(MenuType type);
   static MenuType GetMenuType();
 
-  static Planet* GetActivePlanet();
-  static void SetActivePlanet(Planet* planet);
-
-  static bool SwitchMenu(MenuType menu);
   static void LoadMenuGraph();
   static const MenuGraph* Graph();
+
+  static Planet* GetActivePlanet();
+  static void SetActivePlanet(Planet* planet);
 
   static MainMenu* main_menu;
   static PauseMenu* pause_menu;

@@ -1,7 +1,6 @@
 #ifndef MENUGRAPH_H
 #define MENUGRAPH_H
 
-#include <QDebug>
 #include <QMap>
 #include <QSet>
 #include <QVector>
@@ -12,7 +11,6 @@ class MenuGraph {
  public:
   MenuGraph(int node_count,
             const QVector<QVector<Controller::MenuType>>& node_connections);
-  ~MenuGraph() { qDebug() << "MenuGraph destroyed"; }
 
   bool HasConnection(Controller::MenuType lhs_node,
                      Controller::MenuType rhs_node) const;

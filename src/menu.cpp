@@ -17,8 +17,6 @@
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), Controller::window, SLOT(Exit()));
-  connect(this, SIGNAL(btnNewGameClick()), Controller::window,
-          SLOT(StartGame()));
   this->Draw();
 }
 
@@ -66,22 +64,14 @@ bool MainMenu::SwitchTo(Controller::MenuType menu) {
   Controller::main_menu = nullptr;
 
   if (menu == Controller::MenuType::Game) {
-    Controller::view->SetNewGameSettings();
-    Controller::scene->NewGame();
+    Controller::game_menu = new GameMenu();
     Controller::SetMenuType(Controller::MenuType::Game);
-    qDebug() << "state : GameMenu";
   }
 
   return true;
 }
 
-PauseMenu::PauseMenu() {
-  connect(this, SIGNAL(btnBackClick()), Controller::window,
-          SLOT(RemovePauseMenu()));
-  connect(this, SIGNAL(btnExitClick()), Controller::window,
-          SLOT(DrawMainMenu()));
-  this->Draw();
-}
+PauseMenu::PauseMenu() { this->Draw(); }
 
 PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(btn_back_);
@@ -138,28 +128,19 @@ bool PauseMenu::SwitchTo(Controller::MenuType menu) {
 
   if (menu == Controller::MenuType::Game) {
     Controller::SetMenuType(Controller::MenuType::Game);
-    qDebug() << "state : GameMenu";
   }
 
   if (menu == Controller::MenuType::Main) {
-    Controller::EndGame();
+    delete (Controller::game_menu);
+    Controller::game_menu = nullptr;
     Controller::main_menu = new MainMenu();
     Controller::SetMenuType(Controller::MenuType::Main);
-    qDebug() << "state : MainMenu";
   }
 
   return true;
 }
 
-PlanetMenu::PlanetMenu() {
-  connect(this, SIGNAL(btn1Click()), Controller::window,
-          SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn2Click()), Controller::window,
-          SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn3Click()), Controller::window,
-          SLOT(RemovePlanetMenu()));
-  this->Draw();
-}
+PlanetMenu::PlanetMenu() { this->Draw(); }
 
 PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn1_);
@@ -230,6 +211,13 @@ UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
 
+GameMenu::GameMenu() {
+  Controller::view->SetNewGameSettings();
+  Controller::scene->NewGame();
+}
+
+GameMenu::~GameMenu() { Controller::scene->Destroy(); }
+
 bool GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return false;
@@ -238,7 +226,6 @@ bool GameMenu::SwitchTo(Controller::MenuType menu) {
   if (menu == Controller::MenuType::Planet) {
     Controller::planet_menu = new PlanetMenu();
     Controller::SetMenuType(Controller::MenuType::Planet);
-    qDebug() << "state : PlanetMenu";
   }
 
   if (menu == Controller::MenuType::Pause) {
@@ -248,7 +235,6 @@ bool GameMenu::SwitchTo(Controller::MenuType menu) {
     }
     Controller::pause_menu = new PauseMenu();
     Controller::SetMenuType(Controller::MenuType::Pause);
-    qDebug() << "state : PauseMenu";
   }
   return true;
 }
