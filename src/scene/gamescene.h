@@ -16,6 +16,8 @@ class GameScene : public QGraphicsScene {
  public:
   GameScene(QObject* parent = nullptr);
 
+  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+
   void Destroy();
   void HideAll();
   void ShowAll();

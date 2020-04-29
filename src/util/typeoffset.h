@@ -6,6 +6,7 @@ namespace TypeOffset {
 enum {
   Planet,
   Button,
+  ShopItem,
 };
 
 }  // namespace TypeOffset

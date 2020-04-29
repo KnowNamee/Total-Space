@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow {
   void DrawUnitMenu();
   void RemovePauseMenu();
   void RemovePlanetMenu();
+  void RemoveUnitMenu();
 
  private:
   Ui::MainWindow* ui;

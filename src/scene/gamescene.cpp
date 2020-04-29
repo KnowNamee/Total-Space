@@ -20,6 +20,10 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
 }
 
+void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    QGraphicsScene::mousePressEvent(event);
+}
+
 void GameScene::Destroy() {
   QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
   while (it.hasNext()) {

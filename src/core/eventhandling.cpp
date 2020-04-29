@@ -227,7 +227,7 @@ void EventHandler::View::MoveTo() {
   double distance =
       sqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-  // TODO
+  // TODOя
   // Выбрать скорость передвижения к планете
   const double kVelocity = width / 40;
 

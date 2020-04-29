@@ -2,9 +2,10 @@
 #define MENU_H
 
 #include <QGraphicsItem>
+#include <QGraphicsLinearLayout>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsWidget>
-#include <QGraphicsLinearLayout>
+#include <QLabel>
 #include <QPushButton>
 
 #include "core/eventhandling.h"
@@ -84,27 +85,35 @@ class PlanetMenu : public QObject {
   double radius_;
 };
 
-class ShopItem : public QGraphicsItem {
+class ShopItem : public QObject, public QGraphicsItem {
+    Q_OBJECT
 public:
   ShopItem();
-  ~ShopItem() override;
+  ShopItem(QPointF pos, QSize size, QString name);
 
-  void Draw();
+  int type() const override;
+
   void Remove();
 
-
+public slots:
+  void Yo();
 private:
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
   QSize size_;
+  QGraphicsProxyWidget* proxy_btn_ = nullptr;
+  QGraphicsProxyWidget* proxy_label_ = nullptr;
   QPushButton* buy_btn_;
-  QGraphicsWidget* widget_;
-  QGraphicsLinearLayout* layout;
-  QGraphicsProxyWidget* proxy_to_btn_;
+  QLabel* name_label_;
   QString item_name_;
   Resources item_cost_;
+
+public:
+  enum {
+    Type = UserType + TypeOffset::ShopItem,
+  };
 };
 
 class UnitMenu : public QObject {

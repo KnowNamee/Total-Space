@@ -63,3 +63,6 @@ void MainWindow::DrawUnitMenu() { StateMachine::DrawUnitMenu(); }
 void MainWindow::RemovePauseMenu() { StateMachine::RemovePauseMenu(); }
 
 void MainWindow::RemovePlanetMenu() { StateMachine::RemovePlanetMenu(); }
+void MainWindow::RemoveUnitMenu() {
+    qDebug() << "Yo!\n";
+    StateMachine::RemoveUnitMenu(); }

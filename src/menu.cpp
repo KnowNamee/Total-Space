@@ -22,6 +22,12 @@ MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
   connect(this, SIGNAL(btnNewGameClick()), StateMachine::window,
           SLOT(StartGame()));
+  QPushButton* btn = new QPushButton();
+  btn->setGeometry(0,0,100, 100);
+  btn->setText("Yo");
+  StateMachine::scene->addWidget(btn);
+  connect(btn, SIGNAL(clicked()), StateMachine::window, SLOT(Exit()));
+
   this->Draw();
 }
 
@@ -37,8 +43,7 @@ void MainMenu::Draw() {
 
   GameView* view = StateMachine::view;
 
-//  QPushButton* a = new QPushButton();
-//  a->setGeometry(QRect(0,0,100,100));
+
   btn_exit_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
@@ -179,31 +184,24 @@ void PlanetMenu::Show() {
   btn3_->show();
 }
 
-ShopItem::ShopItem() {
-    QPointF posit = StateMachine::GetActivePlanet()->GetCoordinates();
-    size_ = QSize(300, 200);
-    setPos(posit);
+ShopItem::ShopItem() {}
+ShopItem::ShopItem(QPointF position, QSize size, QString name)
+    : size_(size), item_name_(name) {
+  setPos(position);
 
-    proxy_to_btn_ = new QGraphicsProxyWidget();
-    buy_btn_ = new QPushButton();
-    buy_btn_->setText("Buy");
-    buy_btn_->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  buy_btn_ = new QPushButton();
+  buy_btn_->setText("Buy");
+  buy_btn_->setGeometry(
+      static_cast<int>(2 * pos().x()),
+      static_cast<int>(2 * (pos().y() + 0.40 * size_.height())), size_.width(),
+      static_cast<int>(size_.height() * 0.2));
 
-    proxy_to_btn_->setWidget(buy_btn_);
-
-    layout = new QGraphicsLinearLayout();
-    layout->addItem(proxy_to_btn_);
-    layout->setGeometry(QRectF(posit.x(), posit.y() + size_.height() * 0.7, size_.width(), size_.height() * 0.3));
-    layout->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
-
-    widget_ = new QGraphicsWidget();
-    widget_->setLayout(layout);
-//    widget_->setPos(2 * pos().x(), 2 * (pos().y() + size_.height() * 0.35));
-    widget_->setGeometry(2 * pos().x(), 2 * (pos().y() + size_.height() * 0.35), size_.width(), size_.height() * 0.3);
+  name_label_ = new QLabel(name);
+  name_label_->setGeometry(static_cast<int>( 2 * pos().x()),
+                           static_cast<int>(2 * pos().y()), size_.width(),
+                           static_cast<int>(size_.height() * 0.1));
 }
-ShopItem::~ShopItem() {
-    qDebug() << "Yo!";
-}
+
 QRectF ShopItem::boundingRect() const { return QRectF(pos(), size_); }
 
 void ShopItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -213,29 +211,51 @@ void ShopItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     QRectF rect = boundingRect();
     painter->setBrush(Qt::gray);
     painter->drawRect(rect);
-    StateMachine::scene->addItem(widget_);
+
+    if (proxy_btn_ == nullptr && proxy_label_ == nullptr) {
+        proxy_btn_ = StateMachine::scene->addWidget(buy_btn_);
+        connect(buy_btn_, SIGNAL(pressed()), this, SLOT(Yo()));
+        proxy_label_ = StateMachine::scene->addWidget(name_label_);
+    }
 }
 
 void ShopItem::Remove() {
-    StateMachine::scene->removeItem(widget_);
 //    delete buy_btn_;
-    delete widget_;
-    delete layout;
-//    delete proxy_to_btn_;
+//    delete name_label_;
+    delete proxy_btn_;
+    delete proxy_label_;
+}
+int ShopItem::type() const {
+    return Type;
 }
 
 UnitMenu::UnitMenu() {
-    ShopItem* a = new ShopItem;
+    // Сделать генерацию ShopItem на каждый товар в магазине
+    QSize size(200, 300);
+    QPointF start = StateMachine::GetActivePlanet()->GetCoordinates();
+    start = start - QPointF(StateMachine::view->sceneRect().width() / 4, 0) + QPointF(100, 0);
+    QPointF step(300, 0);
+
+    ShopItem* a = new ShopItem(start, size, "Yo!");
+    ShopItem* b = new ShopItem(start + step, size, "MegaYo!");
+    ShopItem* c = new ShopItem(start + 2 * step, size, "SuperYo!");
+
     items_.push_back(a);
-    this->Draw();
+    items_.push_back(b);
+    items_.push_back(c);
+
+    Draw();
 }
 
 UnitMenu::~UnitMenu() {
-    StateMachine::scene->removeItem(items_[0]);
-    items_[0]->Remove();
-//    delete items_[0];
+  for (auto item : items_) {
+    StateMachine::scene->removeItem(item);
+    item->Remove();
+  }
 }
 
 void UnitMenu::Draw() {
-    StateMachine::scene->addItem(items_[0]);
+  for (auto item : items_) {
+    StateMachine::scene->addItem(item);
+  };
 }

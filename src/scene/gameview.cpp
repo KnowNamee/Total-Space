@@ -27,6 +27,11 @@ void GameView::mouseMoveEvent(QMouseEvent* event) {
   event_handler_->MouseMoveEvent();
 }
 
+//void GameView::mousePressEvent(QMouseEvent *event) {
+//    Q_UNUSED(event);
+
+//}
+
 void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
   event_handler_->DoubleClick(event);
 }
