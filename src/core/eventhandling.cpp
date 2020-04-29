@@ -36,7 +36,7 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent() {
-  if (Controller::GetMenuType() == Controller::MenuType::Game) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -61,53 +61,53 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
 
   if (item == nullptr) {
-    if (state == Controller::MenuType::Planet) {
-      Controller::SwitchMenu(Controller::MenuType::Game);
+    if (state == Controller::MenuType::kPlanet) {
+      Controller::SwitchMenu(Controller::MenuType::kGame);
     }
     return;
   }
 
-  if (state == Controller::MenuType::Main) {
+  if (state == Controller::MenuType::kMain) {
     MainMenu* menu = Controller::main_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
+      ImageItem* button = dynamic_cast<ImageItem*>(item);
 
-      if (b == menu->btn_exit_) {
+      if (button == menu->btn_exit_) {
         emit menu->btnExitClick();
-      } else if (b == menu->btn_new_game_) {
-        Controller::SwitchMenu(Controller::MenuType::Game);
+      } else if (button == menu->btn_new_game_) {
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     }
-  } else if (state == Controller::MenuType::Pause) {
+  } else if (state == Controller::MenuType::kPause) {
     PauseMenu* menu = Controller::pause_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
+      ImageItem* button = dynamic_cast<ImageItem*>(item);
 
-      if (b == menu->btn_exit_) {
-        Controller::SwitchMenu(Controller::MenuType::Main);
-      } else if (b == menu->btn_back_) {
-        Controller::SwitchMenu(Controller::MenuType::Game);
+      if (button == menu->btn_exit_) {
+        Controller::SwitchMenu(Controller::MenuType::kMain);
+      } else if (button == menu->btn_back_) {
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     }
-  } else if (state == Controller::MenuType::Planet) {
+  } else if (state == Controller::MenuType::kPlanet) {
     PlanetMenu* menu = Controller::planet_menu;
 
     if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
+      ImageItem* button = dynamic_cast<ImageItem*>(item);
 
-      if (b == menu->btn1_) {
-        Controller::SwitchMenu(Controller::MenuType::Main);
-      } else if (b == menu->btn2_) {
-        Controller::SwitchMenu(Controller::MenuType::Main);
-      } else if (b == menu->btn3_) {
-        Controller::SwitchMenu(Controller::MenuType::Main);
+      if (button == menu->btn1_) {
+        Controller::SwitchMenu(Controller::MenuType::kMain);
+      } else if (button == menu->btn2_) {
+        Controller::SwitchMenu(Controller::MenuType::kMain);
+      } else if (button == menu->btn3_) {
+        Controller::SwitchMenu(Controller::MenuType::kMain);
       }
     } else if (item->type() == PlanetGraphics::Type) {
-      Planet* p = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
-      if (p != Controller::GetActivePlanet()) {
-        Controller::SwitchMenu(Controller::MenuType::Game);
+      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
+      if (planet != Controller::GetActivePlanet()) {
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     }
   }
@@ -115,7 +115,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
 void EventHandler::View::Move() {
   Controller::MenuType state = Controller::GetMenuType();
-  if (state != Controller::MenuType::Game) {
+  if (state != Controller::MenuType::kGame) {
     current_motion_ = MotionType::kNoMotion;
     if (timer_) {
       delete (timer_);
@@ -167,7 +167,7 @@ void EventHandler::View::Move() {
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent* event) {
-  if (Controller::GetMenuType() == Controller::MenuType::Game) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
     QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
@@ -198,17 +198,17 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
 
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
   Controller::MenuType state = Controller::GetMenuType();
-  if (state == Controller::MenuType::Planet) {
+  if (state == Controller::MenuType::kPlanet) {
     if (event->key() == Qt::Key_Escape) {
-      Controller::SwitchMenu(Controller::MenuType::Game);
+      Controller::SwitchMenu(Controller::MenuType::kGame);
     }
-  } else if (state == Controller::MenuType::Game) {
+  } else if (state == Controller::MenuType::kGame) {
     if (event->key() == Qt::Key_Escape) {
-      Controller::SwitchMenu(Controller::MenuType::Pause);
+      Controller::SwitchMenu(Controller::MenuType::kPause);
     }
-  } else if (state == Controller::MenuType::Pause) {
+  } else if (state == Controller::MenuType::kPause) {
     if (event->key() == Qt::Key_Escape) {
-      Controller::SwitchMenu(Controller::MenuType::Game);
+      Controller::SwitchMenu(Controller::MenuType::kGame);
     }
   }
 }
@@ -254,7 +254,7 @@ void EventHandler::View::MoveTo() {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
     current_motion_ = MotionType::kNoMotion;
-    Controller::SwitchMenu(Controller::MenuType::Planet);
+    Controller::SwitchMenu(Controller::MenuType::kPlanet);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
@@ -262,8 +262,8 @@ void EventHandler::View::MoveTo() {
 }
 
 void EventHandler::View::Scale(QWheelEvent* event) {
-  if (Controller::GetMenuType() != Controller::MenuType::Game &&
-      Controller::GetMenuType() != Controller::MenuType::Planet) {
+  if (Controller::GetMenuType() != Controller::MenuType::kGame &&
+      Controller::GetMenuType() != Controller::MenuType::kPlanet) {
     return;
   }
 

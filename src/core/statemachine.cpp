@@ -10,7 +10,7 @@
 
 // -----------------------------------------------------------
 
-Controller::MenuType Controller::current_state_ = Controller::MenuType::Main;
+Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
 int Controller::kMenuCount = 6;
 
 MainMenu* Controller::main_menu = nullptr;
@@ -30,16 +30,16 @@ std::unique_ptr<MenuGraph> Controller::menu_graph_ = nullptr;
 // -----------------------------------------------------------
 
 bool Controller::SwitchMenu(MenuType menu) {
-  if (current_state_ == MenuType::Game) {
+  if (current_state_ == MenuType::kGame) {
     game_menu->SwitchTo(menu);
     return true;
-  } else if (current_state_ == MenuType::Main) {
+  } else if (current_state_ == MenuType::kMain) {
     main_menu->SwitchTo(menu);
     return true;
-  } else if (current_state_ == MenuType::Pause) {
+  } else if (current_state_ == MenuType::kPause) {
     pause_menu->SwitchTo(menu);
     return true;
-  } else if (current_state_ == MenuType::Planet) {
+  } else if (current_state_ == MenuType::kPlanet) {
     planet_menu->SwitchTo(menu);
     return true;
   }
@@ -49,10 +49,10 @@ bool Controller::SwitchMenu(MenuType menu) {
 void Controller::LoadMenuGraph() {
   QVector<QVector<MenuType>> connections(kMenuCount);
 
-  connections[int(MenuType::Main)] = {MenuType::Game};
-  connections[int(MenuType::Game)] = {MenuType::Planet, MenuType::Pause};
-  connections[int(MenuType::Planet)] = {MenuType::Game};
-  connections[int(MenuType::Pause)] = {MenuType::Main, MenuType::Game};
+  connections[int(MenuType::kMain)] = {MenuType::kGame};
+  connections[int(MenuType::kGame)] = {MenuType::kPlanet, MenuType::kPause};
+  connections[int(MenuType::kPlanet)] = {MenuType::kGame};
+  connections[int(MenuType::kPause)] = {MenuType::kMain, MenuType::kGame};
 
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }

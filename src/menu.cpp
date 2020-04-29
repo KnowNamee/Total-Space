@@ -63,9 +63,9 @@ bool MainMenu::SwitchTo(Controller::MenuType menu) {
   delete (Controller::main_menu);
   Controller::main_menu = nullptr;
 
-  if (menu == Controller::MenuType::Game) {
+  if (menu == Controller::MenuType::kGame) {
     Controller::game_menu = new GameMenu();
-    Controller::SetMenuType(Controller::MenuType::Game);
+    Controller::SetMenuType(Controller::MenuType::kGame);
   }
 
   return true;
@@ -126,15 +126,15 @@ bool PauseMenu::SwitchTo(Controller::MenuType menu) {
   delete (Controller::pause_menu);
   Controller::pause_menu = nullptr;
 
-  if (menu == Controller::MenuType::Game) {
-    Controller::SetMenuType(Controller::MenuType::Game);
+  if (menu == Controller::MenuType::kGame) {
+    Controller::SetMenuType(Controller::MenuType::kGame);
   }
 
-  if (menu == Controller::MenuType::Main) {
+  if (menu == Controller::MenuType::kMain) {
     delete (Controller::game_menu);
     Controller::game_menu = nullptr;
     Controller::main_menu = new MainMenu();
-    Controller::SetMenuType(Controller::MenuType::Main);
+    Controller::SetMenuType(Controller::MenuType::kMain);
   }
 
   return true;
@@ -196,10 +196,10 @@ bool PlanetMenu::SwitchTo(Controller::MenuType menu) {
     return false;
   }
 
-  if (menu == Controller::MenuType::Game) {
+  if (menu == Controller::MenuType::kGame) {
     delete (Controller::planet_menu);
     Controller::planet_menu = nullptr;
-    Controller::SetMenuType(Controller::MenuType::Game);
+    Controller::SetMenuType(Controller::MenuType::kGame);
   }
 
   return true;
@@ -223,18 +223,18 @@ bool GameMenu::SwitchTo(Controller::MenuType menu) {
     return false;
   }
 
-  if (menu == Controller::MenuType::Planet) {
+  if (menu == Controller::MenuType::kPlanet) {
     Controller::planet_menu = new PlanetMenu();
-    Controller::SetMenuType(Controller::MenuType::Planet);
+    Controller::SetMenuType(Controller::MenuType::kPlanet);
   }
 
-  if (menu == Controller::MenuType::Pause) {
+  if (menu == Controller::MenuType::kPause) {
     if (Controller::view->EventHandler()->GetMotionType() !=
         EventHandler::View::MotionType::kNoMotion) {
       return false;
     }
     Controller::pause_menu = new PauseMenu();
-    Controller::SetMenuType(Controller::MenuType::Pause);
+    Controller::SetMenuType(Controller::MenuType::kPause);
   }
   return true;
 }

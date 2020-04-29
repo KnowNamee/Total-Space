@@ -21,11 +21,11 @@ class Controller {
   Controller() = delete;
 
   enum class MenuType {
-    Main,
-    Pause,
-    Planet,
-    Unit,
-    Game,
+    kMain,
+    kPause,
+    kPlanet,
+    kUnit,
+    kGame,
   };
 
   static void HideGame();
