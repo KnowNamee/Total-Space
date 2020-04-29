@@ -6,17 +6,21 @@
 #include <QSet>
 #include <QVector>
 
+#include "core/statemachine.h"
+
 class MenuGraph {
  public:
-  MenuGraph(int node_count, const QVector<QVector<int>>& node_connections);
+  MenuGraph(int node_count,
+            const QVector<QVector<Controller::MenuType>>& node_connections);
   ~MenuGraph() { qDebug() << "MenuGraph destroyed"; }
 
-  bool HasConnection(int lhs_node, int rhs_node) const;
+  bool HasConnection(Controller::MenuType lhs_node,
+                     Controller::MenuType rhs_node) const;
 
  private:
   QMap<int, QSet<int>> graph_;
 
-  void MakeConnection(int node, const QVector<int>& nodes);
+  void MakeConnection(int node, const QVector<Controller::MenuType>& nodes);
 };
 
 #endif  // MENUGRAPH_H

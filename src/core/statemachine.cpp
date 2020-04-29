@@ -10,132 +10,131 @@
 
 // -----------------------------------------------------------
 
-int StateMachine::current_state_ = StateMainMenu;
-int StateMachine::kMenuCount = 6;
+Controller::MenuType Controller::current_state_ = Controller::MenuType::Main;
+int Controller::kMenuCount = 6;
 
-MainMenu* StateMachine::main_menu = nullptr;
-PauseMenu* StateMachine::pause_menu = nullptr;
-UnitMenu* StateMachine::unit_menu = nullptr;
-PlanetMenu* StateMachine::planet_menu = nullptr;
-GameMenu* StateMachine::game_menu = nullptr;
-GameView* StateMachine::view = nullptr;
+MainMenu* Controller::main_menu = nullptr;
+PauseMenu* Controller::pause_menu = nullptr;
+UnitMenu* Controller::unit_menu = nullptr;
+PlanetMenu* Controller::planet_menu = nullptr;
+GameMenu* Controller::game_menu = nullptr;
+GameView* Controller::view = nullptr;
 
-Planet* StateMachine::active_planet_ = nullptr;
+Planet* Controller::active_planet_ = nullptr;
 
-GameScene* StateMachine::scene = nullptr;
-MainWindow* StateMachine::window = nullptr;
+GameScene* Controller::scene = nullptr;
+MainWindow* Controller::window = nullptr;
 
-std::unique_ptr<MenuGraph> StateMachine::menu_graph_ = nullptr;
+std::unique_ptr<MenuGraph> Controller::menu_graph_ = nullptr;
 
 // -----------------------------------------------------------
 
-bool StateMachine::SwitchMenu(int menu) {
-  switch (State()) {
-    case StateGameMenu:
-      game_menu->SwitchTo(menu);
-      break;
-    case StateMainMenu:
-      main_menu->SwitchTo(menu);
-      break;
-    case StatePlanetMenu:
-      planet_menu->SwitchTo(menu);
-      break;
-    case StatePauseMenu:
-      pause_menu->SwitchTo(menu);
-      break;
-    default:
-      return false;
+bool Controller::SwitchMenu(MenuType menu) {
+  if (current_state_ == MenuType::Game) {
+    game_menu->SwitchTo(menu);
+    return true;
+  } else if (current_state_ == MenuType::Main) {
+    main_menu->SwitchTo(menu);
+    return true;
+  } else if (current_state_ == MenuType::Pause) {
+    pause_menu->SwitchTo(menu);
+    return true;
+  } else if (current_state_ == MenuType::Planet) {
+    planet_menu->SwitchTo(menu);
+    return true;
   }
-  return true;
+  return false;
 }
 
-void StateMachine::LoadMenuGraph() {
-  QVector<QVector<int>> connections(kMenuCount);
+void Controller::LoadMenuGraph() {
+  QVector<QVector<MenuType>> connections(kMenuCount);
 
-  connections[StateMainMenu] = {StateGameMenu};
-  connections[StateGameMenu] = {StatePlanetMenu, StatePauseMenu};
-  connections[StatePlanetMenu] = {StateGameMenu};
-  connections[StatePauseMenu] = {StateMainMenu, StateGameMenu};
+  connections[int(MenuType::Main)] = {MenuType::Game};
+  connections[int(MenuType::Game)] = {MenuType::Planet, MenuType::Pause};
+  connections[int(MenuType::Planet)] = {MenuType::Game};
+  connections[int(MenuType::Pause)] = {MenuType::Main, MenuType::Game};
 
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }
 
-const MenuGraph* StateMachine::Graph() { return menu_graph_.get(); }
+const MenuGraph* Controller::Graph() { return menu_graph_.get(); }
 
-void StateMachine::StartGame() {
-  if (State() == StateMainMenu) {
+void Controller::StartGame() {
+  if (GetMenuType() == MenuType::Main) {
     RemoveMainMenu();
   }
-  SetState(StateGameMenu);
+  SetMenuType(MenuType::Game);
   view->SetNewGameSettings();
   scene->NewGame();
 }
 
-void StateMachine::EndGame() { scene->Destroy(); }
+void Controller::EndGame() { scene->Destroy(); }
 
-void StateMachine::HideGame() { scene->HideAll(); }
+void Controller::HideGame() { scene->HideAll(); }
 
-void StateMachine::ShowGame() { scene->ShowAll(); }
+void Controller::ShowGame() { scene->ShowAll(); }
 
-void StateMachine::DrawMainMenu() {
-  if (State() == StatePauseMenu) {
+void Controller::DrawMainMenu() {
+  if (GetMenuType() == MenuType::Pause) {
     RemovePauseMenu();
     EndGame();
   }
-  SetState(StateMainMenu);
+  SetMenuType(MenuType::Main);
   main_menu = new MainMenu();
 }
 
-void StateMachine::DrawPauseMenu() {
-  SetState(StatePauseMenu);
+void Controller::DrawPauseMenu() {
+  SetMenuType(MenuType::Pause);
   pause_menu = new PauseMenu();
 }
 
-void StateMachine::DrawPlanetMenu() {
-  SetState(StatePlanetMenu);
+void Controller::DrawPlanetMenu() {
+  SetMenuType(MenuType::Planet);
   planet_menu = new PlanetMenu();
 }
 
-void StateMachine::DrawUnitMenu() {
-  SetState(StateUnitMenu);
+void Controller::DrawUnitMenu() {
+  SetMenuType(MenuType::Unit);
   HideGame();
   HidePlanetMenu();
   unit_menu = new UnitMenu();
 }
 
-void StateMachine::RemoveMainMenu() {
+void Controller::RemoveMainMenu() {
   delete (main_menu);
   main_menu = nullptr;
 }
 
-void StateMachine::RemovePauseMenu() {
+void Controller::RemovePauseMenu() {
   delete (pause_menu);
   pause_menu = nullptr;
-  SetState(StateGameMenu);
+  SetMenuType(MenuType::Game);
 }
 
-void StateMachine::RemovePlanetMenu() {
+void Controller::RemovePlanetMenu() {
   delete (planet_menu);
   active_planet_ = nullptr;
   planet_menu = nullptr;
-  SetState(StateGameMenu);
+  SetMenuType(MenuType::Game);
 }
 
-void StateMachine::RemoveUnitMenu() {
+void Controller::RemoveUnitMenu() {
   delete (unit_menu);
   unit_menu = nullptr;
-  SetState(StatePlanetMenu);
+  SetMenuType(MenuType::Planet);
 }
 
-void StateMachine::HidePlanetMenu() {
+void Controller::HidePlanetMenu() {
   assert(planet_menu != nullptr);
   planet_menu->Hide();
 }
 
-void StateMachine::SetState(int next_state) { current_state_ = next_state; }
+void Controller::SetMenuType(MenuType next_state) {
+  current_state_ = next_state;
+}
 
-int StateMachine::State() { return current_state_; }
+Controller::MenuType Controller::GetMenuType() { return current_state_; }
 
-Planet* StateMachine::GetActivePlanet() { return active_planet_; }
+Planet* Controller::GetActivePlanet() { return active_planet_; }
 
-void StateMachine::SetActivePlanet(Planet* planet) { active_planet_ = planet; }
+void Controller::SetActivePlanet(Planet* planet) { active_planet_ = planet; }

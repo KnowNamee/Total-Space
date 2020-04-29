@@ -9,7 +9,7 @@ class PauseMenu;
 class UnitMenu;
 class PlanetMenu;
 class GameScene;
-class StateMachine;
+class Controller;
 
 class Unit;
 class Planet;

@@ -16,23 +16,23 @@
 #include "scene/gameview.h"
 
 MainMenu::MainMenu() {
-  connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
-  connect(this, SIGNAL(btnNewGameClick()), StateMachine::window,
+  connect(this, SIGNAL(btnExitClick()), Controller::window, SLOT(Exit()));
+  connect(this, SIGNAL(btnNewGameClick()), Controller::window,
           SLOT(StartGame()));
   this->Draw();
 }
 
 MainMenu::~MainMenu() {
-  StateMachine::scene->removeItem(txt_total_space_);
-  StateMachine::scene->removeItem(btn_exit_);
-  StateMachine::scene->removeItem(btn_new_game_);
+  Controller::scene->removeItem(txt_total_space_);
+  Controller::scene->removeItem(btn_exit_);
+  Controller::scene->removeItem(btn_new_game_);
 }
 
 void MainMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  GameView* view = StateMachine::view;
+  GameView* view = Controller::view;
 
   btn_exit_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
@@ -47,28 +47,28 @@ void MainMenu::Draw() {
                     static_cast<int>(width / view->matrix().m11()),
                     static_cast<int>(height / view->matrix().m11()));
 
-  StateMachine::scene->addItem(txt_total_space_);
-  StateMachine::scene->addItem(btn_exit_);
-  StateMachine::scene->addItem(btn_new_game_);
+  Controller::scene->addItem(txt_total_space_);
+  Controller::scene->addItem(btn_exit_);
+  Controller::scene->addItem(btn_new_game_);
 
-  QPointF cp = StateMachine::view->sceneRect().center() / 2;
+  QPointF cp = Controller::view->sceneRect().center() / 2;
 
   btn_new_game_->setPos(cp - QPoint(0, height / 49) / view->matrix().m11());
   btn_exit_->setPos(cp + QPoint(0, height / 28) / view->matrix().m11());
   txt_total_space_->setPos(cp);
 }
 
-bool MainMenu::SwitchTo(int menu) {
-  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+bool MainMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return false;
   }
-  delete (StateMachine::main_menu);
-  StateMachine::main_menu = nullptr;
+  delete (Controller::main_menu);
+  Controller::main_menu = nullptr;
 
-  if (menu == StateMachine::StateGameMenu) {
-    StateMachine::view->SetNewGameSettings();
-    StateMachine::scene->NewGame();
-    StateMachine::SetState(StateMachine::StateGameMenu);
+  if (menu == Controller::MenuType::Game) {
+    Controller::view->SetNewGameSettings();
+    Controller::scene->NewGame();
+    Controller::SetMenuType(Controller::MenuType::Game);
     qDebug() << "state : GameMenu";
   }
 
@@ -76,24 +76,24 @@ bool MainMenu::SwitchTo(int menu) {
 }
 
 PauseMenu::PauseMenu() {
-  connect(this, SIGNAL(btnBackClick()), StateMachine::window,
+  connect(this, SIGNAL(btnBackClick()), Controller::window,
           SLOT(RemovePauseMenu()));
-  connect(this, SIGNAL(btnExitClick()), StateMachine::window,
+  connect(this, SIGNAL(btnExitClick()), Controller::window,
           SLOT(DrawMainMenu()));
   this->Draw();
 }
 
 PauseMenu::~PauseMenu() {
-  StateMachine::scene->removeItem(btn_back_);
-  StateMachine::scene->removeItem(btn_exit_);
-  StateMachine::scene->removeItem(background_rect_);
+  Controller::scene->removeItem(btn_back_);
+  Controller::scene->removeItem(btn_exit_);
+  Controller::scene->removeItem(background_rect_);
 }
 
 void PauseMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  GameView* view = StateMachine::view;
+  GameView* view = Controller::view;
   QPointF center =
       view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
 
@@ -117,9 +117,9 @@ void PauseMenu::Draw() {
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
 
-  StateMachine::scene->addItem(background_rect_);
-  StateMachine::scene->addItem(btn_back_);
-  StateMachine::scene->addItem(btn_exit_);
+  Controller::scene->addItem(background_rect_);
+  Controller::scene->addItem(btn_back_);
+  Controller::scene->addItem(btn_exit_);
 
   btn_back_->setPos(view->sceneRect().center() / 2 -
                     QPoint(0, static_cast<int>(height / 14)) /
@@ -129,22 +129,22 @@ void PauseMenu::Draw() {
                         view->matrix().m11());
 }
 
-bool PauseMenu::SwitchTo(int menu) {
-  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+bool PauseMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return false;
   }
-  delete (StateMachine::pause_menu);
-  StateMachine::pause_menu = nullptr;
+  delete (Controller::pause_menu);
+  Controller::pause_menu = nullptr;
 
-  if (menu == StateMachine::StateGameMenu) {
-    StateMachine::SetState(StateMachine::StateGameMenu);
+  if (menu == Controller::MenuType::Game) {
+    Controller::SetMenuType(Controller::MenuType::Game);
     qDebug() << "state : GameMenu";
   }
 
-  if (menu == StateMachine::StateMainMenu) {
-    StateMachine::EndGame();
-    StateMachine::main_menu = new MainMenu();
-    StateMachine::SetState(StateMachine::StateMainMenu);
+  if (menu == Controller::MenuType::Main) {
+    Controller::EndGame();
+    Controller::main_menu = new MainMenu();
+    Controller::SetMenuType(Controller::MenuType::Main);
     qDebug() << "state : MainMenu";
   }
 
@@ -152,19 +152,19 @@ bool PauseMenu::SwitchTo(int menu) {
 }
 
 PlanetMenu::PlanetMenu() {
-  connect(this, SIGNAL(btn1Click()), StateMachine::window,
+  connect(this, SIGNAL(btn1Click()), Controller::window,
           SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn2Click()), StateMachine::window,
+  connect(this, SIGNAL(btn2Click()), Controller::window,
           SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn3Click()), StateMachine::window,
+  connect(this, SIGNAL(btn3Click()), Controller::window,
           SLOT(RemovePlanetMenu()));
   this->Draw();
 }
 
 PlanetMenu::~PlanetMenu() {
-  StateMachine::scene->removeItem(btn1_);
-  StateMachine::scene->removeItem(btn2_);
-  StateMachine::scene->removeItem(btn3_);
+  Controller::scene->removeItem(btn1_);
+  Controller::scene->removeItem(btn2_);
+  Controller::scene->removeItem(btn3_);
 }
 
 void PlanetMenu::Draw() {
@@ -178,12 +178,12 @@ void PlanetMenu::Draw() {
   btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                         width / 12, height / 15);
 
-  StateMachine::scene->addItem(btn1_);
-  StateMachine::scene->addItem(btn2_);
-  StateMachine::scene->addItem(btn3_);
+  Controller::scene->addItem(btn1_);
+  Controller::scene->addItem(btn2_);
+  Controller::scene->addItem(btn3_);
 
   // TODO определить зависимость множителя от радиуса планеты
-  Planet* p = StateMachine::GetActivePlanet();
+  Planet* p = Controller::GetActivePlanet();
   radius_ = -(p->GetRadius() * 1.3 / 2);
   QPointF vec1(0, radius_);
   QPointF vec2(vec1 * QTransform().rotate(60));
@@ -210,15 +210,15 @@ void PlanetMenu::Show() {
   btn3_->show();
 }
 
-bool PlanetMenu::SwitchTo(int menu) {
-  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+bool PlanetMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return false;
   }
 
-  if (menu == StateMachine::StateGameMenu) {
-    delete (StateMachine::planet_menu);
-    StateMachine::planet_menu = nullptr;
-    StateMachine::SetState(StateMachine::StateGameMenu);
+  if (menu == Controller::MenuType::Game) {
+    delete (Controller::planet_menu);
+    Controller::planet_menu = nullptr;
+    Controller::SetMenuType(Controller::MenuType::Game);
   }
 
   return true;
@@ -230,24 +230,24 @@ UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
 
-bool GameMenu::SwitchTo(int menu) {
-  if (!StateMachine::Graph()->HasConnection(StateMachine::State(), menu)) {
+bool GameMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return false;
   }
 
-  if (menu == StateMachine::StatePlanetMenu) {
-    StateMachine::planet_menu = new PlanetMenu();
-    StateMachine::SetState(StateMachine::StatePlanetMenu);
+  if (menu == Controller::MenuType::Planet) {
+    Controller::planet_menu = new PlanetMenu();
+    Controller::SetMenuType(Controller::MenuType::Planet);
     qDebug() << "state : PlanetMenu";
   }
 
-  if (menu == StateMachine::StatePauseMenu) {
-    if (StateMachine::view->EventHandler()->GetMotionType() !=
+  if (menu == Controller::MenuType::Pause) {
+    if (Controller::view->EventHandler()->GetMotionType() !=
         EventHandler::View::MotionType::kNoMotion) {
       return false;
     }
-    StateMachine::pause_menu = new PauseMenu();
-    StateMachine::SetState(StateMachine::StatePauseMenu);
+    Controller::pause_menu = new PauseMenu();
+    Controller::SetMenuType(Controller::MenuType::Pause);
     qDebug() << "state : PauseMenu";
   }
   return true;

@@ -4,6 +4,7 @@
 #include <QGraphicsItem>
 
 #include "core/eventhandling.h"
+#include "core/statemachine.h"
 
 class ImageItem;
 class GameScene;
@@ -17,7 +18,7 @@ class MainMenu : public QObject {
   ~MainMenu();
 
   void Draw();
-  bool SwitchTo(int menu);
+  bool SwitchTo(Controller::MenuType menu);
 
  signals:
   void btnSettingsClick();
@@ -40,7 +41,7 @@ class PauseMenu : public QObject {
   ~PauseMenu();
 
   void Draw();
-  bool SwitchTo(int menu);
+  bool SwitchTo(Controller::MenuType menu);
 
  signals:
   void btnBackClick();
@@ -65,7 +66,7 @@ class PlanetMenu : public QObject {
   void Hide();
   void Show();
 
-  bool SwitchTo(int menu);
+  bool SwitchTo(Controller::MenuType menu);
 
  signals:
   void btn1Click();
@@ -103,7 +104,7 @@ class GameMenu : public QObject {
  public:
   GameMenu();
 
-  bool SwitchTo(int menu);
+  bool SwitchTo(Controller::MenuType menu);
 
  private:
 };

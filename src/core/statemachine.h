@@ -16,16 +16,16 @@ class GameView;
 class MenuGraph;
 class GameMenu;
 
-class StateMachine {
+class Controller {
  public:
-  StateMachine() = delete;
+  Controller() = delete;
 
-  enum {
-    StateMainMenu,
-    StatePauseMenu,
-    StatePlanetMenu,
-    StateUnitMenu,
-    StateGameMenu,
+  enum class MenuType {
+    Main,
+    Pause,
+    Planet,
+    Unit,
+    Game,
   };
 
   static void StartGame();
@@ -47,13 +47,13 @@ class StateMachine {
 
   static void ShowPlanetMenu();
 
-  static void SetState(int next_state);
-  static int State();
+  static void SetMenuType(MenuType type);
+  static MenuType GetMenuType();
 
   static Planet* GetActivePlanet();
   static void SetActivePlanet(Planet* planet);
 
-  static bool SwitchMenu(int menu);
+  static bool SwitchMenu(MenuType menu);
   static void LoadMenuGraph();
   static const MenuGraph* Graph();
 
@@ -70,7 +70,7 @@ class StateMachine {
   static Planet* active_planet_;
   static std::unique_ptr<MenuGraph> menu_graph_;
 
-  static int current_state_;
+  static MenuType current_state_;
   static int kMenuCount;
 };
 

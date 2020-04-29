@@ -21,22 +21,22 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
-    StateMachine::scene->removeItem(it.next());
+    Controller::scene->removeItem(it.next());
   }
   player_ = nullptr;
 }
 
 void GameScene::HideAll() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
     it.next()->hide();
   }
 }
 
 void GameScene::ShowAll() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
     it.next()->show();
   }
@@ -69,7 +69,7 @@ void GameScene::SetSceneSettings() {
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kMainBackground),
                     width * 8, height * 8);
   background->setZValue(-5);
-  StateMachine::scene->addItem(background);
+  Controller::scene->addItem(background);
 }
 
 void GameScene::GenerateMap() {
