@@ -12,6 +12,7 @@
 #include "data/loader.h"
 #include "mainwindow.h"
 #include "objects/planet.h"
+#include "objects/player.h"
 #include "core/statemachine.h"
 
 MainMenu::MainMenu() {
@@ -113,13 +114,47 @@ void PauseMenu::Draw() {
 }
 
 PlanetMenu::PlanetMenu() {
-  connect(this, SIGNAL(btn1Click()), StateMachine::window,
-          SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn2Click()), StateMachine::window,
-          SLOT(RemovePlanetMenu()));
-  connect(this, SIGNAL(btn3Click()), StateMachine::window,
-          SLOT(RemovePlanetMenu()));
-  this->Draw();
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  if (StateMachine::GetActivePlanet()->GetOwner() ==
+      dynamic_cast<PlayerBase*>(StateMachine::scene->GetPlayer())) {
+    // Building menu
+    connect(this, SIGNAL(btn1Click()), StateMachine::window,
+            SLOT(RemovePlanetMenu()));
+    // Unit menu
+    connect(this, SIGNAL(btn2Click()), StateMachine::window,
+            SLOT(RemovePlanetMenu()));
+    // Exit menu
+    connect(this, SIGNAL(btn3Click()), StateMachine::window,
+            SLOT(RemovePlanetMenu()));
+    btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    this->Draw();
+  } else {
+    // TODO
+    // Attack menu
+    connect(this, SIGNAL(btn1Click()), StateMachine::window,
+            SLOT(DrawAttackMenu()));
+    // Exit menu
+    connect(this, SIGNAL(btn2Click()), StateMachine::window,
+            SLOT(RemovePlanetMenu()));
+    // Planet info
+    connect(this, SIGNAL(btn3Click()), StateMachine::window,
+            SLOT(RemovePlanetMenu()));
+    btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    // Planet info
+    btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                          width / 12, height / 15);
+    this->Draw();
+  }
 }
 
 PlanetMenu::~PlanetMenu() {
@@ -128,16 +163,7 @@ PlanetMenu::~PlanetMenu() {
   StateMachine::scene->removeItem(btn3_);
 }
 
-void PlanetMenu::Draw() {
-  int32_t width = qApp->screens()[0]->size().width();
-  int32_t height = qApp->screens()[0]->size().height();
-
-  btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                        width / 12, height / 15);
-  btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                        width / 12, height / 15);
-  btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                        width / 12, height / 15);
+void PlanetMenu::Draw() {  
 
   StateMachine::scene->addItem(btn1_);
   StateMachine::scene->addItem(btn2_);

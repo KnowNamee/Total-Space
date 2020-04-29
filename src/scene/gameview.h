@@ -12,7 +12,8 @@ class GameScene;
 class GameView : public QGraphicsView {
   Q_OBJECT
  public:
-  GameView(GameScene* scene, QWidget* parent);
+  GameView(GameScene* scene, QWidget* parent);  
+  GameScene* GetScene() const;
   void SetNewGameSettings();
 
  private:

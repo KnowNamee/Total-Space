@@ -21,8 +21,7 @@ class View : public QObject {
   void MouseMoveEvent();
   void MouseReleaseEvent(QMouseEvent* event);
   void DoubleClick(QMouseEvent* event);
-  void Scale(QWheelEvent* event);
-
+  void Scale(QWheelEvent* event);  
   void KeyReleaseEvent(QKeyEvent *event);
 
  private:
@@ -35,7 +34,8 @@ class View : public QObject {
   MotionType current_motion_ = MotionType::kNoMotion;
   int8_t scale_direction_ = 0;
 
-  static const int kMoveZone;
+  const double kMoveZone = 32;
+  const double kMapSize;
 
   bool IsMouseInMotionZone(QPointF cursor);
   bool CompareMotion(MotionType needed_motion);

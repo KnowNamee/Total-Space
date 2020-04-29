@@ -34,6 +34,7 @@ class StateMachine {
   static void DrawPauseMenu();
   static void DrawPlanetMenu();
   static void DrawUnitMenu();
+  static void DrawAttackMenu();
 
   static void RemoveMainMenu();
   static void RemovePauseMenu();

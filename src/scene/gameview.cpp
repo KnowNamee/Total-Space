@@ -15,6 +15,10 @@ GameView::GameView(GameScene* scene, QWidget* parent)
   event_handler_ = std::make_shared<EventHandler::View>(this);
 }
 
+GameScene* GameView::GetScene() const {
+  return dynamic_cast<GameScene*>(scene());
+}
+
 void GameView::SetNewGameSettings() {
   setSceneRect(-width() / 2, -height() / 2, width(), height());
   setMatrix(QMatrix(kScaleCoefficient, matrix().m12(), matrix().m21(),
