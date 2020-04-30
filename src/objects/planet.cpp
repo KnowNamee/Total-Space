@@ -90,10 +90,15 @@ bool Planet::TakeAttack(
   int32_t enemy_range_count = 0;
   // TODO
   // Коэффы рандомные, для баланса можно выбрать
+  // Коэффициент показывающий во сколько увеличить силу армии,
+  // если она сбалансированна
   const double kRoleBalancedCoefficient = 1.1;
-  const double kBalanceDifference = 0.1;
+  // Допустимая разница в сбалансированности
+  const double kBalanceDifference = 0.2;
+  // Если в отряде противника есть юниты, с которыми собственные юниты не любят
+  // взаимодействовать, то уменьшаем собственную силу
   const double kEnemyUnitCoefficient = 0.7;
-  // Дома и стены помогают
+  // Дома и стены помогают, коэфф увеличивающий характеристики защитников
   const double kHomeCoefficient = 1.1;
 
   std::set<UnitType> enemy_units_types;
@@ -137,11 +142,13 @@ bool Planet::TakeAttack(
 
   double enemy_army_balance = 1;
   if (enemy_range_count != 0) {
-    std::abs(1. - 1. * enemy_meele_count / enemy_range_count);
+    enemy_army_balance = std::abs(1 - static_cast<double>(enemy_meele_count) /
+                                          enemy_range_count);
   }
   double self_army_balance = 1;
   if (self_range_count != 0) {
-    std::abs(1. - 1. * self_meele_count / self_range_count);
+    self_army_balance =
+        std::abs(1 - static_cast<double>(self_meele_count) / self_range_count);
   }
 
   if (enemy_army_balance <= kBalanceDifference) {
@@ -228,7 +235,7 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
     for (int32_t i = 0; i < number_of_dead_units; i++) {
       int32_t index =
           static_cast<int32_t>(QRandomGenerator::global()->generate()) %
-          planet_to_units.second.size();     
+          planet_to_units.second.size();
       planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
     }
   }

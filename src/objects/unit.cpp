@@ -14,7 +14,7 @@ Unit::Unit(const QString& caption, const Resources& cost, int32_t power,
 const QString& Unit::GetCaption() const { return caption_; }
 const Resources& Unit::GetCost() const { return cost_; }
 
-const UnitCharacteristics &Unit::GetUnitCharacteristics() const {
+const UnitCharacteristics& Unit::GetUnitCharacteristics() const {
   return charachteristics_;
 }
 
