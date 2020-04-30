@@ -17,22 +17,22 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
-    StateMachine::scene->removeItem(it.next());
+    Controller::scene->removeItem(it.next());
   }
   player_ = nullptr;
 }
 
 void GameScene::HideAll() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
     it.next()->hide();
   }
 }
 
 void GameScene::ShowAll() {
-  QListIterator<QGraphicsItem*> it(StateMachine::scene->items());
+  QListIterator<QGraphicsItem*> it(Controller::scene->items());
   while (it.hasNext()) {
     it.next()->show();
   }
@@ -68,7 +68,7 @@ void GameScene::SetSceneSettings() {
                     static_cast<int32_t>(4 * kMapSize * kHeight));
   background_->setPos(0, 0);
   background_->setZValue(-5);
-  StateMachine::scene->addItem(background_);
+  Controller::scene->addItem(background_);
 }
 
 void GameScene::GenerateMap() {
@@ -131,7 +131,7 @@ double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
 
 std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
     PlayerBase* player) {
-  Planet* planet = StateMachine::GetActivePlanet();
+  Planet* planet = Controller::GetActivePlanet();
   if (planet == nullptr) {
     return {};
   }

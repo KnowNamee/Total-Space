@@ -83,8 +83,8 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
   return available_units;
 }
 
-bool Planet::TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units,
-                        PlayerBase* enemy) {
+bool Planet::TakeAttack(
+    const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   UnitCharacteristics enemy_characteristics;
   int32_t enemy_meele_count = 0;
   int32_t enemy_range_count = 0;

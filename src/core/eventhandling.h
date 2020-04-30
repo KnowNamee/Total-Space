@@ -13,15 +13,18 @@ namespace EventHandler {
 class View : public QObject {
   Q_OBJECT
 
+ public:
   enum class MotionType { kMoveWithMouse, kMoveToPlanet, kScale, kNoMotion };
 
- public:
-  View(GameView *view);
+  View(GameView* view);
 
   void MouseMoveEvent();
   void MouseReleaseEvent(QMouseEvent* event);
   void DoubleClick(QMouseEvent* event);
-  void Scale(QWheelEvent* event);  
+  void Scale(QWheelEvent* event);
+
+  MotionType GetMotionType();
+
   void KeyReleaseEvent(QKeyEvent* event);
 
  private:

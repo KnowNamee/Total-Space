@@ -39,8 +39,7 @@ class Planet : public QObject {
   std::set<BuildingType> GetAvailableBuildings() const;
   std::set<UnitType> GetAvailableUnits() const;
 
-  bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units,
-                  PlayerBase* enemy);
+  bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units);
   std::pair<int32_t, int32_t> CountPoints(const UnitCharacteristics& self,
                                           const UnitCharacteristics& enemy);
   bool Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units);
