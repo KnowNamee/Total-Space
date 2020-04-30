@@ -21,13 +21,13 @@ void PlayerBase::AddPlanet(const std::shared_ptr<Planet>& planet) {
   planets_.push_back(planet);
 }
 
-void PlayerBase::RemovePlanet(const std::shared_ptr<Planet> &planet) {
+void PlayerBase::RemovePlanet(const std::shared_ptr<Planet>& planet) {
   planets_.removeOne(planet);
 }
 
 int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 
-void PlayerBase::IncreasePower(int32_t power) { army_power_+=power; }
+void PlayerBase::IncreasePower(int32_t power) { army_power_ += power; }
 
 const QVector<std::shared_ptr<Planet>>& PlayerBase::GetPlanets() const {
   return planets_;

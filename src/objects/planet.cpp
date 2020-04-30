@@ -219,7 +219,7 @@ std::pair<int32_t, int32_t> Planet::CountPoints(
 bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   double random_double = QRandomGenerator::global()->generateDouble();
   const double kDeadCoefficient = std::min(random_double, 1. - random_double);
-  for (auto& planet_to_units : enemy_units) {
+  for (const auto& planet_to_units : enemy_units) {
     int32_t number_of_dead_units =
         std::min(static_cast<int32_t>(std::ceil(kDeadCoefficient *
                                                 planet_to_units.second.size())),
@@ -228,9 +228,8 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
     for (int32_t i = 0; i < number_of_dead_units; i++) {
       int32_t index =
           static_cast<int32_t>(QRandomGenerator::global()->generate()) %
-          planet_to_units.second.size();
-      UnitType dead_unit = planet_to_units.second[index];
-      planet_to_units.first->RemoveUnit(dead_unit);
+          planet_to_units.second.size();     
+      planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
     }
   }
   return false;
