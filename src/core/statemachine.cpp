@@ -15,6 +15,7 @@ MainMenu* StateMachine::main_menu = nullptr;
 PauseMenu* StateMachine::pause_menu = nullptr;
 UnitMenu* StateMachine::unit_menu = nullptr;
 PlanetMenu* StateMachine::planet_menu = nullptr;
+AttackMenu* StateMachine::attack_menu = nullptr;
 GameView* StateMachine::view = nullptr;
 
 Planet* StateMachine::active_planet_ = nullptr;
@@ -71,6 +72,8 @@ void StateMachine::DrawUnitMenu() {
 void StateMachine::DrawAttackMenu() {
   // TODO
   // Отрисовка меню атаки, возможно создание отдельного класса для этого
+  SetState(StateAttackMenu);
+  attack_menu = new AttackMenu();
 }
 
 void StateMachine::RemoveMainMenu() {

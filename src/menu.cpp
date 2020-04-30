@@ -6,14 +6,14 @@
 #include <QGraphicsView>
 #include <QScreen>
 
-#include "scene/gamescene.h"
-#include "scene/gameview.h"
-#include "graphics/imageitem.h"
+#include "core/statemachine.h"
 #include "data/loader.h"
+#include "graphics/imageitem.h"
 #include "mainwindow.h"
 #include "objects/planet.h"
 #include "objects/player.h"
-#include "core/statemachine.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
@@ -110,7 +110,6 @@ void PauseMenu::Draw() {
   btn_exit_->setPos(btn_back_->pos() +
                     QPoint(0, static_cast<int>(height / 18)) /
                         view->matrix().m11());
-
 }
 
 PlanetMenu::PlanetMenu() {
@@ -163,8 +162,7 @@ PlanetMenu::~PlanetMenu() {
   StateMachine::scene->removeItem(btn3_);
 }
 
-void PlanetMenu::Draw() {  
-
+void PlanetMenu::Draw() {
   StateMachine::scene->addItem(btn1_);
   StateMachine::scene->addItem(btn2_);
   StateMachine::scene->addItem(btn3_);
@@ -202,3 +200,16 @@ UnitMenu::UnitMenu() { this->Draw(); }
 UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
+
+AttackMenu::AttackMenu() {}
+// TODO
+//    : available_units_(StateMachine::scene->GetNearestUnits())
+//}
+
+AttackMenu::~AttackMenu() {}
+
+void AttackMenu::Draw() {}
+
+void AttackMenu::Hide() {}
+
+void AttackMenu::Show() {}

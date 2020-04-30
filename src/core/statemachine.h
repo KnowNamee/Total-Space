@@ -11,6 +11,7 @@ class Planet;
 class UnitMenu;
 class MainWindow;
 class GameView;
+class AttackMenu;
 
 class StateMachine {
  public:
@@ -21,6 +22,7 @@ class StateMachine {
     StatePauseMenu,
     StatePlanetMenu,
     StateUnitMenu,
+    StateAttackMenu,
     StateGame,
     StateNone,
   };
@@ -55,6 +57,7 @@ class StateMachine {
   static PauseMenu* pause_menu;
   static PlanetMenu* planet_menu;
   static UnitMenu* unit_menu;
+  static AttackMenu* attack_menu;
   static GameScene* scene;
   static GameView* view;
   static MainWindow* window;

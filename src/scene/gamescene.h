@@ -13,6 +13,7 @@
 
 class Drawer;
 class Player;
+class PlayerBase;
 class Planet;
 class Unit;
 
@@ -26,7 +27,7 @@ class GameScene : public QGraphicsScene {
   void ShowAll();
   Player* GetPlayer() const;
   double GetMapSize() const;
-  std::vector<UnitType> GetNearestUnits();
+  std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
 
  public slots:
   void NewGame();
@@ -43,7 +44,7 @@ class GameScene : public QGraphicsScene {
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kMapSize = 2.5;
   // TODO
-  // Выбрать расстояние
+  // Выбрать расстояние, очень сильно влияет
   const double kMaximalDistance = qApp->screens()[0]->size().width() / 2;
 };
 

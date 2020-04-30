@@ -1,5 +1,5 @@
 {
-    "economic": {
+    "buildings": {
         "forge": {
             "caption": "Forge",
             "type": "tools",
@@ -65,6 +65,20 @@
             "tools_cost": 2300,
             "batteries_income": 200,
             "tools_income": -15
+        }
+    },
+    "units" : {
+        "marine" : {
+            "caption": "Marine",
+            "power": 100,
+            "batteries_cost": 300,
+            "tools_cost": 100,
+            "role": "Melee",
+            "enemy": "Rover",
+            "attack": 14,
+            "armor": 12,
+            "health": 150,
+            "stamina": 100
         }
     }
 }

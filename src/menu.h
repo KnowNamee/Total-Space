@@ -4,10 +4,12 @@
 #include <QGraphicsItem>
 
 #include "core/eventhandling.h"
+#include "util/utility.h"
 
 class ImageItem;
 class GameScene;
 class MainWindow;
+class Planet;
 
 class MainMenu : public QObject {
   Q_OBJECT
@@ -92,4 +94,22 @@ class UnitMenu : public QObject {
  private:
   friend class EventHandler::View;
 };
+
+class AttackMenu : public QObject {
+  Q_OBJECT
+
+ public:
+  AttackMenu();
+  ~AttackMenu();
+
+  void Draw();
+  void Hide();
+  void Show();
+
+ private:
+  friend class EventHandler::View;
+
+  std::map<Planet*, QVector<UnitType>> available_units_;
+};
+
 #endif  // MENU_H

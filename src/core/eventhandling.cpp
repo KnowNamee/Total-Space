@@ -16,6 +16,7 @@
 #include "mainwindow.h"
 #include "menu.h"
 #include "objects/planet.h"
+#include "objects/player.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 

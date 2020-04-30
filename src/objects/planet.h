@@ -14,13 +14,16 @@ class Unit;
 
 class Planet : public QObject {
   Q_OBJECT
-public:
+ public:
   Planet(QPointF coordinates, double radius);
 
-  void SetOwner(const std::shared_ptr<PlayerBase>& owner);
+  void SetOwner(PlayerBase* owner);
 
   void AddBuilding(BuildingType building);
   void AddUnit(UnitType unit);
+  void AddUnits(const QVector<UnitType>& units);
+  void RemoveUnit(UnitType unit);
+  void RemoveUnits(const QVector<UnitType>& units);
 
   void Upgrade();
 
@@ -36,14 +39,23 @@ public:
   std::set<BuildingType> GetAvailableBuildings() const;
   std::set<UnitType> GetAvailableUnits() const;
 
-private:
+  bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units,
+                  PlayerBase* enemy);
+  std::pair<int32_t, int32_t> CountPoints(const UnitCharacteristics& self,
+                                          const UnitCharacteristics& enemy);
+  bool Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+  bool Draw(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+  bool Win(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+  void MoveUnits(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+
+ private:
   int32_t level_ = 1;
   const double radius_;
   const QPointF coordinates_;
-  std::shared_ptr<PlayerBase> owner_;
+  PlayerBase* owner_ = nullptr;
   Resources income_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
 };
 
-#endif // PLANET_H
+#endif  // PLANET_H

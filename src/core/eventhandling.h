@@ -22,7 +22,7 @@ class View : public QObject {
   void MouseReleaseEvent(QMouseEvent* event);
   void DoubleClick(QMouseEvent* event);
   void Scale(QWheelEvent* event);  
-  void KeyReleaseEvent(QKeyEvent *event);
+  void KeyReleaseEvent(QKeyEvent* event);
 
  private:
   QGraphicsItem* target_ = nullptr;
