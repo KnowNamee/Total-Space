@@ -130,6 +130,7 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
 
   if (menu == Controller::MenuType::kMain) {
     Controller::SetPauseMenu(nullptr);
+    Controller::SetGameMenu(nullptr);
     Controller::SetMainMenu(new MainMenu());
     Controller::SetMenuType(Controller::MenuType::kMain);
   }
