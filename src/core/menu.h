@@ -14,7 +14,7 @@ class Menu : public QObject {
   Q_OBJECT
 
  public:
-    virtual void Draw() = 0;
+  virtual void Draw() = 0;
   virtual void SwitchTo(Controller::MenuType menu) = 0;
 };
 
