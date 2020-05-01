@@ -7,15 +7,16 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "graphics/imageitem.h"
 #include "mainwindow.h"
-#include "menugraph.h"
 #include "objects/planet.h"
 #include "objects/player.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
+#include "util/typeoffset.h"
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), Controller::window, SLOT(Exit()));
@@ -26,6 +27,12 @@ MainMenu::~MainMenu() {
   Controller::scene->removeItem(txt_total_space_);
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_new_game_);
+}
+
+void MainMenu::SetZValue() {
+  txt_total_space_->setZValue(ZValues::kMainMenu);
+  btn_new_game_->setZValue(ZValues::kMainMenu);
+  btn_exit_->setZValue(ZValues::kMainMenu);
 }
 
 void MainMenu::Draw() {
@@ -46,6 +53,8 @@ void MainMenu::Draw() {
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
                     static_cast<int>(width / view->matrix().m11()),
                     static_cast<int>(height / view->matrix().m11()));
+
+  SetZValue();
 
   Controller::scene->addItem(txt_total_space_);
   Controller::scene->addItem(btn_exit_);
@@ -78,6 +87,12 @@ PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(background_rect_);
 }
 
+void PauseMenu::SetZValue() {
+  background_rect_->setZValue(ZValues::kPauseMenu);
+  btn_back_->setZValue(ZValues::kPauseMenu);
+  btn_exit_->setZValue(ZValues::kPauseMenu);
+}
+
 void PauseMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
@@ -105,6 +120,8 @@ void PauseMenu::Draw() {
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
                     static_cast<int>(width / (5 * view->matrix().m11())),
                     static_cast<int>(height / (12 * view->matrix().m11())));
+
+  SetZValue();
 
   Controller::scene->addItem(background_rect_);
   Controller::scene->addItem(btn_back_);
@@ -187,6 +204,12 @@ PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn3_);
 }
 
+void PlanetMenu::SetZValue() {
+  btn1_->setZValue(ZValues::kPlanetMenu);
+  btn2_->setZValue(ZValues::kPlanetMenu);
+  btn3_->setZValue(ZValues::kPlanetMenu);
+}
+
 void PlanetMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
@@ -197,6 +220,8 @@ void PlanetMenu::Draw() {
                         width / 12, height / 15);
   btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                         width / 12, height / 15);
+
+  SetZValue();
 
   Controller::scene->addItem(btn1_);
   Controller::scene->addItem(btn2_);
@@ -250,6 +275,8 @@ void UnitMenu::Draw() {}
 GameMenu::GameMenu() { this->Draw(); }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
+
+void GameMenu::SetZValue() {}
 
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {

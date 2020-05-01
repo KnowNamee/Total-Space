@@ -124,6 +124,7 @@ void GameScene::GenerateMap() {
   }
 
   graph_ = std::make_shared<PlanetsGraph>(items());
+  drawer_->DrawPlanetsGraph(graph_);
 }
 
 void GameScene::GeneratePlanetsGraph() {

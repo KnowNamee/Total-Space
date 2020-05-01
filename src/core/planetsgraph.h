@@ -4,6 +4,7 @@
 #include <QGraphicsItem>
 #include <QList>
 #include <map>
+#include <memory>
 #include <set>
 
 #include "graphics/planetgraphics.h"
@@ -13,41 +14,52 @@ class PlanetsGraph {
   class Edge {
    public:
     Edge() = delete;
-    Edge(PlanetGraphics* planet, int distance, bool is_shortest = false);
+    Edge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet, int distance);
 
-    Planet* GetPlanet() const;
-    PlanetGraphics* GetPlanetGraphics() const;
+    Planet* GetLeftPlanet() const;
+    Planet* GetRightPlanet() const;
+    PlanetGraphics* GetLeftPlanetGraphics() const;
+    PlanetGraphics* GetRightPlanetGraphics() const;
+    QGraphicsLineItem* GetEdge() const;
     int GetDistance() const;
-    bool IsShortest() const;
+
+    void Draw(const QPen& pen, double opacity = 0.2);
+    bool IsOnScene() const;
+    int IsCollides() const;
 
     bool operator<(const Edge& rhs_edge) const;
 
    private:
-    PlanetGraphics* planet_;
+    PlanetGraphics* lhs_planet_;
+    PlanetGraphics* rhs_planet_;
+    QGraphicsLineItem* edge_ = nullptr;
+
     int distance_;
-    bool is_shortest_ = false;
+    bool is_on_scene_ = false;
   };
 
  public:
   PlanetsGraph() = delete;
   PlanetsGraph(const QList<QGraphicsItem*>& items);
 
-  void DrawLine(PlanetGraphics* planet_a, PlanetGraphics* planet_b, int type);
-  void AddEdge(PlanetGraphics* planet_a, PlanetGraphics* planet_b,
-               bool is_shortest = false);
+  void Draw();
+  void DrawLine(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet,
+                int type);
+  void AddEdge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
 
  private:
-  std::map<PlanetGraphics*, std::set<Edge>> graph_;
+  std::map<PlanetGraphics*, std::set<std::shared_ptr<Edge>>> graph_;
   std::vector<PlanetGraphics*> planets_;
 
   void ExtractPlanets(const QList<QGraphicsItem*>& items);
   void FormEdges();
 
+  void BuildSpiderWeb();
   void KraskalBuildMST();
   PlanetGraphics* FindSetDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
                              PlanetGraphics* planet);
   void UnionSetsDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-                    PlanetGraphics* planet_a, PlanetGraphics* planet_b);
+                    PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
 };
 
 #endif  // PLANETSGRAPH_H
