@@ -19,6 +19,8 @@ class GameMenu;
 class MenuGraph;
 
 class MainWindow;
+class GameView;
+class AttackMenu;
 
 class Controller {
  public:
@@ -34,7 +36,6 @@ class Controller {
 
   static void HideGame();
   static void ShowGame();
-
   static void SwitchMenu(MenuType menu);
   static void SetMenuType(MenuType type);
   static MenuType GetMenuType();

@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget* parent)
 
   Controller::view->show();
 
-  ObjectsLoader::LoadDataFromFile(":/obectsdata/BuildingsInfo.json");
+  ObjectsLoader::LoadDataFromFile(":/objectsdata/BuildingsInfo.json");
 }
 
 MainWindow::~MainWindow() {

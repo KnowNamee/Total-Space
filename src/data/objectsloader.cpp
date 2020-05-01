@@ -74,6 +74,13 @@ void ObjectsLoader::LoadUnits(const QJsonObject& unit) {
   int32_t power = unit.value("power").toInt();
   Resources cost(unit.value("batteries_cost").toInt(),
                  unit.value("tools_cost").toInt());
-  Unit* unit_ptr = new Unit(caption, power, cost);
+  UnitRole role = ObjectsStorage::GetUnitRole(unit.value("role").toString());
+  UnitType enemy = ObjectsStorage::GetUnitType(unit.value("enemy").toString());
+  UnitCharacteristics charachteristics(
+      unit.value("attack").toInt(), unit.value("armor").toInt(),
+      unit.value("health").toInt(), unit.value("stamina").toInt());
+
+  Unit* unit_ptr =
+      new Unit(caption, cost, power, role, enemy, charachteristics);
   ObjectsStorage::AddUnit(unit_ptr);
 }
