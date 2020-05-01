@@ -18,6 +18,8 @@ public:
   int32_t GetTools() const;
   int32_t GetBatteries() const;
 
+  void AddResources(const Resources&);
+  void SubResources(const Resources&);
   void UpdateResources();
 
   void AddPlanet(const std::shared_ptr<Planet>& planet);

@@ -19,6 +19,8 @@ class ObjectsStorage {
   static const Resources& GetIncome(BuildingType building);
   static UnitType GetUnitType(const QString& caption);
   static BuildingType GetBuildingType(const QString& caption);
+  static const Unit* GetUnit(UnitType unit);
+  static const Building* GetBuilding(BuildingType building);
 
  private:
   static const std::map<QString, BuildingType> building_caption_to_type_;

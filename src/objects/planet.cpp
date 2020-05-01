@@ -1,4 +1,7 @@
 #include "objects/planet.h"
+#include "objects/playerbase.h"
+#include "objects/building.h"
+#include "objects/unit.h"
 
 #include "data/objectsstorage.h"
 
@@ -12,11 +15,13 @@ void Planet::SetOwner(const std::shared_ptr<PlayerBase>& owner) {
 const Resources& Planet::GetIncome() const { return income_; }
 
  void Planet::Build(BuildingType building) {
+  owner_->SubResources(ObjectsStorage::GetBuilding(building)->GetCost());
   buildings_.push_back(building);
   income_ += ObjectsStorage::GetIncome(building);
  }
 
  void Planet::AddUnit(UnitType unit) {
+   owner_->SubResources(ObjectsStorage::GetUnit(unit)->GetCost());
    units_on_planet_.push_back(unit);
  }
 

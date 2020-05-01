@@ -11,6 +11,12 @@ const Resources& PlayerBase::GetResources() const { return resources_; }
 int32_t PlayerBase::GetTools() const { return resources_.GetTools(); }
 int32_t PlayerBase::GetBatteries() const { return resources_.GetBatteries(); }
 
+void PlayerBase::AddResources(const Resources & resources) {
+    resources_ += resources;
+}
+void PlayerBase::SubResources(const Resources & resources) {
+    resources_ -= resources;
+}
 void PlayerBase::UpdateResources() {
   for (const auto& planet : GetPlanets()) {
     resources_ += planet->GetIncome();

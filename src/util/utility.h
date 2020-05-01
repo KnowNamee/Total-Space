@@ -15,9 +15,16 @@ class Resources {
   const Resources operator+(const Resources& rhs) {
     return Resources(batteries_ + rhs.batteries_, tools_ + rhs.tools_);
   }
+  const Resources operator-(const Resources& rhs) {
+    return Resources(batteries_ - rhs.batteries_, tools_ - rhs.tools_);
+  }
 
   Resources& operator+=(const Resources& rhs) {
     *this = *this + rhs;
+    return *this;
+  }
+  Resources& operator-=(const Resources& rhs) {
+    *this = *this - rhs;
     return *this;
   }
 
@@ -42,6 +49,11 @@ enum class UnitType {
   kRanger,
   kFalcon,
   kRover,
+};
+
+enum class ShopType {
+    kUnit,
+    kBuilding,
 };
 
 #endif  // RESOURCES_H

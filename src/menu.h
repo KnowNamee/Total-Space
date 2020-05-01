@@ -89,24 +89,38 @@ class ShopItem : public QObject, public QGraphicsItem {
     Q_OBJECT
 public:
   ShopItem();
-  ShopItem(QPointF pos, QSize size, QString name);
+  ShopItem(QPointF pos, QSizeF size, QString name);
 
   int type() const override;
+  ShopType GetType() const;
 
   void Remove();
 
 public slots:
-  void Yo();
+  void BuySomething();
+
 private:
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  QSize size_;
+  QSizeF size_;
+  QRectF picture_rect_;
+  QPixmap picture_;
+
   QGraphicsProxyWidget* proxy_btn_ = nullptr;
-  QGraphicsProxyWidget* proxy_label_ = nullptr;
   QPushButton* buy_btn_;
+  QRectF btn_rect_;
+
+  QGraphicsProxyWidget* proxy_name_label_ = nullptr;
   QLabel* name_label_;
+  QRectF name_label_rect_;
+
+  QGraphicsProxyWidget* proxy_price_label_ = nullptr;
+  QLabel* price_label_;
+  QRectF price_label_rect_;
+
+  ShopType type_;
   QString item_name_;
   Resources item_cost_;
 
@@ -130,6 +144,10 @@ class UnitMenu : public QObject {
  private:
   friend class EventHandler::View;
 
+  QPointF position_;
+  qreal width_;
+  qreal height_;
+  QGraphicsRectItem* backgroung_;
   std::vector<ShopItem*> items_;
 };
 #endif  // MENU_H

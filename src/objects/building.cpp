@@ -13,3 +13,5 @@ Building::Building(const QString& caption, const QString& type,
 const Resources& Building::GetIncome() const { return income_; }
 
 const QString& Building::GetCaption() const { return caption_; }
+
+const Resources& Building::GetCost() const { return cost_;}
