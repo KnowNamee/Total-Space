@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "graphics/imageitem.h"
+#include "objects/bot.h"
 #include "util/utility.h"
 
 class Drawer;
@@ -35,13 +36,16 @@ class GameScene : public QGraphicsScene {
  private:
   void SetSceneSettings();
   void GenerateMap();
-  void GeneratePlanetsGraph();
   double Distance(const QPointF& lhs, const QPointF& rhs);
 
   ImageItem* background_;
   std::shared_ptr<PlanetsGraph> graph_;
   std::shared_ptr<Drawer> drawer_;
+
   std::shared_ptr<Player> player_;
+  std::shared_ptr<Bot> red_bot_;
+  std::shared_ptr<Bot> green_bot_;
+
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kMapSize = 2.5;

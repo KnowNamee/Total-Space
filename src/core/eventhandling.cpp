@@ -107,7 +107,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     } else if (item->type() == PlanetGraphics::Type) {
-      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
+      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet().get();
       if (planet != Controller::GetActivePlanet()) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
@@ -184,7 +184,7 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
       Controller::SetActivePlanet(
-          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
+          dynamic_cast<PlanetGraphics*>(item)->GetPlanet().get());
 
       double scale = view_->matrix().m11();
 

@@ -10,14 +10,14 @@
 
 class Bot : public PlayerBase {
  public:
+  Bot() = delete;
   Bot(int type, std::shared_ptr<Planet> planet);
-  Bot(int type, const QList<QGraphicsItem*>& items);
 
   int Type();
 
   enum {
     kRed,
-    kYellow,
+    kGreen,
   };
 
  private:

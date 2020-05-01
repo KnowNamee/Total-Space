@@ -12,6 +12,7 @@
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
 #include "objects/player.h"
+#include "scene/gameview.h"
 
 GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
@@ -58,8 +59,11 @@ void GameScene::NewGame() {
   SetSceneSettings();
   GenerateMap();
 
-  // TODO
-  //Здесь должна происходить генерация ботов и присвоение им планет
+  // Добавляем ботов
+  red_bot_ = std::make_shared<Bot>(Bot::kRed, graph_->GetBotPlanet());
+  red_bot_->GetPlanets()[0]->SetOwner(red_bot_);
+  green_bot_ = std::make_shared<Bot>(Bot::kGreen, graph_->GetBotPlanet());
+  green_bot_->GetPlanets()[0]->SetOwner(green_bot_);
 }
 
 void GameScene::SetSceneSettings() {
@@ -148,7 +152,7 @@ std::vector<UnitType> GameScene::GetNearestUnits() {
       continue;
     }
 
-    Planet* nearby_planet = planet_graphics->GetPlanet();
+    Planet* nearby_planet = planet_graphics->GetPlanet().get();
     if (Distance(nearby_planet->GetCoordinates(), planet->GetCoordinates()) <
         kMaximalDistance) {
       nearby_units.insert(nearby_units.end(), nearby_planet->GetUnits().begin(),

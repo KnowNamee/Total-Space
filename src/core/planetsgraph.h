@@ -16,8 +16,8 @@ class PlanetsGraph {
     Edge() = delete;
     Edge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet, int distance);
 
-    Planet* GetLeftPlanet() const;
-    Planet* GetRightPlanet() const;
+    std::shared_ptr<Planet> GetLeftPlanet() const;
+    std::shared_ptr<Planet> GetRightPlanet() const;
     PlanetGraphics* GetLeftPlanetGraphics() const;
     PlanetGraphics* GetRightPlanetGraphics() const;
     QGraphicsLineItem* GetEdge() const;
@@ -43,23 +43,25 @@ class PlanetsGraph {
   PlanetsGraph(const QList<QGraphicsItem*>& items);
 
   void Draw();
-  void DrawLine(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet,
-                int type);
-  void AddEdge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
+  std::shared_ptr<Planet> GetBotPlanet();
 
  private:
   std::map<PlanetGraphics*, std::set<std::shared_ptr<Edge>>> graph_;
   std::vector<PlanetGraphics*> planets_;
 
   void ExtractPlanets(const QList<QGraphicsItem*>& items);
+  void AddEdge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
   void FormEdges();
 
+  std::map<PlanetGraphics*, int> DistanceBFS(PlanetGraphics* planet);
+
   void BuildSpiderWeb();
-  void KraskalBuildMST();
-  PlanetGraphics* FindSetDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-                             PlanetGraphics* planet);
-  void UnionSetsDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-                    PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
+  //  void KraskalBuildMST();
+  //  PlanetGraphics* FindSetDSU(std::map<PlanetGraphics*, PlanetGraphics*>&
+  //  parent,
+  //                             PlanetGraphics* planet);
+  //  void UnionSetsDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
+  //                    PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
 };
 
 #endif  // PLANETSGRAPH_H

@@ -17,7 +17,7 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
   int type() const override;
-  Planet* GetPlanet();
+  std::shared_ptr<Planet> GetPlanet();
 
  private:
   QPixmap* planet_image_;

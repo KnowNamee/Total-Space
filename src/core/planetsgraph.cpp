@@ -21,12 +21,58 @@ PlanetsGraph::PlanetsGraph(const QList<QGraphicsItem*>& items) {
 void PlanetsGraph::Draw() {
   for (auto& p : graph_) {
     for (auto edge : p.second) {
-      if (edge->IsOnScene()) {
-        continue;
+      if (!edge->IsOnScene()) {
+        edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
       }
-      edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
     }
   }
+}
+
+std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
+  std::vector<int> owners_planets_indexes;
+  for (int i = 0; i < planets_.size(); i++) {
+    if (planets_[i]->GetPlanet()->GetOwner()) {
+      owners_planets_indexes.push_back(i);
+    }
+  }
+  std::map<PlanetGraphics*, std::vector<int>> bfs_result;
+  for (int i : owners_planets_indexes) {
+    std::map<PlanetGraphics*, int> dist = DistanceBFS(planets_[i]);
+    for (auto& p : dist) {
+      bfs_result[p.first].push_back(p.second);
+    }
+  }
+
+  // Find suitable planet ge 5 edges distance
+  for (auto& res : bfs_result) {
+    bool skip = false;
+    for (int dist : res.second) {
+      if (dist < 2) {  // real dist >= 3
+        skip = true;
+        break;
+      }
+    }
+    if (!skip) {
+      return res.first->GetPlanet();
+    }
+  }
+
+  // If no suitable planet found
+  for (auto& res : bfs_result) {
+    bool skip = false;
+    for (int dist : res.second) {
+      if (dist < 0) {  // real dist >= 1
+        skip = true;
+        break;
+      }
+    }
+    if (!skip) {
+      return res.first->GetPlanet();
+    }
+  }
+
+  // Otherwise
+  return nullptr;
 }
 
 void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
@@ -40,59 +86,6 @@ void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
       std::make_shared<Edge>(lhs_planet, rhs_planet, dist);
   graph_[lhs_planet].insert(edge);
   graph_[rhs_planet].insert(edge);
-}
-
-void PlanetsGraph::KraskalBuildMST() {
-  int sets_count = static_cast<int>(planets_.size());
-  std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> mst_queue;
-
-  std::map<PlanetGraphics*, PlanetGraphics*> parent;
-  for (auto planet : planets_) {
-    parent[planet] = planet;
-  }
-
-  for (auto& p : graph_) {
-    for (auto edge : p.second) {
-      if (edge->GetDistance() > 0) {
-        mst_queue.push({-edge->GetDistance(), edge});
-      }
-    }
-  }
-  std::map<PlanetGraphics*, std::set<std::shared_ptr<Edge>>> graph;
-  std::swap(graph, graph_);
-
-  while (!mst_queue.empty() && sets_count > 1) {
-    auto lhs_planet = mst_queue.top().second->GetLeftPlanetGraphics();
-    auto rhs_planet = mst_queue.top().second->GetRightPlanetGraphics();
-    mst_queue.pop();
-
-    if (FindSetDSU(parent, lhs_planet) != FindSetDSU(parent, rhs_planet)) {
-      UnionSetsDSU(parent, lhs_planet, rhs_planet);
-      AddEdge(lhs_planet, rhs_planet);
-      sets_count--;
-    }
-  }
-
-  Q_ASSERT(sets_count == 1);
-}
-
-PlanetGraphics* PlanetsGraph::FindSetDSU(
-    std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-    PlanetGraphics* planet) {
-  if (planet == parent[planet]) {
-    return planet;
-  }
-  return parent[planet] = FindSetDSU(parent, parent[planet]);
-}
-
-void PlanetsGraph::UnionSetsDSU(
-    std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-    PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet) {
-  auto set_a = FindSetDSU(parent, lhs_planet);
-  auto set_b = FindSetDSU(parent, rhs_planet);
-  if (set_a != set_b) {
-    parent[set_b] = set_a;
-  }
 }
 
 void PlanetsGraph::ExtractPlanets(const QList<QGraphicsItem*>& items) {
@@ -109,6 +102,31 @@ void PlanetsGraph::FormEdges() {
       AddEdge(lhs_planet, rhs_planet);
     }
   }
+}
+
+std::map<PlanetGraphics*, int> PlanetsGraph::DistanceBFS(
+    PlanetGraphics* planet) {
+  std::map<PlanetGraphics*, int> dist;
+  std::queue<std::pair<PlanetGraphics*, int>> q;
+  q.push({planet, -1});
+  dist[planet] = -1;
+  while (!q.empty()) {
+    auto curr_planet = q.front().first;
+    int curr_dist = q.front().second;
+    q.pop();
+    for (auto edge : graph_[curr_planet]) {
+      auto rhs_planet = edge->GetRightPlanetGraphics();
+      auto lhs_planet = edge->GetLeftPlanetGraphics();
+      if (!dist[rhs_planet]) {
+        dist[rhs_planet] = curr_dist + 1;
+        q.push({rhs_planet, curr_dist + 1});
+      } else if (!dist[lhs_planet]) {
+        dist[lhs_planet] = curr_dist + 1;
+        q.push({lhs_planet, curr_dist + 1});
+      }
+    }
+  }
+  return dist;
 }
 
 void PlanetsGraph::BuildSpiderWeb() {
@@ -151,10 +169,10 @@ PlanetsGraph::Edge::Edge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet,
   rhs_planet_ = std::max(lhs_planet, rhs_planet);
 }
 
-Planet* PlanetsGraph::Edge::GetLeftPlanet() const {
+std::shared_ptr<Planet> PlanetsGraph::Edge::GetLeftPlanet() const {
   return lhs_planet_->GetPlanet();
 }
-Planet* PlanetsGraph::Edge::GetRightPlanet() const {
+std::shared_ptr<Planet> PlanetsGraph::Edge::GetRightPlanet() const {
   return rhs_planet_->GetPlanet();
 }
 
