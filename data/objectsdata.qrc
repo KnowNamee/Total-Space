@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/obectsdata">
+    <qresource prefix="/objectsdata">
         <file>BuildingsInfo.json</file>
     </qresource>
 </RCC>

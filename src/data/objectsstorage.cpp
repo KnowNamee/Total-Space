@@ -22,6 +22,11 @@ const std::map<QString, UnitType> ObjectsStorage::unit_caption_to_type_ = {
     std::make_pair("Ranger", UnitType::kRanger),
     std::make_pair("Droid", UnitType::kDroid)};
 
+const std::map<QString, UnitRole> ObjectsStorage::role_caption_to_role_ = {
+    std::make_pair("Melee", UnitRole::kMelee),
+    std::make_pair("Range", UnitRole::kRange),
+    std::make_pair("Healer", UnitRole::kHealer)};
+
 std::map<BuildingType, const Building*> ObjectsStorage::type_to_building_;
 std::map<UnitType, const Unit*> ObjectsStorage::type_to_unit_;
 
@@ -47,10 +52,31 @@ BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
   return building_caption_to_type_.at(caption);
 }
 
+UnitRole ObjectsStorage::GetUnitRole(const QString& role) {
+  return role_caption_to_role_.at(role);
+}
+
+int32_t ObjectsStorage::GetUnitPower(UnitType unit) {
+  return type_to_unit_[unit]->GetPower();
+}
+
+const UnitCharacteristics& ObjectsStorage::GetUnitCharacteristics(
+    UnitType unit) {
+  return type_to_unit_[unit]->GetUnitCharacteristics();
+}
+
+UnitRole ObjectsStorage::GetUnitRole(UnitType unit) {
+  return type_to_unit_[unit]->GetUnitRole();
+}
+
+UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {
+  return type_to_unit_[unit]->GetUnitEnemy();
+}
+
 std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
   std::set<BuildingType> first_level_buildings;
   for (const auto& building_pair : type_to_building_) {
-    if (building_pair.second->GetLevel() == 1)  {
+    if (building_pair.second->GetLevel() == 1) {
       first_level_buildings.insert(building_pair.first);
     }
   }
@@ -59,7 +85,7 @@ std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
 
 std::set<BuildingType> ObjectsStorage::GetUpgrades(BuildingType building) {
   std::set<BuildingType> upgrades;
-  for(BuildingType upgrade : type_to_building_.at(building)->GetUpgrades()) {
+  for (BuildingType upgrade : type_to_building_.at(building)->GetUpgrades()) {
     upgrades.insert(upgrade);
   }
   return upgrades;
