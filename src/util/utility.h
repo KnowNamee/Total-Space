@@ -12,7 +12,7 @@ class Resources {
   int32_t GetBatteries() const { return batteries_; }
   int32_t GetTools() const { return tools_; }
 
-  const Resources operator+(const Resources& rhs) const {
+  Resources operator+(const Resources& rhs) const {
     return Resources(batteries_ + rhs.batteries_, tools_ + rhs.tools_);
   }
 
@@ -51,7 +51,7 @@ class UnitCharacteristics {
     return *this;
   }
 
-  const UnitCharacteristics operator+(const UnitCharacteristics& rhs) const {
+  UnitCharacteristics operator+(const UnitCharacteristics& rhs) const {
     return UnitCharacteristics(attack_ + rhs.attack_, armor_ + rhs.armor_,
                                health_ + rhs.health_, stamina_ + rhs.stamina_);
   }
