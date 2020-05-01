@@ -1,12 +1,12 @@
 #ifndef GAMESCENE_H
 #define GAMESCENE_H
 
-#include <memory>
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QMouseEvent>
 #include <QObject>
 #include <QScreen>
+#include <memory>
 
 #include "graphics/imageitem.h"
 #include "util/utility.h"
@@ -15,11 +15,12 @@ class Drawer;
 class Player;
 class Planet;
 class Unit;
+class PlanetsGraph;
 
 class GameScene : public QGraphicsScene {
   Q_OBJECT
  public:
-  GameScene(QObject* parent = nullptr);   
+  GameScene(QObject* parent = nullptr);
 
   void Destroy();
   void HideAll();
@@ -34,9 +35,11 @@ class GameScene : public QGraphicsScene {
  private:
   void SetSceneSettings();
   void GenerateMap();
+  void GeneratePlanetsGraph();
   double Distance(const QPointF& lhs, const QPointF& rhs);
 
   ImageItem* background_;
+  std::shared_ptr<PlanetsGraph> graph_;
   std::shared_ptr<Drawer> drawer_;
   std::shared_ptr<Player> player_;
   const int32_t kWidth = qApp->screens()[0]->size().width();

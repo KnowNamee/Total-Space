@@ -5,6 +5,7 @@
 #include <QGraphicsView>
 #include <QRandomGenerator>
 
+#include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "graphics/drawer.h"
@@ -121,6 +122,15 @@ void GameScene::GenerateMap() {
       }
     }
   }
+
+  graph_ = std::make_shared<PlanetsGraph>(items());
+}
+
+void GameScene::GeneratePlanetsGraph() {
+  qsrand(time_t(NULL));
+  int union_planets_radius =
+      qrand() %
+      (static_cast<int>(GetPlayer()->GetPlanets()[0]->GetRadius()) * 5);
 }
 
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
