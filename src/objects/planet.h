@@ -16,7 +16,7 @@ class Planet : public QObject {
 public:
   Planet(QPointF coordinates, double radius);
 
-  void SetOwner(const std::shared_ptr<PlayerBase> &owner);
+  void SetOwner(const std::shared_ptr<PlayerBase>& owner);
 
   void Build(BuildingType building);
   void AddUnit(UnitType unit);

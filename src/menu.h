@@ -85,8 +85,10 @@ class PlanetMenu : public QObject {
   double radius_;
 };
 
-class ShopItem : public QObject, public QGraphicsItem {
+class ShopItem : public QGraphicsObject {
     Q_OBJECT
+    Q_INTERFACES()
+
 public:
   ShopItem();
   ShopItem(QPointF pos, QSizeF size, QString name);
@@ -126,7 +128,7 @@ private:
 
 public:
   enum {
-    Type = UserType + TypeOffset::ShopItem,
+    Type = UserType + TypeOffset::kShopItem,
   };
 };
 

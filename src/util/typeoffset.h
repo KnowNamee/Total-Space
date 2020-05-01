@@ -4,9 +4,9 @@
 namespace TypeOffset {
 
 enum {
-  Planet,
-  Button,
-  ShopItem,
+  kPlanet,
+  kButton,
+  kShopItem,
 };
 
 }  // namespace TypeOffset

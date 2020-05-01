@@ -25,7 +25,7 @@ class ImageItem : public QGraphicsItem {
 
  public:
   enum {
-    Type = UserType + TypeOffset::Button,
+    Type = UserType + TypeOffset::kButton,
   };
 };
 

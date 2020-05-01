@@ -31,7 +31,7 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
 
  public:
   enum {
-    Type = UserType + TypeOffset::Planet,
+    Type = UserType + TypeOffset::kPlanet,
   };
 };
 

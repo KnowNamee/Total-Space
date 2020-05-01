@@ -24,11 +24,6 @@ MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), StateMachine::window, SLOT(Exit()));
   connect(this, SIGNAL(btnNewGameClick()), StateMachine::window,
           SLOT(StartGame()));
-  QPushButton* btn = new QPushButton();
-  btn->setGeometry(0,0,100, 100);
-  btn->setText("Yo");
-  StateMachine::scene->addWidget(btn);
-  connect(btn, SIGNAL(clicked()), StateMachine::window, SLOT(Exit()));
 
   this->Draw();
 }
@@ -44,7 +39,6 @@ void MainMenu::Draw() {
   int32_t height = qApp->screens()[0]->size().height();
 
   GameView* view = StateMachine::view;
-
 
   btn_exit_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
@@ -62,8 +56,6 @@ void MainMenu::Draw() {
   StateMachine::scene->addItem(txt_total_space_);
   StateMachine::scene->addItem(btn_exit_);
   StateMachine::scene->addItem(btn_new_game_);
-//  StateMachine::scene->addWidget(a);
-
 
   QPointF cp = StateMachine::view->sceneRect().center() / 2;
 
@@ -134,6 +126,7 @@ PlanetMenu::PlanetMenu() {
           SLOT(RemovePlanetMenu()));
   connect(this, SIGNAL(btn3Click()), StateMachine::window,
           SLOT(RemovePlanetMenu()));
+
   this->Draw();
 }
 
@@ -228,7 +221,7 @@ ShopType ShopItem::GetType() const {
 }
 
 QRectF ShopItem::boundingRect() const { return QRectF(pos(), size_); }
-void ShopItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void ShopItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
@@ -300,7 +293,7 @@ UnitMenu::UnitMenu() {
 
 UnitMenu::~UnitMenu() {
   StateMachine::scene->removeItem(backgroung_);
-  for (auto item : items_) {
+  for (const auto& item : items_) {
     StateMachine::scene->removeItem(item);
     item->Remove();
   }
@@ -309,7 +302,7 @@ UnitMenu::~UnitMenu() {
 
 void UnitMenu::Draw() {
   StateMachine::scene->addItem(backgroung_);
-  for (auto item : items_) {
+  for (const auto& item : items_) {
     StateMachine::scene->addItem(item);
   };
 }
