@@ -7,6 +7,7 @@
 #include <queue>
 
 #include "core/statemachine.h"
+#include "objects/bot.h"
 #include "objects/planet.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
@@ -28,6 +29,14 @@ void PlanetsGraph::Draw() {
   }
 }
 
+void PlanetsGraph::Update() {
+  for (auto& p : graph_) {
+    for (auto edge : p.second) {
+      edge->Update();
+    }
+  }
+}
+
 std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
   std::vector<int> owners_planets_indexes;
   for (int i = 0; i < planets_.size(); i++) {
@@ -43,11 +52,11 @@ std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
     }
   }
 
-  // Find suitable planet ge 5 edges distance
+  // Find suitable planet ge 4 edges distance
   for (auto& res : bfs_result) {
     bool skip = false;
     for (int dist : res.second) {
-      if (dist < 2) {  // real dist >= 3
+      if (dist < 3) {  // real dist >= 4
         skip = true;
         break;
       }
@@ -61,7 +70,7 @@ std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
   for (auto& res : bfs_result) {
     bool skip = false;
     for (int dist : res.second) {
-      if (dist < 0) {  // real dist >= 1
+      if (dist < 1) {  // real dist >= 2
         skip = true;
         break;
       }
@@ -199,6 +208,69 @@ void PlanetsGraph::Edge::Draw(const QPen& pen, double opacity) {
   Controller::scene->addItem(edge_);
   lhs_planet_->setZValue(ZValues::kPlanet);
   rhs_planet_->setZValue(ZValues::kPlanet);
+}
+
+void PlanetsGraph::Edge::Update() {
+  // Отрисовка цвета в зависимости от бота / игрока
+  PlayerBase* lhs_owner = lhs_planet_->GetPlanet()->GetOwner();
+  PlayerBase* rhs_owner = rhs_planet_->GetPlanet()->GetOwner();
+
+  // TODO переделать / систематизировать выбор прозрачности
+  if (lhs_planet_->GetPlanet().get() == Controller::GetActivePlanet() ||
+      rhs_planet_->GetPlanet().get() == Controller::GetActivePlanet()) {
+    edge_->setOpacity(0.3);
+  } else {
+    edge_->setOpacity(0.1);
+  }
+
+  // TODO полностью переделать систему выбора пера
+  // TODO добавить градиентную отрисовку ребра
+  QPen yellow_pen(Qt::yellow, 10, Qt::DashLine);
+  QPen blue_pen(Qt::blue, 10, Qt::DashLine);
+  QPen red_pen(Qt::red, 10, Qt::DashLine);
+  QPen green_pen(Qt::green, 10, Qt::DashLine);
+
+  if (lhs_owner && rhs_owner) {
+    if (lhs_owner->Type() > rhs_owner->Type()) {
+      std::swap(lhs_owner, rhs_owner);
+    }
+    if (lhs_owner->Type() == PlayerBase::kPlayer) {
+      if (rhs_owner->Type() == PlayerBase::kBot) {
+        edge_->setPen(yellow_pen);
+      } else {
+        edge_->setPen(green_pen);
+      }
+    } else if (lhs_owner->Type() == PlayerBase::kBot) {
+      Bot* lhs_bot = reinterpret_cast<Bot*>(lhs_owner);
+      Bot* rhs_bot = reinterpret_cast<Bot*>(rhs_owner);
+      if (lhs_bot->Color() != rhs_bot->Color()) {
+        edge_->setPen(yellow_pen);
+      } else {
+        if (rhs_bot->Color() == Qt::red) {
+          edge_->setPen(red_pen);
+        } else {
+          edge_->setPen(blue_pen);
+        }
+      }
+    }
+  }
+
+  if (lhs_owner && !rhs_owner) {
+    std::swap(lhs_owner, rhs_owner);
+  }
+
+  if (!lhs_owner && rhs_owner) {
+    if (rhs_owner->Type() == PlayerBase::kPlayer) {
+      edge_->setPen(green_pen);
+    } else {
+      Bot* rhs_bot = reinterpret_cast<Bot*>(rhs_owner);
+      if (rhs_bot->Color() == Qt::red) {
+        edge_->setPen(red_pen);
+      } else {
+        edge_->setPen(blue_pen);
+      }
+    }
+  }
 }
 
 bool PlanetsGraph::Edge::IsOnScene() const { return is_on_scene_; }

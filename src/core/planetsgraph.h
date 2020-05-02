@@ -23,7 +23,9 @@ class PlanetsGraph {
     QGraphicsLineItem* GetEdge() const;
     int GetDistance() const;
 
-    void Draw(const QPen& pen, double opacity = 0.2);
+    void Draw(const QPen& pen, double opacity = 0.1);
+    void Update();
+
     bool IsOnScene() const;
     int IsCollides() const;
 
@@ -43,6 +45,7 @@ class PlanetsGraph {
   PlanetsGraph(const QList<QGraphicsItem*>& items);
 
   void Draw();
+  void Update();
   std::shared_ptr<Planet> GetBotPlanet();
 
  private:
@@ -56,12 +59,6 @@ class PlanetsGraph {
   std::map<PlanetGraphics*, int> DistanceBFS(PlanetGraphics* planet);
 
   void BuildSpiderWeb();
-  //  void KraskalBuildMST();
-  //  PlanetGraphics* FindSetDSU(std::map<PlanetGraphics*, PlanetGraphics*>&
-  //  parent,
-  //                             PlanetGraphics* planet);
-  //  void UnionSetsDSU(std::map<PlanetGraphics*, PlanetGraphics*>& parent,
-  //                    PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
 };
 
 #endif  // PLANETSGRAPH_H

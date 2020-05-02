@@ -60,10 +60,13 @@ void GameScene::NewGame() {
   GenerateMap();
 
   // Добавляем ботов
-  red_bot_ = std::make_shared<Bot>(Bot::kRed, graph_->GetBotPlanet());
+  red_bot_ = std::make_shared<Bot>(Qt::red, graph_->GetBotPlanet());
   red_bot_->GetPlanets()[0]->SetOwner(red_bot_);
-  green_bot_ = std::make_shared<Bot>(Bot::kGreen, graph_->GetBotPlanet());
-  green_bot_->GetPlanets()[0]->SetOwner(green_bot_);
+  Blue_bot_ = std::make_shared<Bot>(Qt::blue, graph_->GetBotPlanet());
+  Blue_bot_->GetPlanets()[0]->SetOwner(Blue_bot_);
+
+  // Перерисовываем рёбра графа
+  UpdatePlanetsGraph();
 }
 
 void GameScene::SetSceneSettings() {
@@ -131,13 +134,6 @@ void GameScene::GenerateMap() {
   drawer_->DrawPlanetsGraph(graph_);
 }
 
-void GameScene::GeneratePlanetsGraph() {
-  qsrand(time_t(NULL));
-  int union_planets_radius =
-      qrand() %
-      (static_cast<int>(GetPlayer()->GetPlanets()[0]->GetRadius()) * 5);
-}
-
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
   return std::sqrt((lhs.x() - rhs.x()) * (lhs.x() - rhs.x()) +
                    (lhs.y() - rhs.y()) * (lhs.y() - rhs.y()));
@@ -161,3 +157,5 @@ std::vector<UnitType> GameScene::GetNearestUnits() {
   }
   return nearby_units;
 }
+
+void GameScene::UpdatePlanetsGraph() { graph_->Update(); }

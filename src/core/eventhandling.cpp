@@ -69,8 +69,13 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     }
     return;
   }
-
-  if (state == Controller::MenuType::kMain) {
+  if (state == Controller::MenuType::kGame) {
+    if (item->type() == PlanetGraphics::Type) {
+      PlanetGraphics* planet = dynamic_cast<PlanetGraphics*>(item);
+      Controller::SetActivePlanet(planet->GetPlanet().get());
+      Controller::scene->UpdatePlanetsGraph();
+    }
+  } else if (state == Controller::MenuType::kMain) {
     MainMenu* menu = Controller::GetMainMenu();
 
     if (item->type() == ImageItem::Type) {

@@ -30,6 +30,8 @@ class GameScene : public QGraphicsScene {
   double GetMapSize() const;
   std::vector<UnitType> GetNearestUnits();
 
+  void UpdatePlanetsGraph();
+
  public slots:
   void NewGame();
 
@@ -44,7 +46,7 @@ class GameScene : public QGraphicsScene {
 
   std::shared_ptr<Player> player_;
   std::shared_ptr<Bot> red_bot_;
-  std::shared_ptr<Bot> green_bot_;
+  std::shared_ptr<Bot> Blue_bot_;
 
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();

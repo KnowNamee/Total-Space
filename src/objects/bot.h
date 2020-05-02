@@ -11,17 +11,12 @@
 class Bot : public PlayerBase {
  public:
   Bot() = delete;
-  Bot(int type, std::shared_ptr<Planet> planet);
+  Bot(int color, std::shared_ptr<Planet> planet);
 
-  int Type();
-
-  enum {
-    kRed,
-    kGreen,
-  };
+  int Color();
 
  private:
-  int type_;
+  int color_;
 };
 
 #endif  // BOT_H

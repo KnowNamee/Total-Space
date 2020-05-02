@@ -196,7 +196,10 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
 //  }
 //}
 
-PlanetMenu::PlanetMenu() { this->Draw(); }
+PlanetMenu::PlanetMenu() {
+  this->Draw();
+  Controller::scene->UpdatePlanetsGraph();
+}
 
 PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn1_);
@@ -261,6 +264,7 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   }
 
   if (menu == Controller::MenuType::kGame) {
+    Controller::SetActivePlanet(nullptr);
     Controller::SetPlanetMenu(nullptr);
     Controller::SetMenuType(Controller::MenuType::kGame);
   }

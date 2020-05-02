@@ -1,6 +1,6 @@
 #include "bot.h"
 
 Bot::Bot(int type, std::shared_ptr<Planet> planet)
-    : PlayerBase(planet), type_(type) {}
+    : PlayerBase(planet, PlayerBase::kBot), color_(type) {}
 
-int Bot::Type() { return type_; }
+int Bot::Color() { return color_; }
