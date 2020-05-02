@@ -2,8 +2,9 @@
 
 #include "objects/planet.h"
 
-PlayerBase::PlayerBase(const std::shared_ptr<Planet>& planet, int type)
-    : type_(type) {
+PlayerBase::PlayerBase(const std::shared_ptr<Planet>& planet, Type type,
+                       const QString& color)
+    : type_(type), color_(color) {
   planets_.push_back(planet);
 }
 
@@ -24,7 +25,9 @@ void PlayerBase::AddPlanet(const std::shared_ptr<Planet>& planet) {
 
 int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 
-int PlayerBase::Type() { return type_; }
+PlayerBase::Type PlayerBase::GetType() { return type_; }
+
+QString PlayerBase::GetColor() { return color_; }
 
 const QVector<std::shared_ptr<Planet>>& PlayerBase::GetPlanets() const {
   return planets_;

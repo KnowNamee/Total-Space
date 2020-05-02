@@ -53,17 +53,17 @@ void GameScene::NewGame() {
   std::shared_ptr<Planet> player_planet(start_planet);
   drawer_->DrawPlanet(player_planet);
 
-  player_ = std::make_shared<Player>(player_planet);
+  player_ = std::make_shared<Player>(player_planet, "#C9F76F");
 
   player_planet->SetOwner(player_);
   SetSceneSettings();
   GenerateMap();
 
   // Добавляем ботов
-  red_bot_ = std::make_shared<Bot>(Qt::red, graph_->GetBotPlanet());
-  red_bot_->GetPlanets()[0]->SetOwner(red_bot_);
-  Blue_bot_ = std::make_shared<Bot>(Qt::blue, graph_->GetBotPlanet());
-  Blue_bot_->GetPlanets()[0]->SetOwner(Blue_bot_);
+  bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");
+  bot1_->GetPlanets()[0]->SetOwner(bot1_);
+  bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");
+  bot2_->GetPlanets()[0]->SetOwner(bot2_);
 
   // Перерисовываем рёбра графа
   UpdatePlanetsGraph();

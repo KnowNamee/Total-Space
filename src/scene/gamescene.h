@@ -45,8 +45,8 @@ class GameScene : public QGraphicsScene {
   std::shared_ptr<Drawer> drawer_;
 
   std::shared_ptr<Player> player_;
-  std::shared_ptr<Bot> red_bot_;
-  std::shared_ptr<Bot> Blue_bot_;
+  std::shared_ptr<Bot> bot1_;
+  std::shared_ptr<Bot> bot2_;
 
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();

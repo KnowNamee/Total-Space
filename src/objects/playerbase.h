@@ -2,6 +2,7 @@
 #define PLAYERBASE_H
 
 #include <QObject>
+#include <QRgb>
 #include <memory>
 
 #include "util/utility.h"
@@ -11,9 +12,14 @@ class Unit;
 
 class PlayerBase {
  public:
-  PlayerBase() = default;
+  enum class Type {
+    kPlayer,
+    kBot,
+  };
 
-  explicit PlayerBase(const std::shared_ptr<Planet>& planet, int type);
+  PlayerBase() = default;
+  explicit PlayerBase(const std::shared_ptr<Planet>& planet, Type type,
+                      const QString& color);
 
   const Resources& GetResources() const;
   int32_t GetTools() const;
@@ -26,17 +32,15 @@ class PlayerBase {
   const QVector<std::shared_ptr<Planet>>& GetPlanets() const;
   int64_t GetArmyPower() const;
 
-  int Type();
-
-  enum {
-    kPlayer,
-    kBot,
-  };
+  Type GetType();
+  QString GetColor();
 
  private:
   Resources resources_;
   int64_t army_power_;
-  int type_;
+
+  Type type_;
+  QString color_;
 
   QVector<std::shared_ptr<Planet>> planets_;
 };

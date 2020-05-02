@@ -3,6 +3,7 @@
 
 #include <QGraphicsItem>
 #include <QList>
+#include <QPen>
 #include <map>
 #include <memory>
 #include <set>
@@ -11,6 +12,25 @@
 
 class PlanetsGraph {
  private:
+  class Edge;
+
+  class Pen {
+   public:
+    Pen() = delete;
+    static QPen Get(Edge* edge);
+
+    static QPen GetDefault();
+
+    static QString kDefaultColor;
+    static int32_t kDefaultWidth;
+
+    static Qt::PenStyle kDefaultStyle;
+    static Qt::PenCapStyle kDefaultCapStyle;
+
+    static double kActiveOpacity;
+    static double kDefaultOpacity;
+  };
+
   class Edge {
    public:
     Edge() = delete;
@@ -23,7 +43,7 @@ class PlanetsGraph {
     QGraphicsLineItem* GetEdge() const;
     int GetDistance() const;
 
-    void Draw(const QPen& pen, double opacity = 0.1);
+    void Draw(const QPen& pen, double opacity = Pen::kDefaultOpacity);
     void Update();
 
     bool IsOnScene() const;
@@ -38,6 +58,7 @@ class PlanetsGraph {
 
     int distance_;
     bool is_on_scene_ = false;
+    bool is_updated_ = false;
   };
 
  public:
@@ -55,6 +76,8 @@ class PlanetsGraph {
   void ExtractPlanets(const QList<QGraphicsItem*>& items);
   void AddEdge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
   void FormEdges();
+  std::shared_ptr<Planet> FindPlanetAtDistanceGE(
+      int dist, const std::map<PlanetGraphics*, std::vector<int>>& data);
 
   std::map<PlanetGraphics*, int> DistanceBFS(PlanetGraphics* planet);
 

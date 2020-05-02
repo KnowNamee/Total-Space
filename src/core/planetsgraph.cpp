@@ -1,7 +1,9 @@
 #include "planetsgraph.h"
 
+#include <QBrush>
 #include <QDebug>
 #include <QGraphicsLineItem>
+#include <QLinearGradient>
 #include <algorithm>
 #include <cmath>
 #include <queue>
@@ -12,85 +14,69 @@
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 
+QString PlanetsGraph::Pen::kDefaultColor = "#D6CFCF";
+int PlanetsGraph::Pen::kDefaultWidth = 7;
+Qt::PenStyle PlanetsGraph::Pen::kDefaultStyle = Qt::DashLine;
+Qt::PenCapStyle PlanetsGraph::Pen::kDefaultCapStyle = Qt::RoundCap;
+double PlanetsGraph::Pen::kActiveOpacity = 0.8;
+double PlanetsGraph::Pen::kDefaultOpacity = 0.4;
+
 PlanetsGraph::PlanetsGraph(const QList<QGraphicsItem*>& items) {
   ExtractPlanets(items);
-  FormEdges();  // O(n^2)
+  FormEdges();  // O(n^2) algorithm
   BuildSpiderWeb();
-  //  KraskalBuildMST();  // O(nlogn)
 }
 
 void PlanetsGraph::Draw() {
-  for (auto& p : graph_) {
-    for (auto edge : p.second) {
+  for (auto& graph_pair : graph_) {
+    auto& edges = graph_pair.second;
+    for (auto edge : edges) {
       if (!edge->IsOnScene()) {
-        edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
+        edge->Draw(Pen::GetDefault());
       }
     }
   }
 }
 
 void PlanetsGraph::Update() {
-  for (auto& p : graph_) {
-    for (auto edge : p.second) {
+  for (auto& graph_pair : graph_) {
+    auto& edges = graph_pair.second;
+    for (auto edge : edges) {
       edge->Update();
     }
   }
 }
 
 std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
-  std::vector<int> owners_planets_indexes;
-  for (int i = 0; i < planets_.size(); i++) {
-    if (planets_[i]->GetPlanet()->GetOwner()) {
-      owners_planets_indexes.push_back(i);
-    }
-  }
-  std::map<PlanetGraphics*, std::vector<int>> bfs_result;
-  for (int i : owners_planets_indexes) {
-    std::map<PlanetGraphics*, int> dist = DistanceBFS(planets_[i]);
-    for (auto& p : dist) {
-      bfs_result[p.first].push_back(p.second);
-    }
-  }
+  std::map<PlanetGraphics*, std::vector<int>> data;
+  for (auto planet : planets_) {
+    if (planet->GetPlanet()->GetOwner()) {
+      std::map<PlanetGraphics*, int> dist = DistanceBFS(planet);
+      for (auto& dist_pair : dist) {
+        PlanetGraphics* curr_planet = dist_pair.first;
+        int distance = dist_pair.second;
 
-  // Find suitable planet ge 4 edges distance
-  for (auto& res : bfs_result) {
-    bool skip = false;
-    for (int dist : res.second) {
-      if (dist < 3) {  // real dist >= 4
-        skip = true;
-        break;
+        data[curr_planet].push_back(distance);
       }
     }
-    if (!skip) {
-      return res.first->GetPlanet();
-    }
   }
 
-  // If no suitable planet found
-  for (auto& res : bfs_result) {
-    bool skip = false;
-    for (int dist : res.second) {
-      if (dist < 1) {  // real dist >= 2
-        skip = true;
-        break;
-      }
-    }
-    if (!skip) {
-      return res.first->GetPlanet();
+  for (int i = 4; i >= 1; --i) {
+    std::shared_ptr<Planet> at_dist = FindPlanetAtDistanceGE(i, data);
+    if (at_dist) {
+      return at_dist;
     }
   }
-
-  // Otherwise
   return nullptr;
 }
 
 void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
                            PlanetGraphics* rhs_planet) {
-  QPointF acoords = lhs_planet->GetPlanet()->GetCoordinates();
-  QPointF bcoords = rhs_planet->GetPlanet()->GetCoordinates();
-  double xdiff = acoords.x() - bcoords.x();
-  double ydiff = acoords.y() - bcoords.y();
-  int dist = static_cast<int>(std::sqrt(xdiff * xdiff + ydiff * ydiff));
+  QPointF ac = lhs_planet->GetPlanet()->GetCoordinates();
+  QPointF bc = rhs_planet->GetPlanet()->GetCoordinates();
+  QPointF diff = ac - bc;
+  int dist =
+      static_cast<int>(std::sqrt(diff.x() * diff.x() + diff.y() * diff.y()));
   std::shared_ptr<Edge> edge =
       std::make_shared<Edge>(lhs_planet, rhs_planet, dist);
   graph_[lhs_planet].insert(edge);
@@ -139,32 +125,34 @@ std::map<PlanetGraphics*, int> PlanetsGraph::DistanceBFS(
 }
 
 void PlanetsGraph::BuildSpiderWeb() {
-  std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> edges;
+  std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> all_edges;
   std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> good_edges;
 
-  for (auto& p : graph_) {
-    for (auto edge : p.second) {
+  for (auto& graph_pair : graph_) {
+    const auto& edges = graph_pair.second;
+    for (auto edge : edges) {
       if (edge->GetDistance() > 0 && !edge->IsOnScene()) {
         edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
-        edges.push({edge->GetDistance(), edge});
+        all_edges.push({edge->GetDistance(), edge});
       }
     }
   }
   graph_.clear();
 
-  while (!edges.empty()) {
-    if (edges.top().second->IsCollides()) {
-      Controller::scene->removeItem(edges.top().second->GetEdge());
+  while (!all_edges.empty()) {
+    auto edge = all_edges.top().second;
+    if (edge->IsCollides()) {
+      Controller::scene->removeItem(edge->GetEdge());
     } else {
-      good_edges.push({edges.top().second->GetDistance(), edges.top().second});
+      good_edges.push({edge->GetDistance(), edge});
     }
-    edges.pop();
+    all_edges.pop();
   }
-  std::swap(edges, good_edges);
+  std::swap(all_edges, good_edges);
 
-  while (!edges.empty()) {
-    auto edge = edges.top().second;
-    edges.pop();
+  while (!all_edges.empty()) {
+    auto edge = all_edges.top().second;
+    all_edges.pop();
 
     graph_[edge->GetLeftPlanetGraphics()].insert(edge);
     graph_[edge->GetRightPlanetGraphics()].insert(edge);
@@ -211,66 +199,20 @@ void PlanetsGraph::Edge::Draw(const QPen& pen, double opacity) {
 }
 
 void PlanetsGraph::Edge::Update() {
-  // Отрисовка цвета в зависимости от бота / игрока
-  PlayerBase* lhs_owner = lhs_planet_->GetPlanet()->GetOwner();
-  PlayerBase* rhs_owner = rhs_planet_->GetPlanet()->GetOwner();
+  if (is_updated_) {
+    is_updated_ = false;
+    return;
+  }
+  is_updated_ = true;  // Чтобы одно ребро не обновлялось 2 раза.
 
-  // TODO переделать / систематизировать выбор прозрачности
   if (lhs_planet_->GetPlanet().get() == Controller::GetActivePlanet() ||
       rhs_planet_->GetPlanet().get() == Controller::GetActivePlanet()) {
-    edge_->setOpacity(0.3);
+    edge_->setOpacity(Pen::kActiveOpacity);
   } else {
-    edge_->setOpacity(0.1);
+    edge_->setOpacity(Pen::kDefaultOpacity);
   }
 
-  // TODO полностью переделать систему выбора пера
-  // TODO добавить градиентную отрисовку ребра
-  QPen yellow_pen(Qt::yellow, 10, Qt::DashLine);
-  QPen blue_pen(Qt::blue, 10, Qt::DashLine);
-  QPen red_pen(Qt::red, 10, Qt::DashLine);
-  QPen green_pen(Qt::green, 10, Qt::DashLine);
-
-  if (lhs_owner && rhs_owner) {
-    if (lhs_owner->Type() > rhs_owner->Type()) {
-      std::swap(lhs_owner, rhs_owner);
-    }
-    if (lhs_owner->Type() == PlayerBase::kPlayer) {
-      if (rhs_owner->Type() == PlayerBase::kBot) {
-        edge_->setPen(yellow_pen);
-      } else {
-        edge_->setPen(green_pen);
-      }
-    } else if (lhs_owner->Type() == PlayerBase::kBot) {
-      Bot* lhs_bot = reinterpret_cast<Bot*>(lhs_owner);
-      Bot* rhs_bot = reinterpret_cast<Bot*>(rhs_owner);
-      if (lhs_bot->Color() != rhs_bot->Color()) {
-        edge_->setPen(yellow_pen);
-      } else {
-        if (rhs_bot->Color() == Qt::red) {
-          edge_->setPen(red_pen);
-        } else {
-          edge_->setPen(blue_pen);
-        }
-      }
-    }
-  }
-
-  if (lhs_owner && !rhs_owner) {
-    std::swap(lhs_owner, rhs_owner);
-  }
-
-  if (!lhs_owner && rhs_owner) {
-    if (rhs_owner->Type() == PlayerBase::kPlayer) {
-      edge_->setPen(green_pen);
-    } else {
-      Bot* rhs_bot = reinterpret_cast<Bot*>(rhs_owner);
-      if (rhs_bot->Color() == Qt::red) {
-        edge_->setPen(red_pen);
-      } else {
-        edge_->setPen(blue_pen);
-      }
-    }
-  }
+  edge_->setPen(Pen::Get(this));
 }
 
 bool PlanetsGraph::Edge::IsOnScene() const { return is_on_scene_; }
@@ -296,4 +238,51 @@ QGraphicsLineItem* PlanetsGraph::Edge::GetEdge() const { return edge_; }
 
 bool PlanetsGraph::Edge::operator<(const PlanetsGraph::Edge& rhs_edge) const {
   return distance_ > rhs_edge.distance_;
+}
+
+std::shared_ptr<Planet> PlanetsGraph::FindPlanetAtDistanceGE(
+    int needed_dist, const std::map<PlanetGraphics*, std::vector<int>>& data) {
+  for (auto& data_pair : data) {
+    PlanetGraphics* planet = data_pair.first;
+    const auto& dist_vec = data_pair.second;
+    bool skip = false;
+
+    for (int dist : dist_vec) {
+      if (dist < needed_dist - 1) {
+        skip = true;
+        break;
+      }
+    }
+
+    if (!skip) {
+      return planet->GetPlanet();
+    }
+  }
+  return nullptr;
+}
+
+QPen PlanetsGraph::Pen::Get(PlanetsGraph::Edge* edge) {
+  PlayerBase* lhs_owner = edge->GetLeftPlanet()->GetOwner();
+  PlayerBase* rhs_owner = edge->GetRightPlanet()->GetOwner();
+
+  QLinearGradient gradient(edge->GetEdge()->line().p1(),
+                           edge->GetEdge()->line().p2());
+  if (!lhs_owner) {
+    gradient.setColorAt(0, kDefaultColor);
+  } else {
+    gradient.setColorAt(0, lhs_owner->GetColor());
+  }
+  if (!rhs_owner) {
+    gradient.setColorAt(1, kDefaultColor);
+  } else {
+    gradient.setColorAt(1, rhs_owner->GetColor());
+  }
+
+  QBrush brush(gradient);
+  return QPen(brush, kDefaultWidth, kDefaultStyle, kDefaultCapStyle);
+}
+
+QPen PlanetsGraph::Pen::GetDefault() {
+  return QPen(QColor(kDefaultColor), kDefaultWidth, kDefaultStyle,
+              kDefaultCapStyle);
 }

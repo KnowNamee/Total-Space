@@ -11,12 +11,9 @@
 class Bot : public PlayerBase {
  public:
   Bot() = delete;
-  Bot(int color, std::shared_ptr<Planet> planet);
-
-  int Color();
+  Bot(std::shared_ptr<Planet> planet, const QString& color);
 
  private:
-  int color_;
 };
 
 #endif  // BOT_H
