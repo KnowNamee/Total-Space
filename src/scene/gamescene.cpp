@@ -54,8 +54,8 @@ void GameScene::NewGame() {
   drawer_->DrawPlanet(player_planet);
 
   player_ = std::make_shared<Player>(player_planet, "#C9F76F");
+  player_planet->SetOwner(player_.get());
 
-  player_planet->SetOwner(player_);
   SetSceneSettings();
   GenerateMap();
 
@@ -81,7 +81,7 @@ void GameScene::SetSceneSettings() {
 
 void GameScene::GenerateMap() {
   uint32_t required_number_of_planets =
-      QRandomGenerator::global()->generate() % 10 + 25;
+      QRandomGenerator::global()->generate() % 10 + 20;
 
   const double kPlanetRadius = kWidth / 16 * 3;
   const double kSizeCoefficient = 0.7;
@@ -97,9 +97,10 @@ void GameScene::GenerateMap() {
   const double kMinimalDistance = 2 * kPlanetRadius;
   for (double x = -kMapWidth; x < kMapWidth; x += kCellWidth) {
     for (double y = -kMapHeight; y < kMapHeight; y += kCellHeight) {
-      bool is_allowed_distance = true;
+      bool is_allowed_distance = false;
       int32_t counter = 0;
-      while (is_allowed_distance && counter < 1000) {
+      while (!is_allowed_distance && counter < 10000) {
+        is_allowed_distance = true;
         counter++;
         double left_x = std::max(-kMapWidth + kPlanetRadius, x);
         double right_x = x + kCellWidth;
@@ -139,20 +140,20 @@ double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
                    (lhs.y() - rhs.y()) * (lhs.y() - rhs.y()));
 }
 
-std::vector<UnitType> GameScene::GetNearestUnits() {
+std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
+    PlayerBase* player) {
   Planet* planet = Controller::GetActivePlanet();
-  std::vector<UnitType> nearby_units;
-  for (QGraphicsItem* item : items()) {
-    PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(item);
-    if (planet_graphics == nullptr) {
-      continue;
-    }
-
-    Planet* nearby_planet = planet_graphics->GetPlanet().get();
+  if (planet == nullptr) {
+    return {};
+  }
+  std::map<Planet*, QVector<UnitType>> nearby_units;
+  for (const auto& nearby_planet : player->GetPlanets()) {
     if (Distance(nearby_planet->GetCoordinates(), planet->GetCoordinates()) <
         kMaximalDistance) {
-      nearby_units.insert(nearby_units.end(), nearby_planet->GetUnits().begin(),
-                          nearby_planet->GetUnits().end());
+      QVector<UnitType> planet_units = nearby_planet->GetUnits();
+      if (planet_units.size() > 0) {
+        nearby_units[nearby_planet.get()] = planet_units;
+      }
     }
   }
   return nearby_units;

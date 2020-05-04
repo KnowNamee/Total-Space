@@ -153,6 +153,7 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
   }
 }
 
+// TODO
 // PlanetMenu::PlanetMenu() {
 //  int32_t width = qApp->screens()[0]->size().width();
 //  int32_t height = qApp->screens()[0]->size().height();
@@ -276,6 +277,8 @@ UnitMenu::~UnitMenu() {}
 
 void UnitMenu::Draw() {}
 
+void UnitMenu::SwitchTo(Controller::MenuType) {}
+
 GameMenu::GameMenu() { this->Draw(); }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
@@ -307,8 +310,3 @@ void GameMenu::Draw() {
   Controller::scene->NewGame();
 }
 
-Menu::Menu() {}
-
-void Menu::Draw() {}
-
-void Menu::SwitchTo(Controller::MenuType menu) { Q_UNUSED(menu) }

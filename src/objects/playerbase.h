@@ -27,16 +27,18 @@ class PlayerBase {
   void UpdateResources();
 
   void AddPlanet(const std::shared_ptr<Planet>& planet);
+  void RemovePlanet(const std::shared_ptr<Planet>& planet);
 
   const QVector<std::shared_ptr<Planet>>& GetPlanets() const;
   int64_t GetArmyPower() const;
+  void IncreasePower(int32_t power);
 
   Type GetType();
   const QString& GetColor();
 
  private:
   Resources resources_;
-  int64_t army_power_;
+  int64_t army_power_ = 0;
 
   Type type_;
   QString color_;

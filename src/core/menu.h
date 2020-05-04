@@ -17,8 +17,8 @@ class Menu : public QObject {
   Menu();
 
   virtual void SetZValue() = 0;
-  virtual void Draw();
-  virtual void SwitchTo(Controller::MenuType menu);
+  virtual void Draw() = 0;
+  virtual void SwitchTo(Controller::MenuType menu) = 0;
 };
 
 class MainMenu : public Menu {
@@ -96,6 +96,8 @@ class UnitMenu : public Menu {
   void Draw() override;
   void Hide();
   void Show();
+
+  void SwitchTo(Controller::MenuType menu) override;
 
  private:
   friend class EventHandler::View;
