@@ -31,7 +31,7 @@ void PlanetsGraph::Draw() {
   for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
            graph_pair : graph_) {
     const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
-    for (std::shared_ptr<Edge> edge : edges) {
+    for (const std::shared_ptr<Edge>& edge : edges) {
       if (!edge->IsOnScene()) {
         edge->Draw(Pen::GetDefault());
       }
@@ -43,7 +43,7 @@ void PlanetsGraph::Update() {
   for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
            graph_pair : graph_) {
     const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
-    for (std::shared_ptr<Edge> edge : edges) {
+    for (const std::shared_ptr<Edge>& edge : edges) {
       edge->Update();
     }
   }
@@ -132,9 +132,9 @@ void PlanetsGraph::BuildSpiderWeb() {
   for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
            graph_pair : graph_) {
     const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
-    for (std::shared_ptr<Edge> edge : edges) {
+    for (const std::shared_ptr<Edge>& edge : edges) {
       if (edge->GetDistance() > 0 && !edge->IsOnScene()) {
-        edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
+        edge->Draw(Pen::GetDefault());
         all_edges.push({edge->GetDistance(), edge});
       }
     }
