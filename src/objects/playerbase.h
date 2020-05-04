@@ -2,7 +2,6 @@
 #define PLAYERBASE_H
 
 #include <QObject>
-#include <QRgb>
 #include <memory>
 
 #include "util/utility.h"
@@ -33,7 +32,7 @@ class PlayerBase {
   int64_t GetArmyPower() const;
 
   Type GetType();
-  QString GetColor();
+  const QString& GetColor();
 
  private:
   Resources resources_;

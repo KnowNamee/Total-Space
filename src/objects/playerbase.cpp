@@ -27,7 +27,7 @@ int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 
 PlayerBase::Type PlayerBase::GetType() { return type_; }
 
-QString PlayerBase::GetColor() { return color_; }
+const QString& PlayerBase::GetColor() { return color_; }
 
 const QVector<std::shared_ptr<Planet>>& PlayerBase::GetPlanets() const {
   return planets_;
