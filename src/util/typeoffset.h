@@ -13,6 +13,7 @@ enum {
 namespace ZValues {
 
 enum {
+  kEdge = 0,
   kPlanet = 1,
   kPauseMenu = 2,
   kPlanetMenu = 2,

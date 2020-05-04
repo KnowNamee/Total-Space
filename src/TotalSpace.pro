@@ -49,7 +49,7 @@ SOURCES += \
 
 HEADERS += \
     core/eventhandling.h \
-  core/planetsgraph.h \
+    core/planetsgraph.h \
     core/statemachine.h \
     data/loader.h \
     data/objectsloader.h \

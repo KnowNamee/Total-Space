@@ -14,7 +14,7 @@
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 
-QString PlanetsGraph::Pen::kDefaultColor = "#D6CFCF";
+QString PlanetsGraph::Pen::kDefaultColor = "#D6CFCF";  // gray
 int PlanetsGraph::Pen::kDefaultWidth = 7;
 Qt::PenStyle PlanetsGraph::Pen::kDefaultStyle = Qt::DashLine;
 Qt::PenCapStyle PlanetsGraph::Pen::kDefaultCapStyle = Qt::RoundCap;
@@ -28,9 +28,10 @@ PlanetsGraph::PlanetsGraph(const QList<QGraphicsItem*>& items) {
 }
 
 void PlanetsGraph::Draw() {
-  for (auto& graph_pair : graph_) {
-    auto& edges = graph_pair.second;
-    for (auto edge : edges) {
+  for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
+           graph_pair : graph_) {
+    const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
+    for (std::shared_ptr<Edge> edge : edges) {
       if (!edge->IsOnScene()) {
         edge->Draw(Pen::GetDefault());
       }
@@ -39,9 +40,10 @@ void PlanetsGraph::Draw() {
 }
 
 void PlanetsGraph::Update() {
-  for (auto& graph_pair : graph_) {
-    auto& edges = graph_pair.second;
-    for (auto edge : edges) {
+  for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
+           graph_pair : graph_) {
+    const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
+    for (std::shared_ptr<Edge> edge : edges) {
       edge->Update();
     }
   }
@@ -49,13 +51,12 @@ void PlanetsGraph::Update() {
 
 std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
   std::map<PlanetGraphics*, std::vector<int>> data;
-  for (auto planet : planets_) {
+  for (PlanetGraphics* planet : planets_) {
     if (planet->GetPlanet()->GetOwner()) {
       std::map<PlanetGraphics*, int> dist = DistanceBFS(planet);
-      for (auto& dist_pair : dist) {
+      for (const std::pair<PlanetGraphics*, int>& dist_pair : dist) {
         PlanetGraphics* curr_planet = dist_pair.first;
         int distance = dist_pair.second;
-
         data[curr_planet].push_back(distance);
       }
     }
@@ -84,7 +85,7 @@ void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
 }
 
 void PlanetsGraph::ExtractPlanets(const QList<QGraphicsItem*>& items) {
-  for (auto item : items) {
+  for (QGraphicsItem* item : items) {
     if (item->type() == PlanetGraphics::Type) {
       planets_.push_back(dynamic_cast<PlanetGraphics*>(item));
     }
@@ -92,8 +93,8 @@ void PlanetsGraph::ExtractPlanets(const QList<QGraphicsItem*>& items) {
 }
 
 void PlanetsGraph::FormEdges() {
-  for (auto lhs_planet : planets_) {
-    for (auto rhs_planet : planets_) {
+  for (PlanetGraphics* lhs_planet : planets_) {
+    for (PlanetGraphics* rhs_planet : planets_) {
       AddEdge(lhs_planet, rhs_planet);
     }
   }
@@ -128,9 +129,10 @@ void PlanetsGraph::BuildSpiderWeb() {
   std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> all_edges;
   std::priority_queue<std::pair<int, std::shared_ptr<Edge>>> good_edges;
 
-  for (auto& graph_pair : graph_) {
-    const auto& edges = graph_pair.second;
-    for (auto edge : edges) {
+  for (const std::pair<PlanetGraphics*, std::set<std::shared_ptr<Edge>>>&
+           graph_pair : graph_) {
+    const std::set<std::shared_ptr<Edge>>& edges = graph_pair.second;
+    for (std::shared_ptr<Edge> edge : edges) {
       if (edge->GetDistance() > 0 && !edge->IsOnScene()) {
         edge->Draw(QPen(Qt::gray, 10, Qt::DashLine));
         all_edges.push({edge->GetDistance(), edge});
@@ -140,7 +142,7 @@ void PlanetsGraph::BuildSpiderWeb() {
   graph_.clear();
 
   while (!all_edges.empty()) {
-    auto edge = all_edges.top().second;
+    std::shared_ptr<Edge> edge = all_edges.top().second;
     if (edge->IsCollides()) {
       Controller::scene->removeItem(edge->GetEdge());
     } else {
@@ -191,6 +193,7 @@ void PlanetsGraph::Edge::Draw(const QPen& pen, double opacity) {
                                    rhs_planet_->GetPlanet()->GetCoordinates() /
                                        Controller::view->matrix().m11()));
   edge_->setOpacity(opacity);
+  edge_->setZValue(ZValues::kEdge);
   edge_->setPen(pen);
 
   Controller::scene->addItem(edge_);
@@ -219,7 +222,7 @@ bool PlanetsGraph::Edge::IsOnScene() const { return is_on_scene_; }
 
 int PlanetsGraph::Edge::IsCollides() const {
   Q_ASSERT(edge_);
-  for (auto item : edge_->collidingItems()) {
+  for (QGraphicsItem* item : edge_->collidingItems()) {
     if (item->type() == QGraphicsLineItem::Type) {
       if (!item->collidesWithItem(lhs_planet_) &&
           !item->collidesWithItem(rhs_planet_)) {
@@ -242,9 +245,9 @@ bool PlanetsGraph::Edge::operator<(const PlanetsGraph::Edge& rhs_edge) const {
 
 std::shared_ptr<Planet> PlanetsGraph::FindPlanetAtDistanceGE(
     int needed_dist, const std::map<PlanetGraphics*, std::vector<int>>& data) {
-  for (auto& data_pair : data) {
+  for (const std::pair<PlanetGraphics*, std::vector<int>>& data_pair : data) {
     PlanetGraphics* planet = data_pair.first;
-    const auto& dist_vec = data_pair.second;
+    const std::vector<int>& dist_vec = data_pair.second;
     bool skip = false;
 
     for (int dist : dist_vec) {

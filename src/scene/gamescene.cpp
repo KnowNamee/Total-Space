@@ -60,9 +60,9 @@ void GameScene::NewGame() {
   GenerateMap();
 
   // Добавляем ботов
-  bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");
+  bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
   bot1_->GetPlanets()[0]->SetOwner(bot1_);
-  bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");
+  bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_);
 
   // Перерисовываем рёбра графа
