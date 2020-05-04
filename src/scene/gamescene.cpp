@@ -24,6 +24,9 @@ void GameScene::Destroy() {
     Controller::scene->removeItem(it.next());
   }
   player_ = nullptr;
+  bot1_ = nullptr;
+  bot2_ = nullptr;
+  graph_ = nullptr;
 }
 
 void GameScene::HideAll() {
@@ -61,9 +64,9 @@ void GameScene::NewGame() {
 
   // Добавляем ботов
   bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
-  bot1_->GetPlanets()[0]->SetOwner(bot1_);
+  bot1_->GetPlanets()[0]->SetOwner(bot1_.get());
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
-  bot2_->GetPlanets()[0]->SetOwner(bot2_);
+  bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
 
   // Перерисовываем рёбра графа
   UpdatePlanetsGraph();

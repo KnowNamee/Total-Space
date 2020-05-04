@@ -310,3 +310,4 @@ void GameMenu::Draw() {
   Controller::scene->NewGame();
 }
 
+Menu::Menu() {}
