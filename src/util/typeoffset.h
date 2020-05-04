@@ -10,4 +10,16 @@ enum {
 
 }  // namespace TypeOffset
 
+namespace ZValues {
+
+enum {
+  kEdge = 0,
+  kPlanet = 1,
+  kPauseMenu = 2,
+  kPlanetMenu = 2,
+  kMainMenu = 2,
+};
+
+}  // namespace ZValues
+
 #endif  // TYPEOFFSET_H

@@ -70,8 +70,13 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     }
     return;
   }
-
-  if (state == Controller::MenuType::kMain) {
+  if (state == Controller::MenuType::kGame) {
+    if (item->type() == PlanetGraphics::Type) {
+      PlanetGraphics* planet = dynamic_cast<PlanetGraphics*>(item);
+      Controller::SetActivePlanet(planet->GetPlanet().get());
+      Controller::scene->UpdatePlanetsGraph();
+    }
+  } else if (state == Controller::MenuType::kMain) {
     MainMenu* menu = Controller::GetMainMenu();
 
     if (item->type() == ImageItem::Type) {
@@ -108,7 +113,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     } else if (item->type() == PlanetGraphics::Type) {
-      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
+      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet().get();
       if (planet != Controller::GetActivePlanet()) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
@@ -185,7 +190,7 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
       Controller::SetActivePlanet(
-          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
+          dynamic_cast<PlanetGraphics*>(item)->GetPlanet().get());
 
       double scale = view_->matrix().m11();
 

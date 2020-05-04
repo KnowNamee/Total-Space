@@ -14,6 +14,9 @@ class Menu : public QObject {
   Q_OBJECT
 
  public:
+  Menu();
+
+  virtual void SetZValue() = 0;
   virtual void Draw() = 0;
   virtual void SwitchTo(Controller::MenuType menu) = 0;
 };
@@ -25,6 +28,7 @@ class MainMenu : public Menu {
   MainMenu();
   ~MainMenu() override;
 
+  void SetZValue() override;
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
@@ -46,6 +50,7 @@ class PauseMenu : public Menu {
   PauseMenu();
   ~PauseMenu() override;
 
+  void SetZValue() override;
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
@@ -64,6 +69,7 @@ class PlanetMenu : public Menu {
   PlanetMenu();
   ~PlanetMenu() override;
 
+  void SetZValue() override;
   void Draw() override;
   void Hide();
   void Show();
@@ -104,6 +110,7 @@ class GameMenu : public Menu {
   GameMenu();
   ~GameMenu() override;
 
+  void SetZValue() override;
   void SwitchTo(Controller::MenuType menu) override;
   void Draw() override;
 

@@ -5,12 +5,14 @@
 #include <QGraphicsView>
 #include <QRandomGenerator>
 
+#include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "graphics/drawer.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
 #include "objects/player.h"
+#include "scene/gameview.h"
 
 GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
@@ -51,14 +53,20 @@ void GameScene::NewGame() {
   std::shared_ptr<Planet> player_planet(start_planet);
   drawer_->DrawPlanet(player_planet);
 
-  player_ = std::make_shared<Player>(player_planet);
+  player_ = std::make_shared<Player>(player_planet, "#C9F76F");
   player_planet->SetOwner(player_.get());
 
   SetSceneSettings();
   GenerateMap();
 
-  // TODO
-  //Здесь должна происходить генерация ботов и присвоение им планет
+  // Добавляем ботов
+  bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
+  bot1_->GetPlanets()[0]->SetOwner(bot1_);
+  bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
+  bot2_->GetPlanets()[0]->SetOwner(bot2_);
+
+  // Перерисовываем рёбра графа
+  UpdatePlanetsGraph();
 }
 
 void GameScene::SetSceneSettings() {
@@ -122,6 +130,9 @@ void GameScene::GenerateMap() {
       }
     }
   }
+
+  graph_ = std::make_shared<PlanetsGraph>(items());
+  drawer_->DrawPlanetsGraph(graph_);
 }
 
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
@@ -147,3 +158,5 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
   }
   return nearby_units;
 }
+
+void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
