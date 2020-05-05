@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <memory>
 
+#include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "graphics/buttonitem.h"
@@ -16,11 +17,11 @@
 #include "graphics/planetinfographics.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
-#include "menugraph.h"
 #include "objects/planet.h"
 #include "objects/player.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
+#include "util/typeoffset.h"
 
 MainMenu::MainMenu() {
   connect(this, SIGNAL(btnExitClick()), Controller::window, SLOT(Exit()));
@@ -31,6 +32,12 @@ MainMenu::~MainMenu() {
   Controller::scene->removeItem(txt_total_space_);
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_new_game_);
+}
+
+void MainMenu::SetZValue() {
+  txt_total_space_->setZValue(ZValues::kMainMenu);
+  btn_new_game_->setZValue(ZValues::kMainMenu);
+  btn_exit_->setZValue(ZValues::kMainMenu);
 }
 
 void MainMenu::Draw() {
@@ -48,6 +55,8 @@ void MainMenu::Draw() {
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
                     static_cast<int>(kWidth / view->matrix().m11()),
                     static_cast<int>(kHeight / view->matrix().m11()));
+
+  SetZValue();
 
   Controller::scene->addItem(txt_total_space_);
   Controller::scene->addItem(btn_exit_);
@@ -80,6 +89,12 @@ PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(background_rect_);
 }
 
+void PauseMenu::SetZValue() {
+  background_rect_->setZValue(ZValues::kPauseMenu);
+  btn_back_->setZValue(ZValues::kPauseMenu);
+  btn_exit_->setZValue(ZValues::kPauseMenu);
+}
+
 void PauseMenu::Draw() {
   GameView* view = Controller::view;
   QPointF center =
@@ -104,6 +119,8 @@ void PauseMenu::Draw() {
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
                     static_cast<int>(kWidth / (5 * view->matrix().m11())),
                     static_cast<int>(kHeight / (12 * view->matrix().m11())));
+
+  SetZValue();
 
   Controller::scene->addItem(background_rect_);
   Controller::scene->addItem(btn_back_);
@@ -160,6 +177,7 @@ PlanetMenu::PlanetMenu() {
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
   }
   this->Draw();
+  Controller::scene->UpdatePlanetsGraph();
 }
 
 PlanetMenu::~PlanetMenu() {
@@ -168,7 +186,14 @@ PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn3_);
 }
 
+void PlanetMenu::SetZValue() {
+  btn1_->setZValue(ZValues::kPlanetMenu);
+  btn2_->setZValue(ZValues::kPlanetMenu);
+  btn3_->setZValue(ZValues::kPlanetMenu);
+}
+
 void PlanetMenu::Draw() {
+  SetZValue();
   Controller::scene->addItem(btn1_);
   Controller::scene->addItem(btn2_);
   Controller::scene->addItem(btn3_);
@@ -242,6 +267,8 @@ GameMenu::GameMenu() { this->Draw(); }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
+void GameMenu::SetZValue() {}
+
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
@@ -300,6 +327,13 @@ AttackMenu::AttackMenu() {
 }
 
 AttackMenu::~AttackMenu() { Destroy(); }
+
+void AttackMenu::SetZValue() {
+  background_rect_->setZValue(ZValues::kAttackMenu);
+  attack_button_->setZValue(ZValues::kAttackMenu);
+  cancel_button_->setZValue(ZValues::kAttackMenu);
+  planet_info_->setZValue(ZValues::kAttackMenu);
+}
 
 void AttackMenu::Draw() {
   QPointF coordinates = Controller::GetActivePlanet()->GetCoordinates();
@@ -399,6 +433,7 @@ void AttackMenu::RemoveUnit(UnitWidget* unit) {
 }
 
 void AttackMenu::Show() {
+  SetZValue();
   scroll_view_->show();
   Controller::scene->addItem(background_rect_);
   Controller::scene->addItem(planet_info_);

@@ -263,7 +263,6 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
   RemoveUnits(units_on_planet_);
   MoveUnits(enemy_units);
-  //  std::shared_ptr<Planet> self(this);
   if (owner_ != nullptr) {
     owner_->RemovePlanet(this);
   }

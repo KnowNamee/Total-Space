@@ -12,6 +12,7 @@ class Unit;
 class Player : public PlayerBase {
 public:
   explicit Player(Planet* planet);
+  explicit Player(Planet* planet, const QString& color);
 };
 
-#endif // PLAYER_H
+#endif  // PLAYER_H

@@ -5,6 +5,11 @@
 #include "objects/planet.h"
 
 PlayerBase::PlayerBase(Planet* planet) { planets_.push_back(planet); }
+PlayerBase::PlayerBase(Planet* planet, Type type,
+                       const QString& color)
+    : type_(type), color_(color) {
+  planets_.push_back(planet);
+}
 
 const Resources& PlayerBase::GetResources() const { return resources_; }
 
@@ -26,3 +31,7 @@ int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 void PlayerBase::IncreasePower(int32_t power) { army_power_ += power; }
 
 const QVector<Planet*>& PlayerBase::GetPlanets() const { return planets_; }
+
+PlayerBase::Type PlayerBase::GetType() { return type_; }
+
+const QString& PlayerBase::GetColor() { return color_; }

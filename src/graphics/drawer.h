@@ -6,6 +6,7 @@
 
 class GameScene;
 class Planet;
+class PlanetsGraph;
 
 class Drawer : public QObject {
   Q_OBJECT
@@ -13,6 +14,7 @@ class Drawer : public QObject {
   Drawer(GameScene* game_scene);
 
   void DrawPlanet(Planet* planet);
+  void DrawPlanetsGraph(const std::shared_ptr<PlanetsGraph>& graph);
 
  private:
   GameScene* game_scene_;
