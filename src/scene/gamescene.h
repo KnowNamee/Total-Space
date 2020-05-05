@@ -27,6 +27,8 @@ class GameScene : public QGraphicsScene {
   void ShowAll();
   Player* GetPlayer() const;
   double GetMapSize() const;
+  int32_t GetWidth() const;
+  int32_t GetHeight() const;
   std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
 
  public slots:
@@ -40,6 +42,7 @@ class GameScene : public QGraphicsScene {
   ImageItem* background_;
   std::shared_ptr<Drawer> drawer_;
   std::shared_ptr<Player> player_;
+  std::vector<std::shared_ptr<Planet>> planets_;
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kMapSize = 2.5;

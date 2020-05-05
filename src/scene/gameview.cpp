@@ -3,6 +3,9 @@
 #include <QDebug>
 
 #include "core/eventhandling.h"
+#include "core/statemachine.h"
+#include "graphics/buttonitem.h"
+#include "graphics/unitwidget.h"
 #include "scene/gamescene.h"
 
 GameView::GameView(GameScene* scene, QWidget* parent)
@@ -41,6 +44,12 @@ void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void GameView::mouseReleaseEvent(QMouseEvent* event) {
   event_handler_->MouseReleaseEvent(event);
+  ButtonItem* button = dynamic_cast<ButtonItem*>(
+      Controller::scene->itemAt(mapToScene(event->pos()), QTransform()));
+  if (button != nullptr) {
+    button->MouseClicked();
+  }
+  QGraphicsView::mouseReleaseEvent(event);
 }
 
 void GameView::keyReleaseEvent(QKeyEvent* event) {
@@ -48,3 +57,17 @@ void GameView::keyReleaseEvent(QKeyEvent* event) {
 }
 
 void GameView::wheelEvent(QWheelEvent* event) { event_handler_->Scale(event); }
+
+ScrollingView::ScrollingView(QGraphicsScene* scene, QWidget* parent)
+    : QGraphicsView(scene, parent) {
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}
+
+void ScrollingView::mouseReleaseEvent(QMouseEvent* event) {
+  UnitWidget* widget = dynamic_cast<UnitWidget*>(
+      scene()->itemAt(mapToScene(event->pos()), QTransform()));
+  if (widget != nullptr) {
+    widget->MouseClicked();
+  }
+}

@@ -32,6 +32,7 @@ class Planet : public QObject {
   const Resources& GetIncome() const;
   QPointF GetCoordinates() const;
   double GetRadius() const;
+  int32_t GetLevel() const;
   const QVector<BuildingType>& GetBuildings() const;
   const QVector<UnitType>& GetUnits() const;
   PlayerBase* GetOwner() const;

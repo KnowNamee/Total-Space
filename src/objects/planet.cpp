@@ -1,5 +1,6 @@
 #include "objects/planet.h"
 
+#include <QDebug>
 #include <QRandomGenerator>
 #include <memory>
 
@@ -53,6 +54,8 @@ int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
 double Planet::GetRadius() const { return radius_; }
+
+int32_t Planet::GetLevel() const { return level_; }
 const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
@@ -234,7 +237,9 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
 
     for (int32_t i = 0; i < number_of_dead_units; i++) {
       int32_t index =
-          static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+          (static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+               planet_to_units.second.size() +
+           planet_to_units.second.size()) %
           planet_to_units.second.size();
       planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
     }
@@ -258,12 +263,12 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
   RemoveUnits(units_on_planet_);
   MoveUnits(enemy_units);
-  std::shared_ptr<Planet> self(this);
+  //  std::shared_ptr<Planet> self(this);
   if (owner_ != nullptr) {
-    owner_->RemovePlanet(self);
+    owner_->RemovePlanet(this);
   }
   SetOwner(enemy);
-  enemy->AddPlanet(std::shared_ptr<Planet>(self));
+  enemy->AddPlanet(this);
   return true;
 }
 

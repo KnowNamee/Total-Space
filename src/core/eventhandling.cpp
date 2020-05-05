@@ -99,14 +99,7 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
 
     if (item->type() == ImageItem::Type) {
       ImageItem* button = dynamic_cast<ImageItem*>(item);
-
-      if (button == menu->btn1_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      } else if (button == menu->btn2_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      } else if (button == menu->btn3_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      }
+      Controller::SwitchMenu(menu->GetNextMenu(button));
     } else if (item->type() == PlanetGraphics::Type) {
       Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
       if (planet != Controller::GetActivePlanet()) {
@@ -199,6 +192,8 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
                          (item->boundingRect().height() / 2)) {
         return;
       }
+//      Controller::GetActivePlanet()->TakeAttack(
+//          Controller::scene->GetNearestUnits(Controller::scene->GetPlayer()));
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
       timer_ = new QTimer();
@@ -210,17 +205,15 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
 
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
   Controller::MenuType state = Controller::GetMenuType();
-  if (state == Controller::MenuType::kPlanet) {
-    if (event->key() == Qt::Key_Escape) {
+  if (event->key() == Qt::Key_Escape) {
+    if (state == Controller::MenuType::kPlanet) {
       Controller::SwitchMenu(Controller::MenuType::kGame);
-    }
-  } else if (state == Controller::MenuType::kGame) {
-    if (event->key() == Qt::Key_Escape) {
+    } else if (state == Controller::MenuType::kGame) {
       Controller::SwitchMenu(Controller::MenuType::kPause);
-    }
-  } else if (state == Controller::MenuType::kPause) {
-    if (event->key() == Qt::Key_Escape) {
+    } else if (state == Controller::MenuType::kPause) {
       Controller::SwitchMenu(Controller::MenuType::kGame);
+    } else if (state == Controller::MenuType::kAttack) {
+      Controller::SwitchMenu(Controller::MenuType::kPlanet);
     }
   }
 }
@@ -235,7 +228,7 @@ void EventHandler::View::MoveTo() {
 
   // TODO
   // Выбрать скорость передвижения к планете
-  const double kVelocity = width / 40;
+  static const double kVelocity = distance / 27;
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {
@@ -297,7 +290,7 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() * current_scale / 200;
+    const double kScale = event->delta() * current_scale / 300;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);

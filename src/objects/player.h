@@ -11,7 +11,7 @@ class Unit;
 
 class Player : public PlayerBase {
 public:
-  explicit Player(const std::shared_ptr<Planet>& planet);
+  explicit Player(Planet* planet);
 };
 
 #endif // PLAYER_H

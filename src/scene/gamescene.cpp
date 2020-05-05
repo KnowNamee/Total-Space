@@ -2,11 +2,13 @@
 
 #include <QDebug>
 #include <QGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
 
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "graphics/buttonitem.h"
 #include "graphics/drawer.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
@@ -17,11 +19,11 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  QListIterator<QGraphicsItem*> it(Controller::scene->items());
-  while (it.hasNext()) {
-    Controller::scene->removeItem(it.next());
-  }
-  player_ = nullptr;
+  clear();
+  // TODO
+  // reset указатели на ботов
+  player_.reset();
+  planets_.clear();
 }
 
 void GameScene::HideAll() {
@@ -42,17 +44,26 @@ Player* GameScene::GetPlayer() const { return player_.get(); }
 
 double GameScene::GetMapSize() const { return kMapSize; }
 
+int32_t GameScene::GetWidth() const { return kWidth; }
+
+int32_t GameScene::GetHeight() const { return kHeight; }
+
 void GameScene::NewGame() {
   const double kWidth = views()[0]->sceneRect().width();
 
   // TODO
   // Надо выбрать радиус
-  Planet* start_planet = new Planet(QPointF(0, 0), kWidth / 16 * 3);
-  std::shared_ptr<Planet> player_planet(start_planet);
-  drawer_->DrawPlanet(player_planet);
+  std::shared_ptr<Planet> player_planet =
+      std::make_shared<Planet>(QPointF(0, 0), kWidth / 16 * 3);
+  drawer_->DrawPlanet(player_planet.get());
+  planets_.push_back(player_planet);
 
-  player_ = std::make_shared<Player>(player_planet);
+  player_ = std::make_shared<Player>(player_planet.get());
   player_planet->SetOwner(player_.get());
+  player_planet->AddUnit(UnitType::kDroid);
+  player_planet->AddUnit(UnitType::kRover);
+  player_planet->AddUnit(UnitType::kFalcon);
+  player_planet->AddUnit(UnitType::kMarine);
 
   SetSceneSettings();
   GenerateMap();
@@ -95,7 +106,7 @@ void GameScene::GenerateMap() {
         is_allowed_distance = true;
         counter++;
         double left_x = std::max(-kMapWidth + kPlanetRadius, x);
-        double right_x = x + kCellWidth;
+        double right_x = std::min(kMapWidth, x + kCellWidth);
         int64_t planet_x = QRandomGenerator::global()->generate() %
                                static_cast<int64_t>(right_x - left_x) +
                            static_cast<int64_t>(left_x);
@@ -116,8 +127,10 @@ void GameScene::GenerateMap() {
           }
         }
         if (is_allowed_distance) {
-          drawer_->DrawPlanet(
-              std::make_shared<Planet>(coordinates, kPlanetRadius));
+          std::shared_ptr<Planet> planet =
+              std::make_shared<Planet>(coordinates, kPlanetRadius);
+          planets_.push_back(planet);
+          drawer_->DrawPlanet(planet.get());
         }
       }
     }
@@ -141,7 +154,7 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
         kMaximalDistance) {
       QVector<UnitType> planet_units = nearby_planet->GetUnits();
       if (planet_units.size() > 0) {
-        nearby_units[nearby_planet.get()] = planet_units;
+        nearby_units[nearby_planet] = planet_units;
       }
     }
   }

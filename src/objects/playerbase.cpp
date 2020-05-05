@@ -1,10 +1,10 @@
 #include "playerbase.h"
 
+#include <QDebug>
+
 #include "objects/planet.h"
 
-PlayerBase::PlayerBase(const std::shared_ptr<Planet>& planet) {
-  planets_.push_back(planet);
-}
+PlayerBase::PlayerBase(Planet* planet) { planets_.push_back(planet); }
 
 const Resources& PlayerBase::GetResources() const { return resources_; }
 
@@ -17,18 +17,12 @@ void PlayerBase::UpdateResources() {
   }
 }
 
-void PlayerBase::AddPlanet(const std::shared_ptr<Planet>& planet) {
-  planets_.push_back(planet);
-}
+void PlayerBase::AddPlanet(Planet* planet) { planets_.push_back(planet); }
 
-void PlayerBase::RemovePlanet(const std::shared_ptr<Planet>& planet) {
-  planets_.removeOne(planet);
-}
+void PlayerBase::RemovePlanet(Planet* planet) { planets_.removeOne(planet); }
 
 int64_t PlayerBase::GetArmyPower() const { return army_power_; }
 
 void PlayerBase::IncreasePower(int32_t power) { army_power_ += power; }
 
-const QVector<std::shared_ptr<Planet>>& PlayerBase::GetPlanets() const {
-  return planets_;
-}
+const QVector<Planet*>& PlayerBase::GetPlanets() const { return planets_; }
