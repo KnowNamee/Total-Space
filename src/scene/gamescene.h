@@ -55,8 +55,6 @@ class GameScene : public QGraphicsScene {
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kMapSize = 2.5;
-  // TODO
-  // Выбрать расстояние, очень сильно влияет 
 };
 
 #endif  // GAMESCENE_H
