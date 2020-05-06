@@ -81,8 +81,6 @@ class PlanetMenu : public Menu {
 
   void SetZValue() override;
   void Draw() override;
-  void Hide();
-  void Show();
 
   Controller::MenuType GetNextMenu(ImageItem* btn) const;
 
@@ -167,9 +165,13 @@ class GameMenu : public Menu {
   void SetZValue() override;
   void SwitchTo(Controller::MenuType menu) override;
   void Draw() override;
+  void ReDraw();
+  void StartGame();
 
  private:
   friend class EventHandler::View;
+
+  ImageItem* btn_next_;
 };
 
 #endif  // MENU_H

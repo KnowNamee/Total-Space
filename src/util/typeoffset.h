@@ -15,10 +15,11 @@ namespace ZValues {
 enum {
   kEdge = 0,
   kPlanet = 1,
-  kPauseMenu = 2,
-  kPlanetMenu = 2,
-  kMainMenu = 2,
-  kAttackMenu = 2,
+  kGameMenu = 2,
+  kPauseMenu = 3,
+  kPlanetMenu = 3,
+  kMainMenu = 3,
+  kAttackMenu = 3,
 };
 
 }  // namespace ZValues

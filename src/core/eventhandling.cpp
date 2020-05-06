@@ -173,6 +173,7 @@ void EventHandler::View::Move() {
 
     view_->setSceneRect(view_->sceneRect().x() + x_velocity,
                         view_->sceneRect().y() + y_velocity, width, height);
+    Controller::GetGameMenu()->ReDraw();
   }
 }
 
@@ -260,10 +261,12 @@ void EventHandler::View::MoveTo() {
                      view_->matrix().m22() + scale_velocity,
                      view_->matrix().dx(), view_->matrix().dy());
     view_->setMatrix(matrix);
+    Controller::GetGameMenu()->ReDraw();
   }
   if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
+    Controller::GetGameMenu()->ReDraw();
     current_motion_ = MotionType::kNoMotion;
     Controller::SwitchMenu(Controller::MenuType::kPlanet);
     delete timer_;
@@ -333,4 +336,6 @@ void EventHandler::View::ScaleToGoal() {
                    view_->matrix().m21(), current_scale + scale_velocity,
                    view_->matrix().dx(), view_->matrix().dy());
   view_->setMatrix(matrix);
+
+  Controller::GetGameMenu()->ReDraw();
 }

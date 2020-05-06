@@ -214,18 +214,6 @@ void PlanetMenu::Draw() {
   btn3_->setX(btn3_->x() - radius_ / 48);
 }
 
-void PlanetMenu::Hide() {
-  btn1_->hide();
-  btn2_->hide();
-  btn3_->hide();
-}
-
-void PlanetMenu::Show() {
-  btn1_->show();
-  btn2_->show();
-  btn3_->show();
-}
-
 Controller::MenuType PlanetMenu::GetNextMenu(ImageItem* button) const {
   if (button_to_menu_.find(button) != button_to_menu_.end()) {
     return button_to_menu_.at(button);
@@ -263,11 +251,14 @@ void UnitMenu::Draw() {}
 
 void UnitMenu::SwitchTo(Controller::MenuType) {}
 
-GameMenu::GameMenu() { this->Draw(); }
+GameMenu::GameMenu() {
+  this->StartGame();
+  this->Draw();
+}
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
-void GameMenu::SetZValue() {}
+void GameMenu::SetZValue() { btn_next_->setZValue(ZValues::kGameMenu); }
 
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
@@ -290,6 +281,30 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
 }
 
 void GameMenu::Draw() {
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  double coef = Controller::view->matrix().m11();
+  btn_next_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
+                            width / (12 * coef), height / (15 * coef));
+
+  SetZValue();
+  btn_next_->setPos(Controller::view->mapToScene(
+                        QPoint(width, height) - QPoint(width / 8, height / 8)) /
+                    2);
+  Controller::scene->addItem(btn_next_);
+}
+
+void GameMenu::ReDraw() {
+  int32_t width = qApp->screens()[0]->size().width();
+  int32_t height = qApp->screens()[0]->size().height();
+
+  btn_next_->setPos(Controller::view->mapToScene(
+                        QPoint(width, height) - QPoint(width / 8, height / 8)) /
+                    2);
+}
+
+void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
   Controller::scene->NewGame();
 }
@@ -448,7 +463,7 @@ void AttackMenu::Attack() {
   }
   if (Controller::GetActivePlanet()->TakeAttack(planet_to_unit)) {
     // TODO
-    // ShowWinMessage          
+    // ShowWinMessage
     qDebug() << "win";
     Close();
   } else {

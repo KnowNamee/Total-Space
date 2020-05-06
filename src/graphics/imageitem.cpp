@@ -5,9 +5,9 @@
 #include <QPainter>
 #include <QScreen>
 
-#include "scene/gameview.h"
-#include "data/loader.h"
 #include "core/statemachine.h"
+#include "data/loader.h"
+#include "scene/gameview.h"
 
 ImageItem::ImageItem(const QPixmap* image, int width, int height)
     : image_(image), size_(QSize(width, height)) {}
