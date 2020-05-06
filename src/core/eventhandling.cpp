@@ -197,8 +197,6 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
                          (item->boundingRect().height() / 2)) {
         return;
       }
-//      Controller::GetActivePlanet()->TakeAttack(
-//          Controller::scene->GetNearestUnits(Controller::scene->GetPlayer()));
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
       timer_ = new QTimer();
@@ -233,7 +231,10 @@ void EventHandler::View::MoveTo() {
 
   // TODO
   // Выбрать скорость передвижения к планете
-  static const double kVelocity = distance / 27;
+  static double kVelocity = distance / 27;
+  if (abs(distance) <= 1e-12) {
+    kVelocity = width / 40;
+  }
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {

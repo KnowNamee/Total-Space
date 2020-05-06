@@ -98,7 +98,7 @@ MainMenu* Controller::GetMainMenu() { return main_menu_; }
 
 UnitMenu* Controller::GetUnitMenu() { return unit_menu_; }
 
-AttackMenu *Controller::GetAttackMenu() { return attack_menu_; }
+AttackMenu* Controller::GetAttackMenu() { return attack_menu_; }
 
 PauseMenu* Controller::GetPauseMenu() { return pause_menu_; }
 

@@ -10,9 +10,9 @@ QRectF ButtonItem::boundingRect() const {
   return QRectF(0, 0, width_, height_);
 }
 
-void ButtonItem::paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option,
-                       QWidget *widget) {
+void ButtonItem::paint(QPainter* painter,
+                       const QStyleOptionGraphicsItem* option,
+                       QWidget* widget) {
   Q_UNUSED(widget)
   Q_UNUSED(option)
   painter->setBrush(QColor(Qt::white));

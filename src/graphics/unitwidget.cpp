@@ -10,7 +10,7 @@
 #include "data/objectsstorage.h"
 #include "scene/gamescene.h"
 
-UnitWidget::UnitWidget(Planet *planet, UnitType unit, int32_t width,
+UnitWidget::UnitWidget(Planet* planet, UnitType unit, int32_t width,
                        int32_t height)
     : ButtonItem(width, height),
       unit_planet_(planet),
@@ -21,9 +21,9 @@ QRectF UnitWidget::boundingRect() const {
   return QRectF(pos().x(), pos().y(), width_, height_);
 }
 
-void UnitWidget::paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option,
-                       QWidget *widget) {
+void UnitWidget::paint(QPainter* painter,
+                       const QStyleOptionGraphicsItem* option,
+                       QWidget* widget) {
   Q_UNUSED(option);
   Q_UNUSED(widget);
   painter->setBrush(current_color_);
@@ -53,7 +53,7 @@ void UnitWidget::MouseClicked() {
   is_chosen_ = !is_chosen_;
 }
 
-Planet *UnitWidget::GetPlanet() const { return unit_planet_; }
+Planet* UnitWidget::GetPlanet() const { return unit_planet_; }
 
 UnitType UnitWidget::GetUnit() const { return cell_unit_; }
 
