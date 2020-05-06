@@ -71,6 +71,22 @@ Planet* PlanetsGraph::GetBotPlanet() {
   return nullptr;
 }
 
+QVector<Planet*> PlanetsGraph::GetConnectedPlanets(
+    PlanetGraphics* planet_grapics) const {
+  QVector<Planet*> planets;
+  Planet* this_planet = planet_grapics->GetPlanet();
+  for (const auto& edge : graph_.at(planet_grapics)) {
+    Planet* left_planet = edge->GetLeftPlanet();
+    Planet* right_planet = edge->GetRightPlanet();
+    if (left_planet == this_planet) {
+      planets.push_back(right_planet);
+      continue;
+    }
+      planets.push_back(left_planet);
+  }
+  return planets;
+}
+
 void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
                            PlanetGraphics* rhs_planet) {
   QPointF ac = lhs_planet->GetPlanet()->GetCoordinates();

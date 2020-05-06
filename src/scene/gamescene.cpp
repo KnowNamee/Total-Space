@@ -27,7 +27,7 @@ void GameScene::Destroy() {
   bot1_.reset();
   bot2_.reset();
   player_.reset();
-  planets_.clear(); 
+  planets_.clear();
   graph_.reset();
 }
 
@@ -165,10 +165,12 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
   if (planet == nullptr) {
     return {};
   }
+  PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
+      itemAt(2 * planet->GetCoordinates(), QTransform()));
   std::map<Planet*, QVector<UnitType>> nearby_units;
-  for (const auto& nearby_planet : player->GetPlanets()) {
-    if (Distance(nearby_planet->GetCoordinates(), planet->GetCoordinates()) <
-        kMaximalDistance) {
+  for (const auto& nearby_planet :
+       graph_->GetConnectedPlanets(planet_graphics)) {
+    if (nearby_planet->GetOwner() == player) {
       QVector<UnitType> planet_units = nearby_planet->GetUnits();
       if (planet_units.size() > 0) {
         nearby_units[nearby_planet] = planet_units;

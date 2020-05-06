@@ -68,6 +68,7 @@ class PlanetsGraph {
   void Draw();
   void Update();
   Planet* GetBotPlanet();
+  QVector<Planet*> GetConnectedPlanets(PlanetGraphics* planet_grapics) const;
 
  private:
   std::map<PlanetGraphics*, std::set<std::shared_ptr<Edge>>> graph_;

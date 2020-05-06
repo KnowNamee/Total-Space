@@ -57,7 +57,6 @@ class GameScene : public QGraphicsScene {
   const double kMapSize = 2.5;
   // TODO
   // Выбрать расстояние, очень сильно влияет 
-  const double kMaximalDistance = qApp->screens()[0]->size().width() / 2;
 };
 
 #endif  // GAMESCENE_H

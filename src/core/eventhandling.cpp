@@ -296,7 +296,7 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() * current_scale / 300;
+    const double kScale = event->delta() * current_scale / 200;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);

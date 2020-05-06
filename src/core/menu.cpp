@@ -448,7 +448,7 @@ void AttackMenu::Attack() {
   }
   if (Controller::GetActivePlanet()->TakeAttack(planet_to_unit)) {
     // TODO
-    // ShowWinMessage
+    // ShowWinMessage          
     qDebug() << "win";
     Close();
   } else {
