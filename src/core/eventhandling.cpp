@@ -209,14 +209,24 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
   Controller::MenuType state = Controller::GetMenuType();
   if (event->key() == Qt::Key_Escape) {
-    if (state == Controller::MenuType::kPlanet) {
-      Controller::SwitchMenu(Controller::MenuType::kGame);
-    } else if (state == Controller::MenuType::kGame) {
-      Controller::SwitchMenu(Controller::MenuType::kPause);
-    } else if (state == Controller::MenuType::kPause) {
-      Controller::SwitchMenu(Controller::MenuType::kGame);
-    } else if (state == Controller::MenuType::kAttack) {
-      Controller::SwitchMenu(Controller::MenuType::kPlanet);
+    switch (state) {
+      case Controller::MenuType::kPlanet:
+        Controller::SwitchMenu(Controller::MenuType::kGame);
+        break;
+      case Controller::MenuType::kGame:
+        Controller::SwitchMenu(Controller::MenuType::kPause);
+        break;
+      case Controller::MenuType::kPause:
+        Controller::SwitchMenu(Controller::MenuType::kGame);
+        break;
+      case Controller::MenuType::kAttack:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
+      case Controller::MenuType::kMove:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
+      default:
+        break;
     }
   }
 }
@@ -296,7 +306,7 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() * current_scale / 600;
+    const double kScale = event->delta() * current_scale / 300;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);

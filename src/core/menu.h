@@ -139,6 +139,9 @@ class UnitsInteractionMenu : public Menu {
   QVector<UnitWidget*> chosen_units_;
   ButtonItem* interaction_button_ = nullptr;
 
+protected slots:
+  void Close();
+
  private:
   friend class UnitWidget;
   void ChooseUnit(UnitWidget* unit);
@@ -170,8 +173,7 @@ class UnitsInteractionMenu : public Menu {
  private slots:
   void Show();
   virtual void Interact() = 0;
-  void Destroy();
-  void Close();
+  void Destroy();  
   void CloseResult();
 };
 

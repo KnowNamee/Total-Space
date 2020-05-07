@@ -563,7 +563,17 @@ MoveMenu::MoveMenu() : UnitsInteractionMenu() {
   // interaction_button_->SetPixmap();
 }
 
-void MoveMenu::Interact() {}
+void MoveMenu::Interact() {
+  std::map<Planet*, QVector<UnitType>> planets_to_units;
+  for (UnitWidget* unit : chosen_units_) {
+    planets_to_units[unit->GetPlanet()].push_back(unit->GetUnit());
+  }
+  for (const auto& planet_to_unit : planets_to_units) {
+    planet_to_unit.first->RemoveUnits(planet_to_unit.second);
+    Controller::GetActivePlanet()->AddUnits(planet_to_unit.second);
+  }
+  Close();
+}
 
 void MoveMenu::Switch(Controller::MenuType menu) {
   if (menu == Controller::MenuType::kPlanet) {

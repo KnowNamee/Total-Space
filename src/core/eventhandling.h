@@ -39,7 +39,7 @@ class View : public QObject {
 
   const double kMoveZone = 32;
   const double kMapSize;
-  const double kScaleVelocity = 0.055;
+  const double kScaleVelocity = 0.06;
 
   bool IsMouseInMotionZone(QPointF cursor);
   bool CompareMotion(MotionType needed_motion);
