@@ -1,6 +1,7 @@
 #include "core/eventhandling.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QObject>
@@ -70,13 +71,8 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     }
     return;
   }
-  if (state == Controller::MenuType::kGame) {
-    if (item->type() == PlanetGraphics::Type) {
-      PlanetGraphics* planet = dynamic_cast<PlanetGraphics*>(item);
-      Controller::SetActivePlanet(planet->GetPlanet());
-      Controller::scene->UpdatePlanetsGraph();
-    }
-  } else if (state == Controller::MenuType::kMain) {
+
+  if (state == Controller::MenuType::kMain) {
     MainMenu* menu = Controller::GetMainMenu();
 
     if (item->type() == ImageItem::Type) {
@@ -110,6 +106,11 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
       if (planet != Controller::GetActivePlanet()) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
+    }
+  } else if (state == Controller::MenuType::kGame) {
+    if (current_motion_ == MotionType::kNoMotion) {
+      Controller::SetActivePlanet(nullptr);
+      Controller::scene->UpdatePlanetsGraph();
     }
   }
 }
@@ -183,9 +184,6 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
-      Controller::SetActivePlanet(
-          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
-
       double scale = view_->matrix().m11();
 
       QPointF event_pos = scale * view_->mapToScene(event->pos());
