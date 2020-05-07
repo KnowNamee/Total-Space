@@ -8,6 +8,10 @@ ButtonItem::ButtonItem(int32_t width, int32_t height)
   setFlag(ItemIsSelectable);
 }
 
+void ButtonItem::SetPixmap(QPixmap* button_image) {
+  button_image_ = button_image;
+}
+
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
   emit clicked();
 
@@ -24,5 +28,7 @@ void ButtonItem::paint(QPainter* painter,
   Q_UNUSED(widget)
   Q_UNUSED(option)
   painter->setBrush(QColor(Qt::white));
-  painter->drawRect(boundingRect());
+  // TODO
+  // Отрисовка кнопки
+  painter->drawRect(boundingRect());  
 }

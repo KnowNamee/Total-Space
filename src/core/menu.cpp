@@ -295,7 +295,7 @@ void GameMenu::Draw() {
   Controller::scene->NewGame();
 }
 
-AttackMenu::AttackMenu() {
+UnitsInteractionMenu::UnitsInteractionMenu() {
   PlanetGraphics* planet_graphics =
       dynamic_cast<PlanetGraphics*>(Controller::scene->itemAt(
           Controller::GetActivePlanet()->GetCoordinates() * 2, QTransform()));
@@ -312,7 +312,7 @@ AttackMenu::AttackMenu() {
   }
 
   background_rect_ = new QGraphicsRectItem();
-  attack_button_ = new ButtonItem(button_width_, button_height_);
+  interaction_button_ = new ButtonItem(button_width_, button_height_);
   cancel_button_ = new ButtonItem(button_width_, button_height_);
   std::map<Planet*, QVector<UnitType>> nearest_units =
       Controller::scene->GetNearestUnits(Controller::scene->GetPlayer());
@@ -323,20 +323,20 @@ AttackMenu::AttackMenu() {
     }
   }
   connect(cancel_button_, SIGNAL(clicked()), this, SLOT(Close()));
-  connect(attack_button_, SIGNAL(clicked()), this, SLOT(Attack()));
+  connect(interaction_button_, SIGNAL(clicked()), this, SLOT(Interact()));
   Draw();
 }
 
-AttackMenu::~AttackMenu() { Destroy(); }
+UnitsInteractionMenu::~UnitsInteractionMenu() { Destroy(); }
 
-void AttackMenu::SetZValue() {
+void UnitsInteractionMenu::SetZValue() {
   background_rect_->setZValue(ZValues::kAttackMenu);
-  attack_button_->setZValue(ZValues::kAttackMenu);
+  interaction_button_->setZValue(ZValues::kAttackMenu);
   cancel_button_->setZValue(ZValues::kAttackMenu);
   planet_info_->setZValue(ZValues::kAttackMenu);
 }
 
-void AttackMenu::Draw() {
+void UnitsInteractionMenu::Draw() {
   QPointF coordinates = Controller::GetActivePlanet()->GetCoordinates();
   QSize size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
   size *= kSizeCoefficient / Controller::view->matrix().m11();
@@ -379,7 +379,7 @@ void AttackMenu::Draw() {
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
       button_height_ * Controller::view->matrix().m11());
-  attack_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
+  interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   cancel_button_->setPos(Controller::view->mapToScene(
       static_cast<int32_t>(attack_x +
                            button_width_ * Controller::view->matrix().m11() +
@@ -395,7 +395,7 @@ void AttackMenu::Draw() {
   QTimer::singleShot(1, this, SLOT(Show()));
 }
 
-void AttackMenu::SwitchTo(Controller::MenuType menu) {
+void UnitsInteractionMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
   }
@@ -410,7 +410,7 @@ void AttackMenu::SwitchTo(Controller::MenuType menu) {
   }
 }
 
-void AttackMenu::ChooseUnit(UnitWidget* unit) {
+void UnitsInteractionMenu::ChooseUnit(UnitWidget* unit) {
   for (const auto& another_unit : unit_widgets_) {
     double another_y = another_unit.get()->y();
     if (another_y < unit->y() && another_y >= last_chosen_y_) {
@@ -423,7 +423,7 @@ void AttackMenu::ChooseUnit(UnitWidget* unit) {
   chosen_units_.push_back(unit);
 }
 
-void AttackMenu::RemoveUnit(UnitWidget* unit) {
+void UnitsInteractionMenu::RemoveUnit(UnitWidget* unit) {
   for (const auto& another_unit : unit_widgets_) {
     double another_y = another_unit.get()->y();
     if (another_y > unit->y() && another_y < last_chosen_y_) {
@@ -436,7 +436,7 @@ void AttackMenu::RemoveUnit(UnitWidget* unit) {
   chosen_units_.removeOne(unit);
 }
 
-void AttackMenu::ShowAttackResult(
+void UnitsInteractionMenu::ShowAttackResult(
     const std::map<UnitType, int32_t>& units_to_quantity, const QString& result,
     const QString& caption) {
   attack_result_ = new AttackResultWindow(units_to_quantity, result, caption,
@@ -461,24 +461,45 @@ void AttackMenu::ShowAttackResult(
   Controller::scene->addItem(result_button_);
 }
 
-void AttackMenu::Hide() {
+void UnitsInteractionMenu::Hide() {
   scroll_view_->hide();
   background_rect_->hide();
-  attack_button_->hide();
+  interaction_button_->hide();
   cancel_button_->hide();
   planet_info_->hide();
 }
 
-void AttackMenu::Show() {
+void UnitsInteractionMenu::Show() {
   SetZValue();
   scroll_view_->show();
   Controller::scene->addItem(background_rect_);
   Controller::scene->addItem(planet_info_);
-  Controller::scene->addItem(attack_button_);
+  Controller::scene->addItem(interaction_button_);
   Controller::scene->addItem(cancel_button_);
 }
 
-void AttackMenu::Attack() {
+void UnitsInteractionMenu::Destroy() {
+  scroll_scene_->deleteLater();
+  scroll_view_->deleteLater();
+  Controller::scene->removeItem(cancel_button_);
+  Controller::scene->removeItem(interaction_button_);
+  Controller::scene->removeItem(planet_info_);
+  Controller::scene->removeItem(background_rect_);
+}
+
+void UnitsInteractionMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void UnitsInteractionMenu::CloseResult() {
+  Controller::scene->removeItem(attack_result_);
+  Controller::scene->removeItem(result_button_);
+}
+
+AttackMenu::AttackMenu() : UnitsInteractionMenu() {
+  // TODO
+  // interaction_button_->SetPixmap()
+}
+
+void AttackMenu::Interact() {
   current_state_ = State::kResult;
 
   std::map<Planet*, QVector<UnitType>> planets_to_units;
@@ -530,20 +551,4 @@ void AttackMenu::Attack() {
     }
     ShowAttackResult(units_to_quantity, "Loser", "We won't forget them");
   }
-}
-
-void AttackMenu::Destroy() {
-  scroll_scene_->deleteLater();
-  scroll_view_->deleteLater();
-  Controller::scene->removeItem(cancel_button_);
-  Controller::scene->removeItem(attack_button_);
-  Controller::scene->removeItem(planet_info_);
-  Controller::scene->removeItem(background_rect_);
-}
-
-void AttackMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
-
-void AttackMenu::CloseResult() {
-  Controller::scene->removeItem(attack_result_);
-  Controller::scene->removeItem(result_button_);
 }

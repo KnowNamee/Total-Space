@@ -8,6 +8,7 @@ class ButtonItem : public QObject, public QGraphicsItem {
   Q_INTERFACES(QGraphicsItem)
  public:
   ButtonItem(int32_t width, int32_t height);
+  void SetPixmap(QPixmap* button_image);
 
  signals:
   void clicked();
@@ -22,6 +23,8 @@ class ButtonItem : public QObject, public QGraphicsItem {
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
+
+  QPixmap* button_image_;
 };
 
 #endif  // BUTTONITEM_H

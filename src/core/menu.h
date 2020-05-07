@@ -116,42 +116,44 @@ class UnitMenu : public Menu {
   friend class EventHandler::View;
 };
 
-class AttackMenu : public Menu {
+class UnitsInteractionMenu : public Menu {
   Q_OBJECT
 
  public:
-  AttackMenu();
-  ~AttackMenu() override;
+  UnitsInteractionMenu();
+  ~UnitsInteractionMenu() override;
 
   void SetZValue() override;
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
- private:
-  friend class UnitWidget;
-  void ChooseUnit(UnitWidget* unit);
-  void RemoveUnit(UnitWidget* unit);
+ protected:
   void ShowAttackResult(const std::map<UnitType, int32_t>& units_to_quantity,
                         const QString& result, const QString& caption);
-  void Hide();
 
   enum class State {
     kMain,
     kResult,
   };
+  State current_state_ = State::kMain;
+  QVector<UnitWidget*> chosen_units_;
+  ButtonItem* interaction_button_ = nullptr;
+
+ private:
+  friend class UnitWidget;
+  void ChooseUnit(UnitWidget* unit);
+  void RemoveUnit(UnitWidget* unit);
+  void Hide();
 
   QVector<std::shared_ptr<UnitWidget>> unit_widgets_;
-  QVector<UnitWidget*> chosen_units_;
   QGraphicsRectItem* background_rect_ = nullptr;
   AttackResultWindow* attack_result_ = nullptr;
-  ButtonItem* attack_button_ = nullptr;
   ButtonItem* cancel_button_ = nullptr;
   ButtonItem* result_button_ = nullptr;
   QGraphicsScene* scroll_scene_ = nullptr;
   ScrollingView* scroll_view_ = nullptr;
   PlanetInfoGraphics* planet_info_ = nullptr;
   int32_t last_chosen_y_ = 0;
-  State current_state_ = State::kMain;
 
   const double kSizeCoefficient = 0.9;
   const double kScrollPosition = 0.07;
@@ -168,10 +170,18 @@ class AttackMenu : public Menu {
 
  private slots:
   void Show();
-  void Attack();
+  virtual void Interact() = 0;
   void Destroy();
   void Close();
   void CloseResult();
+};
+
+class AttackMenu : public UnitsInteractionMenu {
+  Q_OBJECT
+public:
+  AttackMenu();
+private:
+  void Interact() override;
 };
 
 class GameMenu : public Menu {
