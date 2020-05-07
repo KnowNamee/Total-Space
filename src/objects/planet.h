@@ -57,8 +57,7 @@ class Planet : public QObject {
   Resources income_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
-
-  bool can_attack_ = false;
+  QVector<UnitType> tired_units_;
 };
 
 #endif  // PLANET_H
