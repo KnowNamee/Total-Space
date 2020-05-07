@@ -11,6 +11,7 @@
 #include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "graphics/attackresultwindow.h"
 #include "graphics/buttonitem.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
@@ -398,6 +399,9 @@ void AttackMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
   }
+  if (current_state_ == State::kResult) {
+    CloseResult();
+  }
 
   if (menu == Controller::MenuType::kPlanet) {
     Controller::SetAttackMenu(nullptr);
@@ -432,6 +436,39 @@ void AttackMenu::RemoveUnit(UnitWidget* unit) {
   chosen_units_.removeOne(unit);
 }
 
+void AttackMenu::ShowAttackResult(
+    const std::map<UnitType, int32_t>& units_to_quantity, const QString& result,
+    const QString& caption) {
+  attack_result_ = new AttackResultWindow(units_to_quantity, result, caption,
+                                          result_width_, result_height);
+  attack_result_->setPos(Controller::view->mapToScene(kWidth / 4, kHeight / 4));
+  attack_result_->setZValue(ZValues::kAttackMenu);
+
+  result_button_ = new ButtonItem(button_width_, button_height_);
+  result_button_->setPos(Controller::view->mapToScene(
+      static_cast<int32_t>(
+          kWidth / 2 - button_width_ * Controller::view->matrix().m11() / 2),
+      static_cast<int32_t>(kHeight / 4 +
+                           (result_height - button_height_) *
+                               Controller::view->matrix().m11() -
+                           kHeight / 20)));
+  result_button_->setZValue(ZValues::kAttackMenu);
+  connect(result_button_, SIGNAL(clicked()), this, SLOT(Close()));
+
+  Hide();
+
+  Controller::scene->addItem(attack_result_);
+  Controller::scene->addItem(result_button_);
+}
+
+void AttackMenu::Hide() {
+  scroll_view_->hide();
+  background_rect_->hide();
+  attack_button_->hide();
+  cancel_button_->hide();
+  planet_info_->hide();
+}
+
 void AttackMenu::Show() {
   SetZValue();
   scroll_view_->show();
@@ -442,20 +479,56 @@ void AttackMenu::Show() {
 }
 
 void AttackMenu::Attack() {
-  std::map<Planet*, QVector<UnitType>> planet_to_unit;
+  current_state_ = State::kResult;
+
+  std::map<Planet*, QVector<UnitType>> planets_to_units;
   for (const auto& unit_widget : chosen_units_) {
-    planet_to_unit[unit_widget->GetPlanet()].push_back(unit_widget->GetUnit());
+    planets_to_units[unit_widget->GetPlanet()].push_back(
+        unit_widget->GetUnit());
   }
-  if (Controller::GetActivePlanet()->TakeAttack(planet_to_unit)) {
-    // TODO
-    // ShowWinMessage          
-    qDebug() << "win";
-    Close();
+
+  std::map<UnitType, int32_t> units_to_quantity;
+  for (const auto& planet_to_unit : planets_to_units) {
+    for (UnitType unit : planet_to_unit.second) {
+      if (units_to_quantity.find(unit) == units_to_quantity.end()) {
+        units_to_quantity[unit] = 1;
+        continue;
+      }
+      units_to_quantity[unit]++;
+    }
+  }
+
+  std::map<Planet*, QVector<UnitType>> all_nearest_units;
+  for (const auto& planet_to_unit : planets_to_units) {
+    all_nearest_units[planet_to_unit.first] = planet_to_unit.first->GetUnits();
+  }
+
+  bool is_win = Controller::GetActivePlanet()->TakeAttack(planets_to_units);
+  if (is_win) {
+    for (UnitType unit : Controller::GetActivePlanet()->GetUnits()) {
+      units_to_quantity[unit]--;
+      if (units_to_quantity[unit] == 0) {
+        units_to_quantity.erase(unit);
+      }
+    }
+    ShowAttackResult(units_to_quantity, "Winner", "They fought to the last");
   } else {
-    // TODO
-    // ShowLoseMessage
-    qDebug() << "lose";
-    Close();
+    for (const auto& planet_to_unit : planets_to_units) {
+      for (UnitType unit : planet_to_unit.first->GetUnits()) {
+        all_nearest_units[planet_to_unit.first].removeOne(unit);
+      }
+    }
+    std::map<UnitType, int32_t> units_to_quantity;
+    for (const auto& planet_to_unit : all_nearest_units) {
+      for (UnitType unit : planet_to_unit.second) {
+        if (units_to_quantity.find(unit) == units_to_quantity.end()) {
+          units_to_quantity[unit] = 1;
+          continue;
+        }
+        units_to_quantity[unit]++;
+      }
+    }
+    ShowAttackResult(units_to_quantity, "Loser", "We won't forget them");
   }
 }
 
@@ -469,3 +542,8 @@ void AttackMenu::Destroy() {
 }
 
 void AttackMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void AttackMenu::CloseResult() {
+  Controller::scene->removeItem(attack_result_);
+  Controller::scene->removeItem(result_button_);
+}

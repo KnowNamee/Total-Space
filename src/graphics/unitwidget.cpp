@@ -43,7 +43,7 @@ void UnitWidget::paint(QPainter* painter,
                     caption_);
 }
 
-void UnitWidget::MouseClicked() {
+void UnitWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
   SwitchColor();
   if (is_chosen_) {
     Controller::GetAttackMenu()->RemoveUnit(this);
@@ -51,6 +51,8 @@ void UnitWidget::MouseClicked() {
     Controller::GetAttackMenu()->ChooseUnit(this);
   }
   is_chosen_ = !is_chosen_;
+
+  Q_UNUSED(event)
 }
 
 Planet* UnitWidget::GetPlanet() const { return unit_planet_; }

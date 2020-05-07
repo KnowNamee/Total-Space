@@ -43,12 +43,7 @@ void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void GameView::mouseReleaseEvent(QMouseEvent* event) {
-  event_handler_->MouseReleaseEvent(event);
-  ButtonItem* button = dynamic_cast<ButtonItem*>(
-      Controller::scene->itemAt(mapToScene(event->pos()), QTransform()));
-  if (button != nullptr) {
-    button->MouseClicked();
-  }
+  event_handler_->MouseReleaseEvent(event); 
   QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -62,12 +57,4 @@ ScrollingView::ScrollingView(QGraphicsScene* scene, QWidget* parent)
     : QGraphicsView(scene, parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-}
-
-void ScrollingView::mouseReleaseEvent(QMouseEvent* event) {
-  UnitWidget* widget = dynamic_cast<UnitWidget*>(
-      scene()->itemAt(mapToScene(event->pos()), QTransform()));
-  if (widget != nullptr) {
-    widget->MouseClicked();
-  }
 }

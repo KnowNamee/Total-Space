@@ -17,6 +17,7 @@ class MainWindow;
 class UnitWidget;
 class ButtonItem;
 class PlanetInfoGraphics;
+class AttackResultWindow;
 
 class Menu : public QObject {
   Q_OBJECT
@@ -130,16 +131,27 @@ class AttackMenu : public Menu {
   friend class UnitWidget;
   void ChooseUnit(UnitWidget* unit);
   void RemoveUnit(UnitWidget* unit);
+  void ShowAttackResult(const std::map<UnitType, int32_t>& units_to_quantity,
+                        const QString& result, const QString& caption);
+  void Hide();
+
+  enum class State {
+    kMain,
+    kResult,
+  };
 
   QVector<std::shared_ptr<UnitWidget>> unit_widgets_;
   QVector<UnitWidget*> chosen_units_;
   QGraphicsRectItem* background_rect_ = nullptr;
+  AttackResultWindow* attack_result_ = nullptr;
   ButtonItem* attack_button_ = nullptr;
   ButtonItem* cancel_button_ = nullptr;
+  ButtonItem* result_button_ = nullptr;
   QGraphicsScene* scroll_scene_ = nullptr;
   ScrollingView* scroll_view_ = nullptr;
   PlanetInfoGraphics* planet_info_ = nullptr;
   int32_t last_chosen_y_ = 0;
+  State current_state_ = State::kMain;
 
   const double kSizeCoefficient = 0.9;
   const double kScrollPosition = 0.07;
@@ -149,12 +161,17 @@ class AttackMenu : public Menu {
       static_cast<int32_t>(kWidth / 4 / Controller::view->matrix().m11());
   const int32_t button_height_ =
       static_cast<int32_t>(kHeight / 10 / Controller::view->matrix().m11());
+  const int32_t result_width_ =
+      static_cast<int32_t>(kWidth / 2 / Controller::view->matrix().m11());
+  const int32_t result_height =
+      static_cast<int32_t>(kHeight / 2 / Controller::view->matrix().m11());
 
  private slots:
   void Show();
   void Attack();
   void Destroy();
   void Close();
+  void CloseResult();
 };
 
 class GameMenu : public Menu {

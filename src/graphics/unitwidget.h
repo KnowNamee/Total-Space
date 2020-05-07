@@ -12,10 +12,12 @@ class Planet;
 class UnitWidget : public ButtonItem {
   Q_OBJECT
  public:
-  UnitWidget(Planet* planet, UnitType unit, int32_t width, int32_t height);
-  void MouseClicked() override;
+  UnitWidget(Planet* planet, UnitType unit, int32_t width, int32_t height);  
   Planet* GetPlanet() const;
   UnitType GetUnit() const;
+
+protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
  private:
   QRectF boundingRect() const override;

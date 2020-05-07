@@ -44,8 +44,10 @@ class Planet : public QObject {
   std::pair<int32_t, int32_t> CountPoints(const UnitCharacteristics& self,
                                           const UnitCharacteristics& enemy);
   bool Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units);
-  bool Draw(const std::map<Planet*, QVector<UnitType>>& enemy_units);
-  bool Win(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+  bool Draw(const std::map<Planet*, QVector<UnitType>>& enemy_units,
+            const std::pair<int32_t, int32_t>& points);
+  bool Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
+           const std::pair<int32_t, int32_t>& points);
   void MoveUnits(const std::map<Planet*, QVector<UnitType>>& enemy_units);
 
  private:

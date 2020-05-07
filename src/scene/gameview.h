@@ -33,8 +33,6 @@ class ScrollingView : public QGraphicsView {
   Q_OBJECT
  public:
   ScrollingView(QGraphicsScene* scene, QWidget* parent = nullptr);
-private:
-  void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
 #endif  // GAMEVIEW_H

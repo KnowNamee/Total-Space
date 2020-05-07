@@ -231,10 +231,7 @@ void EventHandler::View::MoveTo() {
 
   // TODO
   // Выбрать скорость передвижения к планете
-  static double kVelocity = distance / 27;
-  if (abs(distance) <= 1e-12) {
-    kVelocity = width / 40;
-  }
+  const double kVelocity = width / 30;
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {
@@ -249,7 +246,7 @@ void EventHandler::View::MoveTo() {
       // TODO
       // Выбрать скорость зума
       scale_velocity = (kMaxScale - view_->matrix().m11()) *
-                           (kMaxScale - view_->matrix().m11()) * 0.2 +
+                           (kMaxScale - view_->matrix().m11()) * 0.1 +
                        0.01;
     } else {
       scale_velocity = (kMaxScale - view_->matrix().m11()) / time;
@@ -279,7 +276,10 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
 
   double current_scale = view_->matrix().m11();
-  int8_t direction = static_cast<int8_t>(event->delta() / abs(event->delta()));
+  int8_t direction = 1;
+  if (event->delta() < 0) {
+    direction = -1;
+  }
 
   if ((!CompareMotion(MotionType::kScale) &&
        current_motion_ != MotionType::kNoMotion) ||
@@ -296,7 +296,7 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() * current_scale / 200;
+    const double kScale = event->delta() * current_scale / 600;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);
@@ -315,7 +315,7 @@ EventHandler::View::MotionType EventHandler::View::GetMotionType() {
 
 void EventHandler::View::ScaleToGoal() {
   double current_scale = view_->matrix().m11();
-  double scale_velocity = 0.06 * scale_direction_ * current_scale;
+  double scale_velocity = kScaleVelocity * scale_direction_ * current_scale;
 
   if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
       (scale_direction_ < 0 && current_scale <= goal_scale_) ||

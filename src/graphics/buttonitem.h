@@ -8,12 +8,13 @@ class ButtonItem : public QObject, public QGraphicsItem {
   Q_INTERFACES(QGraphicsItem)
  public:
   ButtonItem(int32_t width, int32_t height);
-  virtual void MouseClicked();
 
  signals:
   void clicked();
 
  protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+
   int32_t width_;
   int32_t height_;
 
