@@ -24,8 +24,9 @@
 #include "util/typeoffset.h"
 
 MainMenu::MainMenu() {
-  connect(this, SIGNAL(btnExitClick()), Controller::window, SLOT(Exit()));
   this->Draw();
+  connect(btn_exit_, SIGNAL(clicked()), Controller::window, SLOT(Exit()));
+  connect(btn_new_game_, SIGNAL(clicked()), this, SLOT(btnNewGameClicked()));
 }
 
 MainMenu::~MainMenu() {
@@ -42,19 +43,17 @@ void MainMenu::SetZValue() {
 
 void MainMenu::Draw() {
   GameView* view = Controller::view;
+  double coef = view->matrix().m11();
 
-  btn_exit_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kExitButton),
-                    static_cast<int>(kWidth / (5 * view->matrix().m11())),
-                    static_cast<int>(kHeight / (12 * view->matrix().m11())));
-  btn_new_game_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kNewGameButton),
-                    static_cast<int>(kWidth / (5 * view->matrix().m11())),
-                    static_cast<int>(kHeight / (12 * view->matrix().m11())));
-  txt_total_space_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
-                    static_cast<int>(kWidth / view->matrix().m11()),
-                    static_cast<int>(kHeight / view->matrix().m11()));
+  btn_exit_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_exit_->setScale(1 / coef);  // Чтобы изначально не делить размеры на coef
+
+  btn_new_game_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_new_game_->setScale(1 / coef);
+
+  txt_total_space_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kBackground),
+      static_cast<int>(kWidth / coef), static_cast<int>(kHeight / coef));
 
   SetZValue();
 
@@ -62,11 +61,12 @@ void MainMenu::Draw() {
   Controller::scene->addItem(btn_exit_);
   Controller::scene->addItem(btn_new_game_);
 
-  QPointF cp = Controller::view->sceneRect().center() / 2;
+  btn_new_game_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2 - kWidth / 10, kHeight / 2 - kHeight / 15)));
+  btn_exit_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2 - kWidth / 10, kHeight / 2 + kHeight / 15)));
 
-  btn_new_game_->setPos(cp - QPointF(0, kHeight / 49) / view->matrix().m11());
-  btn_exit_->setPos(cp + QPointF(0, kHeight / 28) / view->matrix().m11());
-  txt_total_space_->setPos(cp);
+  txt_total_space_->setPos(Controller::view->sceneRect().center() / 2);
 }
 
 void MainMenu::SwitchTo(Controller::MenuType menu) {
@@ -81,7 +81,15 @@ void MainMenu::SwitchTo(Controller::MenuType menu) {
   }
 }
 
-PauseMenu::PauseMenu() { this->Draw(); }
+void MainMenu::btnNewGameClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kGame);
+}
+
+PauseMenu::PauseMenu() {
+  this->Draw();
+  connect(btn_back_, SIGNAL(clicked()), this, SLOT(btnBackClicked()));
+  connect(btn_exit_, SIGNAL(clicked()), this, SLOT(btnExitClicked()));
+}
 
 PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(btn_back_);
@@ -99,26 +107,23 @@ void PauseMenu::Draw() {
   GameView* view = Controller::view;
   QPointF center =
       view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
-
+  double coef = view->matrix().m11();
   QRectF rect = view->sceneRect();
 
-  rect.setX(center.x() - view->rect().width() / view->matrix().m11());
-  rect.setY(center.y() - view->rect().height() / view->matrix().m11());
-  rect.setSize((rect.size() * 4) / view->matrix().m11());
+  rect.setX(center.x() - view->rect().width() / coef);
+  rect.setY(center.y() - view->rect().height() / coef);
+  rect.setSize(rect.size() * 4);
 
   background_rect_ = new QGraphicsRectItem();
+  background_rect_->setScale(1 / coef);
   background_rect_->setRect(rect);
   background_rect_->setOpacity(0.7);
-  background_rect_->setBrush(QColor(Qt::black));
+  background_rect_->setBrush(Qt::black);
 
-  btn_back_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackToGameButton),
-                    static_cast<int>(kWidth / (5 * view->matrix().m11())),
-                    static_cast<int>(kHeight / (12 * view->matrix().m11())));
-  btn_exit_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kToMenuButton),
-                    static_cast<int>(kWidth / (5 * view->matrix().m11())),
-                    static_cast<int>(kHeight / (12 * view->matrix().m11())));
+  btn_back_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_back_->setScale(1 / coef);
+  btn_exit_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_exit_->setScale(1 / coef);
 
   SetZValue();
 
@@ -126,12 +131,10 @@ void PauseMenu::Draw() {
   Controller::scene->addItem(btn_back_);
   Controller::scene->addItem(btn_exit_);
 
-  btn_back_->setPos(view->sceneRect().center() / 2 -
-                    QPoint(0, static_cast<int>(kHeight / 14)) /
-                        view->matrix().m11());
-  btn_exit_->setPos(btn_back_->pos() +
-                    QPoint(0, static_cast<int>(kHeight / 18)) /
-                        view->matrix().m11());
+  btn_back_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2 - kWidth / 10, kHeight / 2 - kHeight / 15)));
+  btn_exit_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2 - kWidth / 10, kHeight / 2 + kHeight / 15)));
 }
 
 void PauseMenu::SwitchTo(Controller::MenuType menu) {
@@ -153,29 +156,38 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
   }
 }
 
+void PauseMenu::btnBackClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kGame);
+}
+
+void PauseMenu::btnExitClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kMain);
+}
+
 PlanetMenu::PlanetMenu() {
   if (Controller::GetActivePlanet()->GetOwner() ==
       Controller::scene->GetPlayer()) {
     // Выставление картинок соответственно их действию
-    btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    // TODO убрать граф перехода по кнопке (getNextMenu)
+    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn1_] = Controller::MenuType::kGame;
-    btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn2_] = Controller::MenuType::kGame;
-    btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
+    connect(btn1_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   } else {
-    btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn1_] = Controller::MenuType::kAttack;
-    btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn2_] = Controller::MenuType::kGame;
-    btn3_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                          kWidth / 12, kHeight / 15);
+    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
+    connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   }
   this->Draw();
   Controller::scene->UpdatePlanetsGraph();
@@ -201,21 +213,23 @@ void PlanetMenu::Draw() {
 
   // TODO определить зависимость множителя от радиуса планеты
   Planet* p = Controller::GetActivePlanet();
-  radius_ = -(p->GetRadius() * 1.3 / 2);
+  double coef = Controller::view->matrix().m11();
+
+  radius_ = -p->GetRadius() * 1.3;
   QPointF vec1(0, radius_);
   QPointF vec2(vec1 * QTransform().rotate(60));
   QPointF vec3(vec1 * QTransform().rotate(-60));
 
-  btn1_->setPos(p->GetCoordinates() + vec1);
-  btn2_->setPos(p->GetCoordinates() + vec2);
-  btn3_->setPos(p->GetCoordinates() + vec3);
+  btn1_->setPos(p->GetCoordinates() * 2 + vec1);
+  btn2_->setPos(p->GetCoordinates() * 2 + vec2);
+  btn3_->setPos(p->GetCoordinates() * 2 + vec3);
 
   btn1_->setY(btn1_->y() - radius_ / 48);
   btn2_->setX(btn2_->x() + radius_ / 48);
   btn3_->setX(btn3_->x() - radius_ / 48);
 }
 
-Controller::MenuType PlanetMenu::GetNextMenu(ImageItem* button) const {
+Controller::MenuType PlanetMenu::GetNextMenu(ButtonItem* button) const {
   if (button_to_menu_.find(button) != button_to_menu_.end()) {
     return button_to_menu_.at(button);
   }
@@ -243,6 +257,14 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       break;
     }
   }
+}
+
+void PlanetMenu::btnDefaultClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kGame);
+}
+
+void PlanetMenu::btnAttackClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kAttack);
 }
 
 UnitMenu::UnitMenu() { this->Draw(); }
