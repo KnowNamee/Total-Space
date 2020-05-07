@@ -568,10 +568,7 @@ void MoveMenu::Interact() {
   for (UnitWidget* unit : chosen_units_) {
     planets_to_units[unit->GetPlanet()].push_back(unit->GetUnit());
   }
-  for (const auto& planet_to_unit : planets_to_units) {
-    planet_to_unit.first->RemoveUnits(planet_to_unit.second);
-    Controller::GetActivePlanet()->AddUnits(planet_to_unit.second);
-  }
+  Controller::GetActivePlanet()->MoveUnits(planets_to_units);
   Close();
 }
 
