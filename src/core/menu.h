@@ -143,6 +143,7 @@ class UnitsInteractionMenu : public Menu {
   friend class UnitWidget;
   void ChooseUnit(UnitWidget* unit);
   void RemoveUnit(UnitWidget* unit);
+  virtual void Switch(Controller::MenuType menu) = 0;
   void Hide();
 
   QVector<std::shared_ptr<UnitWidget>> unit_widgets_;
@@ -159,10 +160,8 @@ class UnitsInteractionMenu : public Menu {
   const double kScrollPosition = 0.07;
   const int32_t kUnitCellWidth = kWidth / 4;
   const int32_t kUnitCellHeight = kHeight / 5;
-  const int32_t button_width_ =
-      static_cast<int32_t>(kWidth / 4 / Controller::view->matrix().m11());
-  const int32_t button_height_ =
-      static_cast<int32_t>(kHeight / 10 / Controller::view->matrix().m11());
+  const int32_t button_width_ = kWidth / 4;
+  const int32_t button_height_ = kHeight / 10;
   const int32_t result_width_ =
       static_cast<int32_t>(kWidth / 2 / Controller::view->matrix().m11());
   const int32_t result_height =
@@ -178,10 +177,22 @@ class UnitsInteractionMenu : public Menu {
 
 class AttackMenu : public UnitsInteractionMenu {
   Q_OBJECT
-public:
+ public:
   AttackMenu();
-private:
+
+ private:
   void Interact() override;
+  void Switch(Controller::MenuType menu) override;
+};
+
+class MoveMenu : public UnitsInteractionMenu {
+  Q_OBJECT
+ public:
+  MoveMenu();
+
+ private:
+  void Interact() override;
+  void Switch(Controller::MenuType menu) override;
 };
 
 class GameMenu : public Menu {

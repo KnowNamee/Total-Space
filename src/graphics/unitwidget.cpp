@@ -10,9 +10,10 @@
 #include "data/objectsstorage.h"
 #include "scene/gamescene.h"
 
-UnitWidget::UnitWidget(Planet* planet, UnitType unit, int32_t width,
-                       int32_t height)
+UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
+                       UnitType unit, int32_t width, int32_t height)
     : ButtonItem(width, height),
+      parent_(parent),
       unit_planet_(planet),
       cell_unit_(unit),
       caption_(ObjectsStorage::GetUnitCaption(cell_unit_)) {}
@@ -30,25 +31,21 @@ void UnitWidget::paint(QPainter* painter,
   painter->setPen(QColor(Qt::white));
   painter->drawRect(boundingRect());
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.9),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.9), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.7),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.7), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.5),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.5), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.3),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.3), caption_);
 }
 
 void UnitWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
   SwitchColor();
   if (is_chosen_) {
-    Controller::GetAttackMenu()->RemoveUnit(this);
+    parent_->RemoveUnit(this);
   } else {
-    Controller::GetAttackMenu()->ChooseUnit(this);
+    parent_->ChooseUnit(this);
   }
   is_chosen_ = !is_chosen_;
 

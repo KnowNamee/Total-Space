@@ -159,7 +159,7 @@ PlanetMenu::PlanetMenu() {
     // Выставление картинок соответственно их действию
     btn1_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                           kWidth / 12, kHeight / 15);
-    button_to_menu_[btn1_] = Controller::MenuType::kGame;
+    button_to_menu_[btn1_] = Controller::MenuType::kMove;
     btn2_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
                           kWidth / 12, kHeight / 15);
     button_to_menu_[btn2_] = Controller::MenuType::kGame;
@@ -250,6 +250,12 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       Controller::SetMenuType(Controller::MenuType::kAttack);
       break;
     }
+    case Controller::MenuType::kMove: {
+      Controller::SetPlanetMenu(nullptr);
+      Controller::SetMoveMenu(new MoveMenu());
+      Controller::SetMenuType(Controller::MenuType::kMove);
+      break;
+    }
     default: {
       break;
     }
@@ -319,7 +325,7 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   for (const auto& planet_to_units : nearest_units) {
     for (const auto& unit : planet_to_units.second) {
       unit_widgets_.push_back(std::make_shared<UnitWidget>(
-          planet_to_units.first, unit, kUnitCellWidth, kUnitCellHeight));
+          this, planet_to_units.first, unit, kUnitCellWidth, kUnitCellHeight));
     }
   }
   connect(cancel_button_, SIGNAL(clicked()), this, SLOT(Close()));
@@ -330,10 +336,10 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
 UnitsInteractionMenu::~UnitsInteractionMenu() { Destroy(); }
 
 void UnitsInteractionMenu::SetZValue() {
-  background_rect_->setZValue(ZValues::kAttackMenu);
-  interaction_button_->setZValue(ZValues::kAttackMenu);
-  cancel_button_->setZValue(ZValues::kAttackMenu);
-  planet_info_->setZValue(ZValues::kAttackMenu);
+  background_rect_->setZValue(ZValues::kInteractionMenu);
+  interaction_button_->setZValue(ZValues::kInteractionMenu);
+  cancel_button_->setZValue(ZValues::kInteractionMenu);
+  planet_info_->setZValue(ZValues::kInteractionMenu);
 }
 
 void UnitsInteractionMenu::Draw() {
@@ -371,19 +377,17 @@ void UnitsInteractionMenu::Draw() {
   const int32_t distance_between = static_cast<int32_t>(
       (background_rect.width() * Controller::view->matrix().m11() -
        ((kScrollPosition - (1 - kSizeCoefficient) / 2) * kWidth +
-        kUnitCellWidth +
-        2 * button_width_ * Controller::view->matrix().m11())) /
+        kUnitCellWidth + 2 * button_width_)) /
       3);
-  const int32_t attack_x = static_cast<int32_t>(
-      kWidth * kScrollPosition + distance_between + kUnitCellWidth);
+  const int32_t attack_x =
+      static_cast<int32_t>(kWidth * kScrollPosition + distance_between +
+                           kUnitCellWidth + button_width_ / 2);
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
-      button_height_ * Controller::view->matrix().m11());
+      button_height_ + button_height_ / 2);
   interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   cancel_button_->setPos(Controller::view->mapToScene(
-      static_cast<int32_t>(attack_x +
-                           button_width_ * Controller::view->matrix().m11() +
-                           distance_between),
+      static_cast<int32_t>(attack_x + button_width_ + distance_between),
       attack_y));
 
   planet_info_->setPos(Controller::view->mapToScene(
@@ -402,12 +406,7 @@ void UnitsInteractionMenu::SwitchTo(Controller::MenuType menu) {
   if (current_state_ == State::kResult) {
     CloseResult();
   }
-
-  if (menu == Controller::MenuType::kPlanet) {
-    Controller::SetAttackMenu(nullptr);
-    Controller::SetPlanetMenu(new PlanetMenu());
-    Controller::SetMenuType(Controller::MenuType::kPlanet);
-  }
+  Switch(menu);
 }
 
 void UnitsInteractionMenu::ChooseUnit(UnitWidget* unit) {
@@ -442,17 +441,15 @@ void UnitsInteractionMenu::ShowAttackResult(
   attack_result_ = new AttackResultWindow(units_to_quantity, result, caption,
                                           result_width_, result_height);
   attack_result_->setPos(Controller::view->mapToScene(kWidth / 4, kHeight / 4));
-  attack_result_->setZValue(ZValues::kAttackMenu);
+  attack_result_->setZValue(ZValues::kInteractionMenu);
 
   result_button_ = new ButtonItem(button_width_, button_height_);
   result_button_->setPos(Controller::view->mapToScene(
-      static_cast<int32_t>(
-          kWidth / 2 - button_width_ * Controller::view->matrix().m11() / 2),
+      static_cast<int32_t>(kWidth / 2),
       static_cast<int32_t>(kHeight / 4 +
-                           (result_height - button_height_) *
-                               Controller::view->matrix().m11() -
-                           kHeight / 20)));
-  result_button_->setZValue(ZValues::kAttackMenu);
+                           result_height * Controller::view->matrix().m11() -
+                           kHeight / 15)));
+  result_button_->setZValue(ZValues::kInteractionMenu);
   connect(result_button_, SIGNAL(clicked()), this, SLOT(Close()));
 
   Hide();
@@ -550,5 +547,28 @@ void AttackMenu::Interact() {
       }
     }
     ShowAttackResult(units_to_quantity, "Loser", "We won't forget them");
+  }
+}
+
+void AttackMenu::Switch(Controller::MenuType menu) {
+  if (menu == Controller::MenuType::kPlanet) {
+    Controller::SetAttackMenu(nullptr);
+    Controller::SetPlanetMenu(new PlanetMenu());
+    Controller::SetMenuType(Controller::MenuType::kPlanet);
+  }
+}
+
+MoveMenu::MoveMenu() : UnitsInteractionMenu() {
+  // TODO
+  // interaction_button_->SetPixmap();
+}
+
+void MoveMenu::Interact() {}
+
+void MoveMenu::Switch(Controller::MenuType menu) {
+  if (menu == Controller::MenuType::kPlanet) {
+    Controller::SetMoveMenu(nullptr);
+    Controller::SetPlanetMenu(new PlanetMenu());
+    Controller::SetMenuType(Controller::MenuType::kPlanet);
   }
 }

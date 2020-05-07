@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QScreen>
 
+#include "core/menu.h"
 #include "graphics/buttonitem.h"
 #include "util/utility.h"
 
@@ -12,11 +13,12 @@ class Planet;
 class UnitWidget : public ButtonItem {
   Q_OBJECT
  public:
-  UnitWidget(Planet* planet, UnitType unit, int32_t width, int32_t height);  
+  UnitWidget(UnitsInteractionMenu* parent, Planet* planet, UnitType unit,
+             int32_t width, int32_t height);
   Planet* GetPlanet() const;
   UnitType GetUnit() const;
 
-protected:
+ protected:
   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
  private:
@@ -25,6 +27,7 @@ protected:
              QWidget* widget) override;
   void SwitchColor();
 
+  UnitsInteractionMenu* parent_;
   Planet* unit_planet_;
   QColor current_color_ = Qt::black;
   UnitType cell_unit_;

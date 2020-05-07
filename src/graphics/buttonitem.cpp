@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <QPainter>
 
+#include "core/statemachine.h"
+#include "scene/gameview.h"
+
 ButtonItem::ButtonItem(int32_t width, int32_t height)
     : QGraphicsItem(), width_(width), height_(height) {
   setFlag(ItemIsSelectable);
@@ -19,7 +22,10 @@ void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
 }
 
 QRectF ButtonItem::boundingRect() const {
-  return QRectF(0, 0, width_, height_);
+  const double kScale = Controller::view->matrix().m11();
+  double width = width_ / kScale;
+  double height = height_ / kScale;
+  return QRectF(-width / 2, -height / 2, width , height);
 }
 
 void ButtonItem::paint(QPainter* painter,

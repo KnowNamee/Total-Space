@@ -18,7 +18,7 @@ enum {
   kPauseMenu = 2,
   kPlanetMenu = 2,
   kMainMenu = 2,
-  kAttackMenu = 3,
+  kInteractionMenu = 3,
 };
 
 }  // namespace ZValues
