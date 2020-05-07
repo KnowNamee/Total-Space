@@ -10,9 +10,12 @@ class Planet;
 class Unit;
 
 class Player : public PlayerBase {
-public:
+ public:
   explicit Player(Planet* planet);
-  explicit Player(Planet* planet, const QString& color);
+  Player(Planet* planet, const QString& color);
+  virtual ~Player();
+
+  void Next() override;
 };
 
 #endif  // PLAYER_H

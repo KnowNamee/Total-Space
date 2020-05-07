@@ -181,3 +181,13 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
 }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
+
+void GameScene::Next() {
+  bot1_->Next();  // тут определена логика бота на ход
+  bot2_->Next();    // добавляем ресурсы и т.п.
+  player_->Next();  // добавляем ресурсы и т.п.
+
+  for (const std::shared_ptr<Planet>& planet : planets_) {
+    planet->Next();  // обновляем флаги планеты
+  }
+}

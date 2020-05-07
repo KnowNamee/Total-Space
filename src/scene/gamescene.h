@@ -36,6 +36,7 @@ class GameScene : public QGraphicsScene {
   void UpdatePlanetsGraph();
 
  public slots:
+  void Next();
   void NewGame();
 
  private:

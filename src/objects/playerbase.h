@@ -18,8 +18,7 @@ class PlayerBase {
 
   explicit PlayerBase(Planet* planet);
   PlayerBase() = default;
-  PlayerBase(Planet* planet, Type type,
-                      const QString& color);
+  PlayerBase(Planet* planet, Type type, const QString& color);
 
   const Resources& GetResources() const;
   int32_t GetTools() const;
@@ -36,6 +35,8 @@ class PlayerBase {
 
   Type GetType();
   const QString& GetColor();
+
+  virtual void Next() = 0;
 
  private:
   Resources resources_;

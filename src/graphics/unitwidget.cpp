@@ -30,28 +30,16 @@ void UnitWidget::paint(QPainter* painter,
   painter->setPen(QColor(Qt::white));
   painter->drawRect(boundingRect());
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.9),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.9), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.7),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.7), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.5),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.5), caption_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 10),
-                    static_cast<int32_t>(pos().y() + height_ * 0.3),
-                    caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.3), caption_);
 }
 
-void UnitWidget::MouseClicked() {
-  SwitchColor();
-  if (is_chosen_) {
-    Controller::GetAttackMenu()->RemoveUnit(this);
-  } else {
-    Controller::GetAttackMenu()->ChooseUnit(this);
-  }
-  is_chosen_ = !is_chosen_;
-}
+void UnitWidget::MouseClicked() {}
 
 Planet* UnitWidget::GetPlanet() const { return unit_planet_; }
 
@@ -65,4 +53,15 @@ void UnitWidget::SwitchColor() {
     current_color_ = Qt::black;
   }
   update();
+}
+
+void UnitWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) {
+  SwitchColor();
+  if (is_chosen_) {
+    Controller::GetAttackMenu()->RemoveUnit(this);
+  } else {
+    Controller::GetAttackMenu()->ChooseUnit(this);
+  }
+  is_chosen_ = !is_chosen_;
+  Q_UNUSED(mouseEvent)
 }

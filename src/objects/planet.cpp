@@ -50,6 +50,8 @@ void Planet::Upgrade() {
   level_++;
 }
 
+void Planet::Next() { can_attack_ = true; }
+
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }

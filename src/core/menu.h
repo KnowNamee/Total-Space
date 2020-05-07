@@ -168,10 +168,13 @@ class GameMenu : public Menu {
   void ReDraw();
   void StartGame();
 
+  void Hide();
+  void Show();
+
  private:
   friend class EventHandler::View;
 
-  ImageItem* btn_next_;
+  ButtonItem* btn_next_;
 };
 
 #endif  // MENU_H

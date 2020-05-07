@@ -30,6 +30,9 @@ class UnitWidget : public ButtonItem {
   bool is_chosen_ = false;
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+
+ protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 };
 
 #endif  // UNITWIDGET_H

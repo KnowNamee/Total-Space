@@ -142,6 +142,7 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
   if (menu == Controller::MenuType::kGame) {
     Controller::SetPauseMenu(nullptr);
     Controller::SetMenuType(Controller::MenuType::kGame);
+    Controller::GetGameMenu()->Show();
   }
 
   if (menu == Controller::MenuType::kMain) {
@@ -229,6 +230,7 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
     case Controller::MenuType::kGame: {
       Controller::SetPlanetMenu(nullptr);
       Controller::SetMenuType(Controller::MenuType::kGame);
+      Controller::GetGameMenu()->Show();
       break;
     }
     case Controller::MenuType::kAttack: {
@@ -254,6 +256,7 @@ void UnitMenu::SwitchTo(Controller::MenuType) {}
 GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
+  connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
@@ -264,6 +267,7 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
   }
+  Hide();
 
   if (menu == Controller::MenuType::kPlanet) {
     Controller::SetPlanetMenu(new PlanetMenu());
@@ -273,6 +277,7 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (menu == Controller::MenuType::kPause) {
     if (Controller::view->EventHandler()->GetMotionType() !=
         EventHandler::View::MotionType::kNoMotion) {
+      Show();
       return;
     }
     Controller::SetPauseMenu(new PauseMenu());
@@ -284,14 +289,12 @@ void GameMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  double coef = Controller::view->matrix().m11();
-  btn_next_ = new ImageItem(Loader::GetButtonImage(ButtonsEnum::kSimpleButton),
-                            width / (12 * coef), height / (15 * coef));
+  btn_next_ = new ButtonItem(width / 12, height / 15);
 
   SetZValue();
+  btn_next_->setScale(1 / Controller::view->matrix().m11());
   btn_next_->setPos(Controller::view->mapToScene(
-                        QPoint(width, height) - QPoint(width / 8, height / 8)) /
-                    2);
+      QPoint(width, height) - QPoint(width / 8, height / 8)));
   Controller::scene->addItem(btn_next_);
 }
 
@@ -299,15 +302,19 @@ void GameMenu::ReDraw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
+  btn_next_->setScale(1 / Controller::view->matrix().m11());
   btn_next_->setPos(Controller::view->mapToScene(
-                        QPoint(width, height) - QPoint(width / 8, height / 8)) /
-                    2);
+      QPoint(width, height) - QPoint(width / 8, height / 8)));
 }
 
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
   Controller::scene->NewGame();
 }
+
+void GameMenu::Hide() { btn_next_->hide(); }
+
+void GameMenu::Show() { btn_next_->show(); }
 
 AttackMenu::AttackMenu() {
   PlanetGraphics* planet_graphics =
