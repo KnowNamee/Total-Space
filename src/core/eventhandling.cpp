@@ -72,36 +72,8 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     return;
   }
 
-  if (state == Controller::MenuType::kMain) {
-    MainMenu* menu = Controller::GetMainMenu();
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-
-      if (button == menu->btn_exit_) {
-        emit menu->btnExitClick();
-      } else if (button == menu->btn_new_game_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      }
-    }
-  } else if (state == Controller::MenuType::kPause) {
-    PauseMenu* menu = Controller::GetPauseMenu();
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-
-      if (button == menu->btn_exit_) {
-        Controller::SwitchMenu(Controller::MenuType::kMain);
-      } else if (button == menu->btn_back_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      }
-    }
-  } else if (state == Controller::MenuType::kPlanet) {
-    PlanetMenu* menu = Controller::GetPlanetMenu();
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-      Controller::SwitchMenu(menu->GetNextMenu(button));
-    } else if (item->type() == PlanetGraphics::Type) {
+  if (state == Controller::MenuType::kPlanet) {
+    if (item->type() == PlanetGraphics::Type) {
       Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
       if (planet != Controller::GetActivePlanet()) {
         Controller::SwitchMenu(Controller::MenuType::kGame);

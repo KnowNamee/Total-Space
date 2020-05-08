@@ -42,15 +42,15 @@ class MainMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
- signals:
-  void btnExitClick();
+ public slots:
+  void btnNewGameClicked();
 
  private:
   friend class EventHandler::View;
 
   ImageItem* txt_total_space_;
-  ImageItem* btn_new_game_;
-  ImageItem* btn_exit_;
+  ButtonItem* btn_new_game_;
+  ButtonItem* btn_exit_;
 };
 
 class PauseMenu : public Menu {
@@ -64,11 +64,15 @@ class PauseMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+ public slots:
+  void btnBackClicked();
+  void btnExitClicked();
+
  private:
   friend class EventHandler::View;
 
-  ImageItem* btn_exit_;
-  ImageItem* btn_back_;
+  ButtonItem* btn_exit_;
+  ButtonItem* btn_back_;
   QGraphicsRectItem* background_rect_;
 };
 
@@ -82,17 +86,22 @@ class PlanetMenu : public Menu {
   void SetZValue() override;
   void Draw() override;
 
-  Controller::MenuType GetNextMenu(ImageItem* btn) const;
+  Controller::MenuType GetNextMenu(ButtonItem* btn) const;
 
   void SwitchTo(Controller::MenuType menu) override;
+
+ public slots:
+  void btnDefaultClicked();
+  void btnAttackClicked();
 
  private:
   friend class EventHandler::View;
 
-  ImageItem* btn1_;
-  ImageItem* btn2_;
-  ImageItem* btn3_;
-  std::map<ImageItem*, Controller::MenuType> button_to_menu_;
+  ButtonItem* btn1_;
+  ButtonItem* btn2_;
+  ButtonItem* btn3_;
+  // TODO удалить button_to_menu_
+  std::map<ButtonItem*, Controller::MenuType> button_to_menu_;
   double radius_;
 };
 
