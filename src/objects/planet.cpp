@@ -27,7 +27,7 @@ void Planet::AddUnit(UnitType unit) {
 }
 
 void Planet::AddUnits(const QVector<UnitType>& units) {
-  units_on_planet_.append(units);
+  tired_units_.append(units);
 }
 
 void Planet::RemoveUnit(UnitType unit) {
@@ -50,7 +50,10 @@ void Planet::Upgrade() {
   level_++;
 }
 
-void Planet::Next() { can_attack_ = true; }
+void Planet::Next() {
+  units_on_planet_.append(tired_units_);
+  tired_units_.clear();
+}
 
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
@@ -231,7 +234,8 @@ std::pair<int32_t, int32_t> Planet::CountPoints(
 bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   double random_double = QRandomGenerator::global()->generateDouble();
   const double kDeadCoefficient = std::min(random_double, 1. - random_double);
-  for (const auto& planet_to_units : enemy_units) {
+  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
+  for (auto& planet_to_units : enemy_units_copy) {
     int32_t number_of_dead_units =
         std::min(static_cast<int32_t>(std::ceil(kDeadCoefficient *
                                                 planet_to_units.second.size())),
@@ -244,7 +248,13 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
            planet_to_units.second.size()) %
           planet_to_units.second.size();
       planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
+      planet_to_units.second.remove(index);
     }
+  }
+
+  for (const auto& planet_to_units : enemy_units_copy) {
+    planet_to_units.first->RemoveUnits(planet_to_units.second);
+    planet_to_units.first->AddUnits(planet_to_units.second);
   }
   return false;
 }
