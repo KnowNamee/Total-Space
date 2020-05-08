@@ -4,18 +4,23 @@
 #include <QPainter>
 #include <QRandomGenerator>
 
+#include "core/statemachine.h"
 #include "data/loader.h"
 #include "objects/planet.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
-PlanetGraphics::PlanetGraphics(const std::shared_ptr<Planet>& planet)
-    : planet_(planet) {
+PlanetGraphics::PlanetGraphics(Planet* planet) : planet_(planet) {
   planet_image_ =
       Loader::GetPlanetImage(QRandomGenerator::global()->generate() % 3);
+  setFlag(ItemIsSelectable);
 }
 
 int PlanetGraphics::type() const { return Type; }
 
-std::shared_ptr<Planet> PlanetGraphics::GetPlanet() { return planet_; }
+Planet* PlanetGraphics::GetPlanet() { return planet_; }
+
+QPixmap* PlanetGraphics::GetImage() { return planet_image_; }
 
 QRectF PlanetGraphics::boundingRect() const {
   return QRectF(planet_->GetCoordinates().x() - planet_->GetRadius(),
@@ -35,4 +40,19 @@ void PlanetGraphics::paint(QPainter* painter,
 
   Q_UNUSED(widget)
   Q_UNUSED(option)
+}
+
+void PlanetGraphics::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) {
+  if (Controller::GetMenuType() != Controller::MenuType::kGame) {
+    return;
+  }
+
+  if (Controller::GetActivePlanet() == GetPlanet()) {
+    Controller::SetActivePlanet(nullptr);
+  } else {
+    Controller::SetActivePlanet(GetPlanet());
+  }
+  Controller::scene->UpdatePlanetsGraph();
+
+  Q_UNUSED(mouseEvent);
 }

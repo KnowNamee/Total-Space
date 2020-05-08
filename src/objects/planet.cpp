@@ -1,5 +1,6 @@
 #include "objects/planet.h"
 
+#include <QDebug>
 #include <QRandomGenerator>
 #include <memory>
 
@@ -26,7 +27,7 @@ void Planet::AddUnit(UnitType unit) {
 }
 
 void Planet::AddUnits(const QVector<UnitType>& units) {
-  units_on_planet_.append(units);
+  tired_units_.append(units);
 }
 
 void Planet::RemoveUnit(UnitType unit) {
@@ -49,12 +50,21 @@ void Planet::Upgrade() {
   level_++;
 }
 
+void Planet::Next() {
+  units_on_planet_.append(tired_units_);
+  tired_units_.clear();
+}
+
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
 double Planet::GetRadius() const { return radius_; }
+
+int32_t Planet::GetLevel() const { return level_; }
 const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
+
+const QVector<UnitType>& Planet::GetTiredUnits() const { return tired_units_; }
 
 PlayerBase* Planet::GetOwner() const { return owner_; }
 
@@ -132,7 +142,8 @@ bool Planet::TakeAttack(
       self_range_count++;
     }
 
-    if (enemy_units_types.find(unit) != enemy_units_types.end()) {
+    if (enemy_units_types.find(ObjectsStorage::GetUnitEnemy(unit)) !=
+        enemy_units_types.end()) {
       self_characteristics +=
           ObjectsStorage::GetUnitCharacteristics(unit) * kEnemyUnitCoefficient;
       continue;
@@ -168,7 +179,7 @@ bool Planet::TakeAttack(
 
   const int32_t kDrawDifference = 2;
   if (abs(self_points - enemy_points) < kDrawDifference) {
-    return Draw(enemy_units);
+    return Draw(enemy_units, points);
   }
   if (self_points > enemy_points) {
     return Lose(enemy_units);
@@ -176,7 +187,7 @@ bool Planet::TakeAttack(
   if (owner_ != nullptr) {
     owner_->IncreasePower(-self_power);
   }
-  return Win(enemy_units);
+  return Win(enemy_units, points);
 }
 
 std::pair<int32_t, int32_t> Planet::CountPoints(
@@ -194,30 +205,62 @@ std::pair<int32_t, int32_t> Planet::CountPoints(
 
   if (self_characteristics.GetAttack() > enemy_characteristics.GetAttack()) {
     self_points += kAttackPoints;
+    if (self_characteristics.GetAttack() - enemy_characteristics.GetAttack() <
+        self_characteristics.GetAttack() / 3) {
+      enemy_points += kAttackPoints / 2;
+    }
   } else if (self_characteristics.GetAttack() <
              enemy_characteristics.GetAttack()) {
     enemy_points += kAttackPoints;
+    if (enemy_characteristics.GetAttack() - self_characteristics.GetAttack() <
+        enemy_characteristics.GetAttack() / 3) {
+      self_points += kAttackPoints / 2;
+    }
   }
 
   if (self_characteristics.GetArmor() > enemy_characteristics.GetArmor()) {
     self_points += kArmorPoints;
+    if (self_characteristics.GetArmor() - enemy_characteristics.GetArmor() <
+        self_characteristics.GetArmor() / 3) {
+      enemy_points += kArmorPoints / 2;
+    }
   } else if (self_characteristics.GetArmor() <
              enemy_characteristics.GetArmor()) {
     enemy_points += kArmorPoints;
+    if (enemy_characteristics.GetArmor() - self_characteristics.GetArmor() <
+        self_characteristics.GetArmor() / 2) {
+      self_points += kArmorPoints / 2;
+    }
   }
 
   if (self_characteristics.GetHealth() > enemy_characteristics.GetHealth()) {
     self_points += kHealthPoints;
+    if (self_characteristics.GetHealth() - enemy_characteristics.GetHealth() <
+        self_characteristics.GetHealth() / 2) {
+      enemy_points += kHealthPoints / 2;
+    }
   } else if (self_characteristics.GetHealth() <
              enemy_characteristics.GetHealth()) {
     enemy_points += kHealthPoints;
+    if (enemy_characteristics.GetHealth() - self_characteristics.GetHealth() <
+        self_characteristics.GetHealth() / 2) {
+      self_points += kHealthPoints / 2;
+    }
   }
 
   if (self_characteristics.GetStamina() > enemy_characteristics.GetStamina()) {
     self_points += kStaminaPoints;
+    if (self_characteristics.GetStamina() - enemy_characteristics.GetStamina() <
+        self_characteristics.GetStamina() / 2) {
+      enemy_points += kStaminaPoints / 2;
+    }
   } else if (self_characteristics.GetStamina() <
              enemy_characteristics.GetStamina()) {
     enemy_points += kStaminaPoints;
+    if (enemy_characteristics.GetStamina() - self_characteristics.GetStamina() <
+        self_characteristics.GetStamina() / 2) {
+      self_points += kStaminaPoints / 2;
+    }
   }
 
   return std::make_pair(self_points, enemy_points);
@@ -226,7 +269,8 @@ std::pair<int32_t, int32_t> Planet::CountPoints(
 bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   double random_double = QRandomGenerator::global()->generateDouble();
   const double kDeadCoefficient = std::min(random_double, 1. - random_double);
-  for (const auto& planet_to_units : enemy_units) {
+  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
+  for (auto& planet_to_units : enemy_units_copy) {
     int32_t number_of_dead_units =
         std::min(static_cast<int32_t>(std::ceil(kDeadCoefficient *
                                                 planet_to_units.second.size())),
@@ -234,36 +278,67 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
 
     for (int32_t i = 0; i < number_of_dead_units; i++) {
       int32_t index =
-          static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+          (static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+               planet_to_units.second.size() +
+           planet_to_units.second.size()) %
           planet_to_units.second.size();
       planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
+      planet_to_units.second.remove(index);
     }
+  }
+
+  for (const auto& planet_to_units : enemy_units_copy) {
+    planet_to_units.first->RemoveUnits(planet_to_units.second);
+    planet_to_units.first->AddUnits(planet_to_units.second);
   }
   return false;
 }
 
-bool Planet::Draw(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
+bool Planet::Draw(const std::map<Planet*, QVector<UnitType>>& enemy_units,
+                  const std::pair<int32_t, int32_t>& points) {
   bool probability = QRandomGenerator::global()->generate() % 2;
   if (probability) {
     return Lose(enemy_units);
   } else {
-    return Win(enemy_units);
+    return Win(enemy_units, points);
   }
 }
 
-bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
+bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
+                 const std::pair<int32_t, int32_t>& points) {
   if (enemy_units.size() == 0) {
     return false;
   }
+  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
+
+  const double kMaxDeadCoefficient = 0.5;
+  const double kDeadCoefficient =
+      kMaxDeadCoefficient * static_cast<double>(points.first) / points.second;
+  for (auto& planet_to_units : enemy_units_copy) {
+    int32_t number_of_dead_units = std::min(
+        static_cast<int32_t>(
+            std::floor(kDeadCoefficient * planet_to_units.second.size())),
+        planet_to_units.second.size());
+
+    for (int32_t i = 0; i < number_of_dead_units; i++) {
+      int32_t index =
+          (static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+               planet_to_units.second.size() +
+           planet_to_units.second.size()) %
+          planet_to_units.second.size();
+      planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
+      planet_to_units.second.erase(planet_to_units.second.begin() + index);
+    }
+  }
+
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
   RemoveUnits(units_on_planet_);
-  MoveUnits(enemy_units);
-  std::shared_ptr<Planet> self(this);
+  MoveUnits(enemy_units_copy);
   if (owner_ != nullptr) {
-    owner_->RemovePlanet(self);
+    owner_->RemovePlanet(this);
   }
   SetOwner(enemy);
-  enemy->AddPlanet(std::shared_ptr<Planet>(self));
+  enemy->AddPlanet(this);
   return true;
 }
 

@@ -2,12 +2,14 @@
 
 #include <QDebug>
 #include <QGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
 
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "graphics/buttonitem.h"
 #include "graphics/drawer.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
@@ -19,14 +21,14 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  QListIterator<QGraphicsItem*> it(Controller::scene->items());
-  while (it.hasNext()) {
-    Controller::scene->removeItem(it.next());
-  }
-  player_ = nullptr;
-  bot1_ = nullptr;
-  bot2_ = nullptr;
-  graph_ = nullptr;
+  clear();
+  // TODO
+  // reset указатели на ботов
+  bot1_.reset();
+  bot2_.reset();
+  player_.reset();
+  planets_.clear();
+  graph_.reset();
 }
 
 void GameScene::HideAll() {
@@ -47,16 +49,28 @@ Player* GameScene::GetPlayer() const { return player_.get(); }
 
 double GameScene::GetMapSize() const { return kMapSize; }
 
+int32_t GameScene::GetWidth() const { return kWidth; }
+
+int32_t GameScene::GetHeight() const { return kHeight; }
+
 void GameScene::NewGame() {
   const double kWidth = views()[0]->sceneRect().width();
 
   // TODO
   // Надо выбрать радиус
-  Planet* start_planet = new Planet(QPointF(0, 0), kWidth / 16 * 3);
-  std::shared_ptr<Planet> player_planet(start_planet);
-  drawer_->DrawPlanet(player_planet);
+  std::shared_ptr<Planet> player_planet =
+      std::make_shared<Planet>(QPointF(0, 0), kWidth / 16 * 3);
+  drawer_->DrawPlanet(player_planet.get());
+  planets_.push_back(player_planet);
 
-  player_ = std::make_shared<Player>(player_planet, "#C9F76F");
+  player_ = std::make_shared<Player>(player_planet.get());
+  player_planet->SetOwner(player_.get());
+  player_planet->AddUnit(UnitType::kDroid);
+  player_planet->AddUnit(UnitType::kRover);
+  player_planet->AddUnit(UnitType::kFalcon);
+  player_planet->AddUnit(UnitType::kMarine);
+
+  player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
   player_planet->SetOwner(player_.get());
 
   SetSceneSettings();
@@ -106,7 +120,7 @@ void GameScene::GenerateMap() {
         is_allowed_distance = true;
         counter++;
         double left_x = std::max(-kMapWidth + kPlanetRadius, x);
-        double right_x = x + kCellWidth;
+        double right_x = std::min(kMapWidth, x + kCellWidth);
         int64_t planet_x = QRandomGenerator::global()->generate() %
                                static_cast<int64_t>(right_x - left_x) +
                            static_cast<int64_t>(left_x);
@@ -127,8 +141,10 @@ void GameScene::GenerateMap() {
           }
         }
         if (is_allowed_distance) {
-          drawer_->DrawPlanet(
-              std::make_shared<Planet>(coordinates, kPlanetRadius));
+          std::shared_ptr<Planet> planet =
+              std::make_shared<Planet>(coordinates, kPlanetRadius);
+          planets_.push_back(planet);
+          drawer_->DrawPlanet(planet.get());
         }
       }
     }
@@ -149,13 +165,15 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
   if (planet == nullptr) {
     return {};
   }
+  PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
+      itemAt(2 * planet->GetCoordinates(), QTransform()));
   std::map<Planet*, QVector<UnitType>> nearby_units;
-  for (const auto& nearby_planet : player->GetPlanets()) {
-    if (Distance(nearby_planet->GetCoordinates(), planet->GetCoordinates()) <
-        kMaximalDistance) {
+  for (const auto& nearby_planet :
+       graph_->GetConnectedPlanets(planet_graphics)) {
+    if (nearby_planet->GetOwner() == player) {
       QVector<UnitType> planet_units = nearby_planet->GetUnits();
       if (planet_units.size() > 0) {
-        nearby_units[nearby_planet.get()] = planet_units;
+        nearby_units[nearby_planet] = planet_units;
       }
     }
   }
@@ -163,3 +181,13 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
 }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
+
+void GameScene::Next() {
+  bot1_->Next();  // тут определена логика бота на ход
+  bot2_->Next();    // добавляем ресурсы и т.п.
+  player_->Next();  // добавляем ресурсы и т.п.
+
+  for (const std::shared_ptr<Planet>& planet : planets_) {
+    planet->Next();  // обновляем флаги планеты
+  }
+}

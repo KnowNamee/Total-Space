@@ -3,6 +3,9 @@
 #include <QDebug>
 
 #include "core/eventhandling.h"
+#include "core/statemachine.h"
+#include "graphics/buttonitem.h"
+#include "graphics/unitwidget.h"
 #include "scene/gamescene.h"
 
 GameView::GameView(GameScene* scene, QWidget* parent)
@@ -41,6 +44,7 @@ void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void GameView::mouseReleaseEvent(QMouseEvent* event) {
   event_handler_->MouseReleaseEvent(event);
+  QGraphicsView::mouseReleaseEvent(event);
 }
 
 void GameView::keyReleaseEvent(QKeyEvent* event) {
@@ -48,3 +52,9 @@ void GameView::keyReleaseEvent(QKeyEvent* event) {
 }
 
 void GameView::wheelEvent(QWheelEvent* event) { event_handler_->Scale(event); }
+
+ScrollingView::ScrollingView(QGraphicsScene* scene, QWidget* parent)
+    : QGraphicsView(scene, parent) {
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}

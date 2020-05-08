@@ -8,8 +8,13 @@
 
 Drawer::Drawer(GameScene* game_scene) : QObject(), game_scene_(game_scene) {}
 
-void Drawer::DrawPlanet(const std::shared_ptr<Planet>& planet) {
+void Drawer::DrawPlanet(Planet* planet) {
   PlanetGraphics* planet_item = new PlanetGraphics(planet);
+  planet->AddUnit(UnitType::kDroid);
+  planet->AddUnit(UnitType::kDroid);
+  planet->AddUnit(UnitType::kDroid);
+  planet->AddUnit(UnitType::kDroid);
+  planet->AddUnit(UnitType::kDroid);
   planet_item->setPos(planet->GetCoordinates());
   game_scene_->addItem(planet_item);
 }

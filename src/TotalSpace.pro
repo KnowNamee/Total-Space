@@ -31,9 +31,13 @@ SOURCES += \
         data/loader.cpp \
         data/objectsloader.cpp \
         data/objectsstorage.cpp \
+        graphics/attackresultwindow.cpp \
+        graphics/buttonitem.cpp \
         graphics/drawer.cpp \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
+        graphics/planetinfographics.cpp \
+        graphics/unitwidget.cpp \
         main.cpp \
         mainwindow.cpp \
         core/menu.cpp \
@@ -54,9 +58,13 @@ HEADERS += \
     data/loader.h \
     data/objectsloader.h \
     data/objectsstorage.h \
+    graphics/attackresultwindow.h \
+    graphics/buttonitem.h \
     graphics/drawer.h \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
+    graphics/planetinfographics.h \
+    graphics/unitwidget.h \
         mainwindow.h \
         core/menu.h \
   core/menugraph.h \
