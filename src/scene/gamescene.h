@@ -29,14 +29,11 @@ class GameScene : public QGraphicsScene {
   void ShowAll();
   Player* GetPlayer() const;
   double GetMapSize() const;
-  int32_t GetWidth() const;
-  int32_t GetHeight() const;
   std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
 
   void UpdatePlanetsGraph();
 
  public slots:
-  void Next();
   void NewGame();
 
  private:
@@ -49,13 +46,15 @@ class GameScene : public QGraphicsScene {
   std::shared_ptr<Drawer> drawer_;
 
   std::shared_ptr<Player> player_;
-  std::vector<std::shared_ptr<Planet>> planets_;
   std::shared_ptr<Bot> bot1_;
   std::shared_ptr<Bot> bot2_;
 
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kMapSize = 2.5;
+  // TODO
+  // Выбрать расстояние, очень сильно влияет 
+  const double kMaximalDistance = qApp->screens()[0]->size().width() / 2;
 };
 
 #endif  // GAMESCENE_H

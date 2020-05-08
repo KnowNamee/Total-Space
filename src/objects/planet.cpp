@@ -1,6 +1,5 @@
 #include "objects/planet.h"
 
-#include <QDebug>
 #include <QRandomGenerator>
 #include <memory>
 
@@ -27,7 +26,7 @@ void Planet::AddUnit(UnitType unit) {
 }
 
 void Planet::AddUnits(const QVector<UnitType>& units) {
-  tired_units_.append(units);
+  units_on_planet_.append(units);
 }
 
 void Planet::RemoveUnit(UnitType unit) {
@@ -50,17 +49,10 @@ void Planet::Upgrade() {
   level_++;
 }
 
-void Planet::Next() {
-  units_on_planet_.append(tired_units_);
-  tired_units_.clear();
-}
-
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
 double Planet::GetRadius() const { return radius_; }
-
-int32_t Planet::GetLevel() const { return level_; }
 const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
@@ -234,8 +226,7 @@ std::pair<int32_t, int32_t> Planet::CountPoints(
 bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   double random_double = QRandomGenerator::global()->generateDouble();
   const double kDeadCoefficient = std::min(random_double, 1. - random_double);
-  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
-  for (auto& planet_to_units : enemy_units_copy) {
+  for (const auto& planet_to_units : enemy_units) {
     int32_t number_of_dead_units =
         std::min(static_cast<int32_t>(std::ceil(kDeadCoefficient *
                                                 planet_to_units.second.size())),
@@ -243,18 +234,10 @@ bool Planet::Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
 
     for (int32_t i = 0; i < number_of_dead_units; i++) {
       int32_t index =
-          (static_cast<int32_t>(QRandomGenerator::global()->generate()) %
-               planet_to_units.second.size() +
-           planet_to_units.second.size()) %
+          static_cast<int32_t>(QRandomGenerator::global()->generate()) %
           planet_to_units.second.size();
       planet_to_units.first->RemoveUnit(planet_to_units.second[index]);
-      planet_to_units.second.remove(index);
     }
-  }
-
-  for (const auto& planet_to_units : enemy_units_copy) {
-    planet_to_units.first->RemoveUnits(planet_to_units.second);
-    planet_to_units.first->AddUnits(planet_to_units.second);
   }
   return false;
 }
@@ -275,11 +258,12 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
   RemoveUnits(units_on_planet_);
   MoveUnits(enemy_units);
+  std::shared_ptr<Planet> self(this);
   if (owner_ != nullptr) {
-    owner_->RemovePlanet(this);
+    owner_->RemovePlanet(self);
   }
   SetOwner(enemy);
-  enemy->AddPlanet(this);
+  enemy->AddPlanet(std::shared_ptr<Planet>(self));
   return true;
 }
 

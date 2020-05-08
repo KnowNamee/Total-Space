@@ -1,8 +1,4 @@
 #include "bot.h"
 
-Bot::Bot(Planet* planet, const QString& color)
+Bot::Bot(std::shared_ptr<Planet> planet, const QString& color)
     : PlayerBase(planet, PlayerBase::Type::kBot, color) {}
-
-Bot::~Bot() {}
-
-void Bot::Next() {}

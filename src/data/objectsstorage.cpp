@@ -73,10 +73,6 @@ UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {
   return type_to_unit_[unit]->GetUnitEnemy();
 }
 
-const QString& ObjectsStorage::GetUnitCaption(UnitType unit) {
-  return type_to_unit_.at(unit)->GetCaption();
-}
-
 std::set<BuildingType> ObjectsStorage::GetFirstLevelBuildings() {
   std::set<BuildingType> first_level_buildings;
   for (const auto& building_pair : type_to_building_) {

@@ -27,7 +27,6 @@ class ObjectsStorage {
   static const UnitCharacteristics& GetUnitCharacteristics(UnitType unit);
   static UnitRole GetUnitRole(UnitType unit);
   static UnitType GetUnitEnemy(UnitType unit);
-  static const QString& GetUnitCaption(UnitType unit);
 
   static std::set<BuildingType> GetFirstLevelBuildings();
   static std::set<BuildingType> GetUpgrades(BuildingType building);

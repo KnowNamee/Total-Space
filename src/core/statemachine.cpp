@@ -13,11 +13,10 @@
 // -----------------------------------------------------------
 
 Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
-int Controller::kMenuCount = 6;
+int Controller::kMenuCount = 5;
 
 MainMenu* Controller::main_menu_ = nullptr;
 UnitMenu* Controller::unit_menu_ = nullptr;
-AttackMenu* Controller::attack_menu_ = nullptr;
 PauseMenu* Controller::pause_menu_ = nullptr;
 PlanetMenu* Controller::planet_menu_ = nullptr;
 GameMenu* Controller::game_menu_ = nullptr;
@@ -47,9 +46,6 @@ void Controller::SwitchMenu(MenuType menu) {
     case MenuType::kPlanet:
       planet_menu_->SwitchTo(menu);
       break;
-    case MenuType::kAttack:
-      attack_menu_->SwitchTo(menu);
-      break;
     default:
       break;
   }
@@ -61,9 +57,7 @@ void Controller::LoadMenuGraph() {
   connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame};
   connections[static_cast<int>(MenuType::kGame)] = {MenuType::kPlanet,
                                                     MenuType::kPause};
-  connections[static_cast<int>(MenuType::kPlanet)] = {MenuType::kGame,
-                                                      MenuType::kAttack};
-  connections[static_cast<int>(MenuType::kAttack)] = {MenuType::kPlanet};
+  connections[static_cast<int>(MenuType::kPlanet)] = {MenuType::kGame};
   connections[static_cast<int>(MenuType::kPause)] = {MenuType::kMain,
                                                      MenuType::kGame};
 
@@ -83,7 +77,6 @@ Controller::MenuType Controller::GetMenuType() { return current_state_; }
 void Controller::Destroy() {
   Controller::SetPlanetMenu(nullptr);
   Controller::SetUnitMenu(nullptr);
-  Controller::SetAttackMenu(nullptr);
   Controller::SetPauseMenu(nullptr);
   Controller::SetMainMenu(nullptr);
   Controller::SetGameMenu(
@@ -97,8 +90,6 @@ void Controller::SetActivePlanet(Planet* planet) { active_planet_ = planet; }
 MainMenu* Controller::GetMainMenu() { return main_menu_; }
 
 UnitMenu* Controller::GetUnitMenu() { return unit_menu_; }
-
-AttackMenu* Controller::GetAttackMenu() { return attack_menu_; }
 
 PauseMenu* Controller::GetPauseMenu() { return pause_menu_; }
 
@@ -114,11 +105,6 @@ void Controller::SetMainMenu(MainMenu* menu) {
 void Controller::SetUnitMenu(UnitMenu* menu) {
   delete (unit_menu_);
   unit_menu_ = menu;
-}
-
-void Controller::SetAttackMenu(AttackMenu *menu) {
-  delete (attack_menu_);
-  attack_menu_ = menu;
 }
 
 void Controller::SetPauseMenu(PauseMenu* menu) {

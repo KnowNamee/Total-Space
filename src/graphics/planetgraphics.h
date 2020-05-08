@@ -14,11 +14,10 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_INTERFACES(QGraphicsItem)
 
  public:
-  PlanetGraphics(Planet* planet);
+  PlanetGraphics(const std::shared_ptr<Planet>& planet);
 
   int type() const override;
-  Planet* GetPlanet();
-  QPixmap* GetImage();
+  std::shared_ptr<Planet> GetPlanet();
 
  private:
   QPixmap* planet_image_;
@@ -26,15 +25,12 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  Planet* planet_;
+  const std::shared_ptr<Planet> planet_;
 
  public:
   enum {
     Type = UserType + TypeOffset::Planet,
   };
-
- protected:
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 };
 
 #endif  // PLANETGRAPHICS_H
