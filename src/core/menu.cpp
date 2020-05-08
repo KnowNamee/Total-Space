@@ -44,15 +44,17 @@ void MainMenu::SetZValue() {
 
 void MainMenu::Draw() {
   GameView* view = Controller::view;
-  double coef = view->matrix().m11();
+  QMatrix matrix = view->matrix();
+  view->setMatrix(
+      QMatrix(1, matrix.m12(), matrix.m21(), 1, matrix.dx(), matrix.dy()));
 
   btn_exit_ = new ButtonItem(kWidth / 5, kHeight / 12);
 
   btn_new_game_ = new ButtonItem(kWidth / 5, kHeight / 12);
 
-  txt_total_space_ = new ImageItem(
-      Loader::GetButtonImage(ButtonsEnum::kBackground),
-      static_cast<int>(kWidth / coef), static_cast<int>(kHeight / coef));
+  txt_total_space_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
+                    static_cast<int>(kWidth), static_cast<int>(kHeight));
 
   SetZValue();
 
