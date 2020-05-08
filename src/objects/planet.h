@@ -26,12 +26,14 @@ class Planet : public QObject {
   void RemoveUnits(const QVector<UnitType>& units);
 
   void Upgrade();
+  void Next();
 
   int32_t GetBatteriesIncome() const;
   int32_t GetToolsIncome() const;
   const Resources& GetIncome() const;
   QPointF GetCoordinates() const;
   double GetRadius() const;
+  int32_t GetLevel() const;
   const QVector<BuildingType>& GetBuildings() const;
   const QVector<UnitType>& GetUnits() const;
   PlayerBase* GetOwner() const;
@@ -55,6 +57,7 @@ class Planet : public QObject {
   Resources income_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
+  QVector<UnitType> tired_units_;
 };
 
 #endif  // PLANET_H

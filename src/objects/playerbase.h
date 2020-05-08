@@ -16,9 +16,9 @@ class PlayerBase {
     kBot,
   };
 
+  explicit PlayerBase(Planet* planet);
   PlayerBase() = default;
-  explicit PlayerBase(const std::shared_ptr<Planet>& planet, Type type,
-                      const QString& color);
+  PlayerBase(Planet* planet, Type type, const QString& color);
 
   const Resources& GetResources() const;
   int32_t GetTools() const;
@@ -26,24 +26,25 @@ class PlayerBase {
 
   void UpdateResources();
 
-  void AddPlanet(const std::shared_ptr<Planet>& planet);
-  void RemovePlanet(const std::shared_ptr<Planet>& planet);
+  void AddPlanet(Planet* planet);
+  void RemovePlanet(Planet* planet);
 
-  const QVector<std::shared_ptr<Planet>>& GetPlanets() const;
+  const QVector<Planet*>& GetPlanets() const;
   int64_t GetArmyPower() const;
   void IncreasePower(int32_t power);
 
   Type GetType();
   const QString& GetColor();
 
+  virtual void Next() = 0;
+
  private:
   Resources resources_;
   int64_t army_power_ = 0;
+  QVector<Planet*> planets_;
 
   Type type_;
   QString color_;
-
-  QVector<std::shared_ptr<Planet>> planets_;
 };
 
 #endif  // PLAYERBASE_H
