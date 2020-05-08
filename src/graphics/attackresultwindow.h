@@ -22,7 +22,7 @@ class AttackResultWindow : public QGraphicsItem {
   int32_t width_;
   int32_t height_;
 
-  const int32_t kUnitsTextLeft = width_ / 8;
+  const int32_t kUnitsTextLeft = width_  / 8;
   const int32_t kUnitsTextRight = width_ - width_ / 8;
   const int32_t kStepX = (kUnitsTextRight - kUnitsTextLeft) / 3;
   const int32_t kUnitsTextTop = height_ / 3;

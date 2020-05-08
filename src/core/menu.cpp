@@ -60,8 +60,8 @@ void MainMenu::Draw() {
   Controller::scene->addItem(btn_exit_);
   Controller::scene->addItem(btn_new_game_);
 
-  btn_new_game_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2)));
+  btn_new_game_->setPos(
+      Controller::view->mapToScene(QPoint(kWidth / 2, kHeight / 2)));
   btn_exit_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 + 2 * kHeight / 15)));
 
@@ -128,8 +128,8 @@ void PauseMenu::Draw() {
   Controller::scene->addItem(btn_back_);
   Controller::scene->addItem(btn_exit_);
 
-  btn_back_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2)));
+  btn_back_->setPos(
+      Controller::view->mapToScene(QPoint(kWidth / 2, kHeight / 2)));
   btn_exit_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 + 2 * kHeight / 15)));
 }
@@ -162,19 +162,10 @@ void PauseMenu::btnExitClicked() {
 }
 
 PlanetMenu::PlanetMenu() {
-  if (Controller::GetActivePlanet()->GetOwner() ==
-      Controller::scene->GetPlayer()) {   
+  if (Controller::GetActivePlanet() == nullptr ||
+      Controller::GetActivePlanet()->GetOwner() !=
+          Controller::scene->GetPlayer()) {
     // TODO убрать граф перехода по кнопке (getNextMenu)
-    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn1_] = Controller::MenuType::kGame;
-    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn2_] = Controller::MenuType::kGame;
-    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn3_] = Controller::MenuType::kGame;
-    connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
-    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
-    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
-  } else {
     btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn1_] = Controller::MenuType::kAttack;
     btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
@@ -182,6 +173,16 @@ PlanetMenu::PlanetMenu() {
     btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+  } else {
+    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    button_to_menu_[btn1_] = Controller::MenuType::kGame;
+    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    button_to_menu_[btn3_] = Controller::MenuType::kGame;
+    connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   }

@@ -34,10 +34,10 @@ void AttackResultWindow::paint(QPainter* painter,
   uint64_t counter = 0;
   auto unit_to_quantity = units_to_quantity_.begin();
   for (int32_t y = kUnitsTextTop;
-       y < kUnitsTextBottom && counter < units_to_quantity_.size();
+       y < kUnitsTextBottom - kStepY && counter < units_to_quantity_.size();
        y += kStepY) {
     for (int32_t x = kUnitsTextLeft;
-         x < kUnitsTextRight && counter < units_to_quantity_.size();
+         x < kUnitsTextRight - kStepX && counter < units_to_quantity_.size();
          x += kStepX) {
       int32_t number_of_dead = unit_to_quantity->second;
       painter->drawText(
