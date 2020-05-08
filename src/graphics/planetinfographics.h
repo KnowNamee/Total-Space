@@ -8,6 +8,7 @@
 class QPixmap;
 
 class PlanetInfoGraphics : public QGraphicsItem {
+
   struct UnitData {
     QPixmap* unit_image;
     QString caption;
