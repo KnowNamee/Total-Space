@@ -36,8 +36,8 @@ class PlanetsGraph {
     Edge() = delete;
     Edge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet, int distance);
 
-    Planet* GetLeftPlanet() const;
-    Planet* GetRightPlanet() const;
+    std::shared_ptr<Planet> GetLeftPlanet() const;
+    std::shared_ptr<Planet> GetRightPlanet() const;
     PlanetGraphics* GetLeftPlanetGraphics() const;
     PlanetGraphics* GetRightPlanetGraphics() const;
     QGraphicsLineItem* GetEdge() const;
@@ -67,8 +67,7 @@ class PlanetsGraph {
 
   void Draw();
   void Update();
-  Planet* GetBotPlanet();
-  QVector<Planet*> GetConnectedPlanets(PlanetGraphics* planet_grapics) const;
+  std::shared_ptr<Planet> GetBotPlanet();
 
  private:
   std::map<PlanetGraphics*, std::set<std::shared_ptr<Edge>>> graph_;
@@ -77,7 +76,7 @@ class PlanetsGraph {
   void ExtractPlanets(const QList<QGraphicsItem*>& items);
   void AddEdge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet);
   void FormEdges();
-  Planet* FindPlanetAtDistanceGE(
+  std::shared_ptr<Planet> FindPlanetAtDistanceGE(
       int dist, const std::map<PlanetGraphics*, std::vector<int>>& data);
 
   std::map<PlanetGraphics*, int> DistanceBFS(PlanetGraphics* planet);

@@ -13,7 +13,7 @@ class Drawer : public QObject {
  public:
   Drawer(GameScene* game_scene);
 
-  void DrawPlanet(Planet* planet);
+  void DrawPlanet(const std::shared_ptr<Planet>& planet);
   void DrawPlanetsGraph(const std::shared_ptr<PlanetsGraph>& graph);
 
  private:

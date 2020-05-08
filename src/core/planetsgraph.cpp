@@ -49,7 +49,7 @@ void PlanetsGraph::Update() {
   }
 }
 
-Planet* PlanetsGraph::GetBotPlanet() {
+std::shared_ptr<Planet> PlanetsGraph::GetBotPlanet() {
   std::map<PlanetGraphics*, std::vector<int>> data;
   for (PlanetGraphics* planet : planets_) {
     if (planet->GetPlanet()->GetOwner()) {
@@ -63,28 +63,12 @@ Planet* PlanetsGraph::GetBotPlanet() {
   }
 
   for (int i = 4; i >= 1; --i) {
-    Planet* at_dist = FindPlanetAtDistanceGE(i, data);
+    std::shared_ptr<Planet> at_dist = FindPlanetAtDistanceGE(i, data);
     if (at_dist) {
       return at_dist;
     }
   }
   return nullptr;
-}
-
-QVector<Planet*> PlanetsGraph::GetConnectedPlanets(
-    PlanetGraphics* planet_grapics) const {
-  QVector<Planet*> planets;
-  Planet* this_planet = planet_grapics->GetPlanet();
-  for (const auto& edge : graph_.at(planet_grapics)) {
-    Planet* left_planet = edge->GetLeftPlanet();
-    Planet* right_planet = edge->GetRightPlanet();
-    if (left_planet == this_planet) {
-      planets.push_back(right_planet);
-      continue;
-    }
-      planets.push_back(left_planet);
-  }
-  return planets;
 }
 
 void PlanetsGraph::AddEdge(PlanetGraphics* lhs_planet,
@@ -184,10 +168,10 @@ PlanetsGraph::Edge::Edge(PlanetGraphics* lhs_planet, PlanetGraphics* rhs_planet,
   rhs_planet_ = std::max(lhs_planet, rhs_planet);
 }
 
-Planet* PlanetsGraph::Edge::GetLeftPlanet() const {
+std::shared_ptr<Planet> PlanetsGraph::Edge::GetLeftPlanet() const {
   return lhs_planet_->GetPlanet();
 }
-Planet* PlanetsGraph::Edge::GetRightPlanet() const {
+std::shared_ptr<Planet> PlanetsGraph::Edge::GetRightPlanet() const {
   return rhs_planet_->GetPlanet();
 }
 
@@ -224,8 +208,8 @@ void PlanetsGraph::Edge::Update() {
   }
   is_updated_ = true;  // Чтобы одно ребро не обновлялось 2 раза.
 
-  if (lhs_planet_->GetPlanet() == Controller::GetActivePlanet() ||
-      rhs_planet_->GetPlanet() == Controller::GetActivePlanet()) {
+  if (lhs_planet_->GetPlanet().get() == Controller::GetActivePlanet() ||
+      rhs_planet_->GetPlanet().get() == Controller::GetActivePlanet()) {
     edge_->setOpacity(Pen::kActiveOpacity);
   } else {
     edge_->setOpacity(Pen::kDefaultOpacity);
@@ -259,7 +243,7 @@ bool PlanetsGraph::Edge::operator<(const PlanetsGraph::Edge& rhs_edge) const {
   return distance_ > rhs_edge.distance_;
 }
 
-Planet* PlanetsGraph::FindPlanetAtDistanceGE(
+std::shared_ptr<Planet> PlanetsGraph::FindPlanetAtDistanceGE(
     int needed_dist, const std::map<PlanetGraphics*, std::vector<int>>& data) {
   for (const std::pair<PlanetGraphics*, std::vector<int>>& data_pair : data) {
     PlanetGraphics* planet = data_pair.first;
