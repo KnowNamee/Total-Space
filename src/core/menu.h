@@ -135,6 +135,7 @@ class UnitsInteractionMenu : public Menu {
     kMain,
     kResult,
   };
+
   State current_state_ = State::kMain;
   QVector<UnitWidget*> chosen_units_;
   ButtonItem* interaction_button_ = nullptr;
