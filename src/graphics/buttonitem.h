@@ -2,13 +2,22 @@
 #define BUTTONITEM_H
 
 #include <QGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
+
+#include "util/typeoffset.h"
 
 class ButtonItem : public QObject, public QGraphicsItem {
   Q_OBJECT
   Q_INTERFACES(QGraphicsItem)
  public:
-  ButtonItem(int32_t width, int32_t height);
+  ButtonItem(int32_t width, int32_t height, bool is_scalable = true);
   void SetPixmap(QPixmap* button_image);
+
+  int type() const override;
+
+  enum {
+    Type = UserType + TypeOffset::kButtonItem,
+  };
 
  signals:
   void clicked();
@@ -25,6 +34,7 @@ class ButtonItem : public QObject, public QGraphicsItem {
              QWidget* widget) override;
 
   QPixmap* button_image_;
+  bool is_scalable_;
 };
 
 #endif  // BUTTONITEM_H

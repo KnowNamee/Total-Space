@@ -43,7 +43,7 @@ void GameView::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void GameView::mouseReleaseEvent(QMouseEvent* event) {
-  event_handler_->MouseReleaseEvent(event); 
+  event_handler_->MouseReleaseEvent(event);
   QGraphicsView::mouseReleaseEvent(event);
 }
 

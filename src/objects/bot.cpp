@@ -2,3 +2,7 @@
 
 Bot::Bot(Planet* planet, const QString& color)
     : PlayerBase(planet, PlayerBase::Type::kBot, color) {}
+
+Bot::~Bot() {}
+
+void Bot::Next() {}

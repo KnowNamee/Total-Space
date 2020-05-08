@@ -32,6 +32,9 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   enum {
     Type = UserType + TypeOffset::Planet,
   };
+
+ protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 };
 
 #endif  // PLANETGRAPHICS_H

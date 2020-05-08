@@ -12,6 +12,9 @@ class Bot : public PlayerBase {
  public:
   Bot() = delete;
   Bot(Planet* planet, const QString& color);
+  virtual ~Bot();
+
+  void Next() override;
 
  private:
 };

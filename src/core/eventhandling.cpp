@@ -1,6 +1,7 @@
 #include "core/eventhandling.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QObject>
@@ -70,46 +71,18 @@ void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
     }
     return;
   }
-  if (state == Controller::MenuType::kGame) {
+
+  if (state == Controller::MenuType::kPlanet) {
     if (item->type() == PlanetGraphics::Type) {
-      PlanetGraphics* planet = dynamic_cast<PlanetGraphics*>(item);
-      Controller::SetActivePlanet(planet->GetPlanet());
-      Controller::scene->UpdatePlanetsGraph();
-    }
-  } else if (state == Controller::MenuType::kMain) {
-    MainMenu* menu = Controller::GetMainMenu();
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-
-      if (button == menu->btn_exit_) {
-        emit menu->btnExitClick();
-      } else if (button == menu->btn_new_game_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      }
-    }
-  } else if (state == Controller::MenuType::kPause) {
-    PauseMenu* menu = Controller::GetPauseMenu();
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-
-      if (button == menu->btn_exit_) {
-        Controller::SwitchMenu(Controller::MenuType::kMain);
-      } else if (button == menu->btn_back_) {
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-      }
-    }
-  } else if (state == Controller::MenuType::kPlanet) {
-    PlanetMenu* menu = Controller::GetPlanetMenu();
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* button = dynamic_cast<ImageItem*>(item);
-      Controller::SwitchMenu(menu->GetNextMenu(button));
-    } else if (item->type() == PlanetGraphics::Type) {
       Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
       if (planet != Controller::GetActivePlanet()) {
         Controller::SwitchMenu(Controller::MenuType::kGame);
       }
+    }
+  } else if (state == Controller::MenuType::kGame) {
+    if (current_motion_ == MotionType::kNoMotion) {
+      Controller::SetActivePlanet(nullptr);
+      Controller::scene->UpdatePlanetsGraph();
     }
   }
 }
@@ -173,6 +146,7 @@ void EventHandler::View::Move() {
 
     view_->setSceneRect(view_->sceneRect().x() + x_velocity,
                         view_->sceneRect().y() + y_velocity, width, height);
+    Controller::GetGameMenu()->ReDraw();
   }
 }
 
@@ -182,9 +156,6 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
-      Controller::SetActivePlanet(
-          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
-
       double scale = view_->matrix().m11();
 
       QPointF event_pos = scale * view_->mapToScene(event->pos());
@@ -267,10 +238,12 @@ void EventHandler::View::MoveTo() {
                      view_->matrix().m22() + scale_velocity,
                      view_->matrix().dx(), view_->matrix().dy());
     view_->setMatrix(matrix);
+    Controller::GetGameMenu()->ReDraw();
   }
   if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
+    Controller::GetGameMenu()->ReDraw();
     current_motion_ = MotionType::kNoMotion;
     Controller::SwitchMenu(Controller::MenuType::kPlanet);
     delete timer_;
@@ -306,7 +279,7 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
   if (timer_ == nullptr) {
     current_motion_ = MotionType::kScale;
-    const double kScale = event->delta() * current_scale / 300;
+    const double kScale = event->delta() * current_scale / 200;
     scale_direction_ = direction;
     if (scale_direction_ > 0) {
       goal_scale_ = std::min(kMaxScale, current_scale + kScale);
@@ -343,4 +316,6 @@ void EventHandler::View::ScaleToGoal() {
                    view_->matrix().m21(), current_scale + scale_velocity,
                    view_->matrix().dx(), view_->matrix().dy());
   view_->setMatrix(matrix);
+
+  Controller::GetGameMenu()->ReDraw();
 }

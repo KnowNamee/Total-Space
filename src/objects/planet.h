@@ -26,6 +26,7 @@ class Planet : public QObject {
   void RemoveUnits(const QVector<UnitType>& units);
 
   void Upgrade();
+  void Next();
 
   int32_t GetBatteriesIncome() const;
   int32_t GetToolsIncome() const;
@@ -58,6 +59,7 @@ class Planet : public QObject {
   Resources income_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
+  QVector<UnitType> tired_units_;
 };
 
 #endif  // PLANET_H
