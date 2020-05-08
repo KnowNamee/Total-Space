@@ -52,9 +52,9 @@ void MainMenu::Draw() {
 
   btn_new_game_ = new ButtonItem(kWidth / 5, kHeight / 12);
 
-  txt_total_space_ =
-      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kBackground),
-                    static_cast<int>(kWidth), static_cast<int>(kHeight));
+  txt_total_space_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kBackground),
+      static_cast<int>(kWidth + 10), static_cast<int>(kHeight + 10));
 
   SetZValue();
 
