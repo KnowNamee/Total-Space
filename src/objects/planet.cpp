@@ -64,6 +64,8 @@ int32_t Planet::GetLevel() const { return level_; }
 const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
+const QVector<UnitType>& Planet::GetTiredUnits() const { return tired_units_; }
+
 PlayerBase* Planet::GetOwner() const { return owner_; }
 
 std::set<BuildingType> Planet::GetAvailableBuildings() const {

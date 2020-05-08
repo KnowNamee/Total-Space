@@ -36,6 +36,7 @@ class Planet : public QObject {
   int32_t GetLevel() const;
   const QVector<BuildingType>& GetBuildings() const;
   const QVector<UnitType>& GetUnits() const;
+  const QVector<UnitType>& GetTiredUnits() const;
   PlayerBase* GetOwner() const;
 
   std::set<BuildingType> GetAvailableBuildings() const;

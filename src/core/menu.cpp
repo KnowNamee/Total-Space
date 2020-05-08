@@ -563,7 +563,7 @@ void AttackMenu::Interact() {
   }
   bool is_win = Controller::GetActivePlanet()->TakeAttack(planets_to_units);
   if (is_win) {
-    for (UnitType unit : Controller::GetActivePlanet()->GetUnits()) {
+    for (UnitType unit : Controller::GetActivePlanet()->GetTiredUnits()) {
       units_to_quantity[unit]--;
       if (units_to_quantity[unit] == 0) {
         units_to_quantity.erase(unit);
@@ -572,6 +572,9 @@ void AttackMenu::Interact() {
     ShowAttackResult(units_to_quantity, "Winner", "They fought to the last");
   } else {
     for (const auto& planet_to_unit : planets_to_units) {
+      for (UnitType unit : planet_to_unit.first->GetTiredUnits()) {
+        all_nearest_units[planet_to_unit.first].removeOne(unit);
+      }
       for (UnitType unit : planet_to_unit.first->GetUnits()) {
         all_nearest_units[planet_to_unit.first].removeOne(unit);
       }
