@@ -348,13 +348,14 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   PlanetGraphics* planet_graphics =
       dynamic_cast<PlanetGraphics*>(Controller::scene->itemAt(
           Controller::GetActivePlanet()->GetCoordinates() * 2, QTransform()));
+  const double kScale = Controller::view->matrix().m11();
   if (planet_graphics != nullptr) {
     int32_t planet_info_width = static_cast<int32_t>(
-        kWidth * kSizeCoefficient / Controller::view->matrix().m11() -
-        kWidth / 3 / Controller::view->matrix().m11() +
+        kWidth * kSizeCoefficient / kScale -
+        kWidth / 3 / kScale +
         kWidth * (1 - kSizeCoefficient) / 2);
     int32_t planet_info_height = static_cast<int32_t>(
-        kHeight * (1 - 2 * kScrollPosition) - kHeight / 10);
+        (kHeight * (1 - 2 * kScrollPosition) - kHeight / 10) / kScale);
 
     planet_info_ = new PlanetInfoGraphics(
         planet_graphics->GetImage(), planet_info_width, planet_info_height);
