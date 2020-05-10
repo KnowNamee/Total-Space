@@ -26,16 +26,23 @@ CONFIG += c++17
 
 SOURCES += \
         core/eventhandling.cpp \
+        core/planetsgraph.cpp \
         core/statemachine.cpp \
         data/loader.cpp \
         data/objectsloader.cpp \
         data/objectsstorage.cpp \
+        graphics/attackresultwindow.cpp \
+        graphics/buttonitem.cpp \
         graphics/drawer.cpp \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
+        graphics/planetinfographics.cpp \
+        graphics/unitwidget.cpp \
         main.cpp \
         mainwindow.cpp \
-        menu.cpp \
+        core/menu.cpp \
+        core/menugraph.cpp \
+        objects/bot.cpp \
         objects/building.cpp \
         objects/planet.cpp \
         objects/player.cpp \
@@ -46,15 +53,22 @@ SOURCES += \
 
 HEADERS += \
     core/eventhandling.h \
+    core/planetsgraph.h \
     core/statemachine.h \
     data/loader.h \
     data/objectsloader.h \
     data/objectsstorage.h \
+    graphics/attackresultwindow.h \
+    graphics/buttonitem.h \
     graphics/drawer.h \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
+    graphics/planetinfographics.h \
+    graphics/unitwidget.h \
         mainwindow.h \
-        menu.h \
+        core/menu.h \
+  core/menugraph.h \
+  objects/bot.h \
     objects/building.h \
     objects/planet.h \
     objects/player.h \

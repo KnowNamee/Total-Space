@@ -12,7 +12,6 @@ class ImageItem : public QGraphicsItem {
  public:
   ImageItem() = default;
   ImageItem(const QPixmap* image_, int width, int heigt);
-
   int type() const override;
 
  private:

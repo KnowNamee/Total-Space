@@ -10,17 +10,20 @@
 #include <QTimer>
 #include <cmath>
 
-
-#include "graphics/imageitem.h"
-#include "scene/gameview.h"
-#include "mainwindow.h"
-#include "menu.h"
-#include "graphics/planetgraphics.h"
+#include "core/menu.h"
 #include "core/statemachine.h"
+#include "graphics/imageitem.h"
+#include "graphics/planetgraphics.h"
+#include "mainwindow.h"
+#include "objects/planet.h"
+#include "objects/player.h"
+#include "scene/gamescene.h"
+#include "scene/gameview.h"
 
-const int EventHandler::View::kMoveZone = 32;
-
-EventHandler::View::View(GameView* view) : view_(view) { timer_ = nullptr; }
+EventHandler::View::View(GameView* view)
+    : view_(view), kMapSize(view_->GetScene()->GetMapSize()) {
+  timer_ = nullptr;
+}
 
 bool EventHandler::View::CompareMotion(
     EventHandler::View::MotionType needed_motion) {
@@ -38,7 +41,7 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent() {
-  if (StateMachine::State() == StateMachine::StateGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -58,66 +61,35 @@ void EventHandler::View::MouseMoveEvent() {
 }
 
 void EventHandler::View::MouseReleaseEvent(QMouseEvent* event) {
-  int state = StateMachine::State();
+  Controller::MenuType state = Controller::GetMenuType();
   QGraphicsItem* item =
       view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
 
   if (item == nullptr) {
-    if (state == StateMachine::StatePlanetMenu) {
-      StateMachine::window->RemovePlanetMenu();
+    if (state == Controller::MenuType::kPlanet) {
+      Controller::SwitchMenu(Controller::MenuType::kGame);
     }
     return;
   }
 
-  if (state == StateMachine::StateMainMenu) {
-    MainMenu* menu = StateMachine::main_menu;
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
-
-      if (b == menu->btn_exit_) {
-        emit menu->btnExitClick();
-      } else if (b == menu->btn_new_game_) {
-        emit menu->btnNewGameClick();
+  if (state == Controller::MenuType::kPlanet) {
+    if (item->type() == PlanetGraphics::Type) {
+      Planet* planet = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
+      if (planet != Controller::GetActivePlanet()) {
+        Controller::SwitchMenu(Controller::MenuType::kGame);
       }
     }
-  } else if (state == StateMachine::StatePauseMenu) {
-    PauseMenu *menu = StateMachine::pause_menu;
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
-
-      if (b == menu->btn_exit_) {
-        emit menu->btnExitClick();
-      } else if (b == menu->btn_back_) {
-        emit menu->btnBackClick();
-      }
-    }
-  } else if (state == StateMachine::StatePlanetMenu) {
-    PlanetMenu* menu = StateMachine::planet_menu;
-
-    if (item->type() == ImageItem::Type) {
-      ImageItem* b = dynamic_cast<ImageItem*>(item);
-      
-      if (b == menu->btn1_) {
-        emit menu->btn1Click();
-      } else if (b == menu->btn2_) {
-        emit menu->btn2Click();
-      } else if (b == menu->btn3_) {
-        emit menu->btn3Click();
-      }
-    } else if (item->type() == PlanetGraphics::Type) {
-      Planet* p = dynamic_cast<PlanetGraphics*>(item)->GetPlanet();
-      if (p != StateMachine::GetActivePlanet()) {
-        StateMachine::window->RemovePlanetMenu();
-      }
+  } else if (state == Controller::MenuType::kGame) {
+    if (current_motion_ == MotionType::kNoMotion) {
+      Controller::SetActivePlanet(nullptr);
+      Controller::scene->UpdatePlanetsGraph();
     }
   }
 }
 
 void EventHandler::View::Move() {
-  int state = StateMachine::State();
-  if (state != StateMachine::StateGame) {
+  Controller::MenuType state = Controller::GetMenuType();
+  if (state != Controller::MenuType::kGame) {
     current_motion_ = MotionType::kNoMotion;
     if (timer_) {
       delete (timer_);
@@ -132,7 +104,6 @@ void EventHandler::View::Move() {
   // TODO
   // Тоже нужно выбрать область, в которой будет двигаться экран
   if (IsMouseInMotionZone(cursor)) {
-    const double kMapSize = 3;
     double x_direction = cursor.x() - width / 2;
     double y_direction = cursor.y() - height / 2;
 
@@ -153,30 +124,38 @@ void EventHandler::View::Move() {
 
     // TODO
     // Размеры карты тоже выбрать надо
-    if ((view_->sceneRect().x() >= kMapSize * width && x_velocity > 0) ||
-        (view_->sceneRect().x() <= -kMapSize * width && x_velocity < 0)) {
+    const double kScaleCoefficient = view_->matrix().m11() - 1 / 3;
+    const double kSizeCoeff = 0.7;
+    if ((view_->sceneRect().x() >=
+             (kScaleCoefficient + kSizeCoeff * kMapSize) * width &&
+         x_velocity > 0) ||
+        (view_->sceneRect().x() <=
+             -((kScaleCoefficient + kSizeCoeff * kMapSize) * width) &&
+         x_velocity < 0)) {
       x_velocity = 0;
     }
 
-    if ((view_->sceneRect().y() >= kMapSize * height && y_velocity > 0) ||
-        (view_->sceneRect().y() <= -kMapSize * height && y_velocity < 0)) {
+    if ((view_->sceneRect().y() >=
+             (kScaleCoefficient + kSizeCoeff * kMapSize) * height &&
+         y_velocity > 0) ||
+        (view_->sceneRect().y() <=
+             -((kScaleCoefficient + kSizeCoeff * kMapSize) * height) &&
+         y_velocity < 0)) {
       y_velocity = 0;
     }
 
     view_->setSceneRect(view_->sceneRect().x() + x_velocity,
                         view_->sceneRect().y() + y_velocity, width, height);
+    Controller::GetGameMenu()->ReDraw();
   }
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent* event) {
-  if (StateMachine::State() == StateMachine::StateGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
     QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
         item->type() == PlanetGraphics::Type) {
-      StateMachine::SetActivePlanet(
-          dynamic_cast<PlanetGraphics*>(item)->GetPlanet());
-
       double scale = view_->matrix().m11();
 
       QPointF event_pos = scale * view_->mapToScene(event->pos());
@@ -199,22 +178,26 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
 }
 
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
-  int state = StateMachine::State();
-  if (state == StateMachine::StatePlanetMenu) {
-    if (event->key() == Qt::Key_Escape) {
-      StateMachine::window->RemovePlanetMenu();
-    }
-  } else if (state == StateMachine::StateGame) {
-    if (event->key() == Qt::Key_Escape) {
-      StateMachine::DrawPauseMenu();
-    }
-  } else if (state == StateMachine::StatePauseMenu) {
-    if (event->key() == Qt::Key_Escape) {
-      StateMachine::RemovePauseMenu();
-    }
-  } else if (state == StateMachine::StateUnitMenu) {
-    if (event->key() == Qt::Key_Escape) {
-      StateMachine::RemoveUnitMenu();
+  Controller::MenuType state = Controller::GetMenuType();
+  if (event->key() == Qt::Key_Escape) {
+    switch (state) {
+      case Controller::MenuType::kPlanet:
+        Controller::SwitchMenu(Controller::MenuType::kGame);
+        break;
+      case Controller::MenuType::kGame:
+        Controller::SwitchMenu(Controller::MenuType::kPause);
+        break;
+      case Controller::MenuType::kPause:
+        Controller::SwitchMenu(Controller::MenuType::kGame);
+        break;
+      case Controller::MenuType::kAttack:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
+      case Controller::MenuType::kMove:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
+      default:
+        break;
     }
   }
 }
@@ -229,7 +212,7 @@ void EventHandler::View::MoveTo() {
 
   // TODO
   // Выбрать скорость передвижения к планете
-  const double kVelocity = width / 40;
+  const double kVelocity = width / 30;
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {
@@ -244,7 +227,7 @@ void EventHandler::View::MoveTo() {
       // TODO
       // Выбрать скорость зума
       scale_velocity = (kMaxScale - view_->matrix().m11()) *
-                           (kMaxScale - view_->matrix().m11()) * 0.2 +
+                           (kMaxScale - view_->matrix().m11()) * 0.1 +
                        0.01;
     } else {
       scale_velocity = (kMaxScale - view_->matrix().m11()) / time;
@@ -255,12 +238,14 @@ void EventHandler::View::MoveTo() {
                      view_->matrix().m22() + scale_velocity,
                      view_->matrix().dx(), view_->matrix().dy());
     view_->setMatrix(matrix);
+    Controller::GetGameMenu()->ReDraw();
   }
   if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
+    Controller::GetGameMenu()->ReDraw();
     current_motion_ = MotionType::kNoMotion;
-    StateMachine::DrawPlanetMenu();
+    Controller::SwitchMenu(Controller::MenuType::kPlanet);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
@@ -268,13 +253,16 @@ void EventHandler::View::MoveTo() {
 }
 
 void EventHandler::View::Scale(QWheelEvent* event) {
-  if (StateMachine::State() != StateMachine::StateGame &&
-      StateMachine::State() != StateMachine::StatePlanetMenu) {
+  if (Controller::GetMenuType() != Controller::MenuType::kGame &&
+      Controller::GetMenuType() != Controller::MenuType::kPlanet) {
     return;
   }
 
   double current_scale = view_->matrix().m11();
-  int8_t direction = static_cast<int8_t>(event->delta() / abs(event->delta()));
+  int8_t direction = 1;
+  if (event->delta() < 0) {
+    direction = -1;
+  }
 
   if ((!CompareMotion(MotionType::kScale) &&
        current_motion_ != MotionType::kNoMotion) ||
@@ -304,9 +292,13 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
 }
 
+EventHandler::View::MotionType EventHandler::View::GetMotionType() {
+  return current_motion_;
+}
+
 void EventHandler::View::ScaleToGoal() {
   double current_scale = view_->matrix().m11();
-  double scale_velocity = 0.06 * scale_direction_ * current_scale;
+  double scale_velocity = kScaleVelocity * scale_direction_ * current_scale;
 
   if ((scale_direction_ > 0 && current_scale >= goal_scale_) ||
       (scale_direction_ < 0 && current_scale <= goal_scale_) ||
@@ -324,4 +316,6 @@ void EventHandler::View::ScaleToGoal() {
                    view_->matrix().m21(), current_scale + scale_velocity,
                    view_->matrix().dx(), view_->matrix().dy());
   view_->setMatrix(matrix);
+
+  Controller::GetGameMenu()->ReDraw();
 }

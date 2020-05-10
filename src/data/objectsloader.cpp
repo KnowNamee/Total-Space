@@ -51,18 +51,19 @@ void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
 
   QVector<BuildingType> upgrades_vector;
   QJsonArray upgrades = building.value("upgrades").toArray();
-  foreach (QJsonValue upgrade, upgrades) {
+  for (QJsonValue upgrade : upgrades) {
     upgrades_vector.push_back(
         ObjectsStorage::GetBuildingType(upgrade.toString()));
   }
 
+  int32_t level = building.value("level").toInt();
   Resources cost(building.value("batteries_cost").toInt(),
                  building.value("tools_cost").toInt());
   Resources income(building.value("batteries_income").toInt(),
                    building.value("tools_income").toInt());
 
   Building* building_ptr =
-      new Building(caption, type, upgrades_vector,
+      new Building(caption, type, upgrades_vector, level,
                    ObjectsStorage::GetUnitType(unit_caption), cost, income);
 
   ObjectsStorage::AddBuilding(building_ptr);
@@ -73,6 +74,13 @@ void ObjectsLoader::LoadUnits(const QJsonObject& unit) {
   int32_t power = unit.value("power").toInt();
   Resources cost(unit.value("batteries_cost").toInt(),
                  unit.value("tools_cost").toInt());
-  Unit* unit_ptr = new Unit(caption, power, cost);
+  UnitRole role = ObjectsStorage::GetUnitRole(unit.value("role").toString());
+  UnitType enemy = ObjectsStorage::GetUnitType(unit.value("enemy").toString());
+  UnitCharacteristics charachteristics(
+      unit.value("attack").toInt(), unit.value("armor").toInt(),
+      unit.value("health").toInt(), unit.value("stamina").toInt());
+
+  Unit* unit_ptr =
+      new Unit(caption, cost, power, role, enemy, charachteristics);
   ObjectsStorage::AddUnit(unit_ptr);
 }

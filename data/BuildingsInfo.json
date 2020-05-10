@@ -1,10 +1,11 @@
 {
-    "economic": {
+    "buildings": {
         "forge": {
             "caption": "Forge",
             "type": "tools",
             "unit": "No Unit",
             "upgrades": ["Workshop", "Assembly Shop"],
+            "level": 1,
             "batteries_cost": 1000,
             "tools_cost": 150,
             "batteries_income": -10,
@@ -15,6 +16,7 @@
             "type": "tools",
             "unit": "No Unit",
             "upgrades": [],
+            "level": 2,
             "batteries_cost": 2300,
             "tools_cost": 300,
             "batteries_income": -15,
@@ -25,6 +27,7 @@
             "type": "war",
             "unit": "Rover",
             "upgrades": [],
+            "level": 2,
             "batteries_cost": 2500,
             "tools_cost": 300,
             "batteries_income": 20,
@@ -35,6 +38,7 @@
             "type": "batteries",
             "unit": "No Unit",
             "upgrades": ["Battery Factory", "Robots Line"],
+            "level": 1,
             "batteries_cost": 150,
             "tools_cost": 1000,
             "batteries_income": 200,
@@ -45,6 +49,7 @@
             "type": "war",
             "unit": "Droid",
             "upgrades": [],
+            "level": 2,
             "batteries_cost": 400,
             "tools_cost": 2500,
             "batteries_income": -20,
@@ -55,10 +60,73 @@
             "type": "batteries",
             "unit": "No Unit",
             "upgrades": [],
+            "level": 2,
             "batteries_cost": 300,
             "tools_cost": 2300,
             "batteries_income": 200,
             "tools_income": -15
+        }
+    },
+    "units" : {
+        "marine" : {
+            "caption": "Marine",
+            "power": 100,
+            "batteries_cost": 300,
+            "tools_cost": 100,
+            "role": "Melee",
+            "enemy": "Rover",
+            "attack": 14,
+            "armor": 12,
+            "health": 150,
+            "stamina": 100
+        },
+        "droid" : {
+            "caption": "Droid",
+            "power": 320,
+            "batteries_cost": 600,
+            "tools_cost": 200,
+            "role": "Range",
+            "enemy": "Falcon",
+            "attack": 30,
+            "armor": 6,
+            "health": 70,
+            "stamina": 200
+        },
+        "ranger" : {
+            "caption": "Ranger",
+            "power": 320,
+            "batteries_cost": 600,
+            "tools_cost": 200,
+            "role": "Range",
+            "enemy": "Droid",
+            "attack": 23,
+            "armor": 8,
+            "health": 100,
+            "stamina": 100
+        },
+        "falcon" : {
+            "caption": "Falcon",
+            "power": 320,
+            "batteries_cost": 600,
+            "tools_cost": 200,
+            "role": "Melee",
+            "enemy": "Ranger",
+            "attack": 20,
+            "armor": 18,
+            "health": 200,
+            "stamina": 100
+        },
+        "rover" : {
+            "caption": "Rover",
+            "power": 100,
+            "batteries_cost": 250,
+            "tools_cost": 300,
+            "role": "Range",
+            "enemy": "Marine",
+            "attack": 20,
+            "armor": 9,
+            "health": 60,
+            "stamina": 80
         }
     }
 }

@@ -10,8 +10,12 @@ class Planet;
 class Unit;
 
 class Player : public PlayerBase {
-public:
-  explicit Player(const std::shared_ptr<Planet>& planet);
+ public:
+  explicit Player(Planet* planet);
+  Player(Planet* planet, const QString& color);
+  virtual ~Player();
+
+  void Next() override;
 };
 
-#endif // PLAYER_H
+#endif  // PLAYER_H

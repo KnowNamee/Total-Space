@@ -13,7 +13,10 @@ class GameView : public QGraphicsView {
   Q_OBJECT
  public:
   GameView(GameScene* scene, QWidget* parent);
+  GameScene* GetScene() const;
   void SetNewGameSettings();
+
+  std::shared_ptr<EventHandler::View> EventHandler();
 
  private:
   void mouseMoveEvent(QMouseEvent* event) override;
@@ -25,6 +28,12 @@ class GameView : public QGraphicsView {
 
   const double kScaleCoefficient = 0.5;
   std::shared_ptr<EventHandler::View> event_handler_;
+};
+
+class ScrollingView : public QGraphicsView {
+  Q_OBJECT
+ public:
+  ScrollingView(QGraphicsScene* scene, QWidget* parent = nullptr);
 };
 
 #endif  // GAMEVIEW_H

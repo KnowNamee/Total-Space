@@ -8,17 +8,17 @@
 #include "util/typeoffset.h"
 
 class Planet;
-class GameView;
 
 class PlanetGraphics : public QObject, public QGraphicsItem {
   Q_OBJECT
   Q_INTERFACES(QGraphicsItem)
 
  public:
-  PlanetGraphics(const std::shared_ptr<Planet>& planet, GameView* view);
+  PlanetGraphics(Planet* planet);
 
   int type() const override;
   Planet* GetPlanet();
+  QPixmap* GetImage();
 
  private:
   QPixmap* planet_image_;
@@ -26,13 +26,15 @@ class PlanetGraphics : public QObject, public QGraphicsItem {
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  const std::shared_ptr<Planet> planet_;
-  const GameView* view_;
+  Planet* planet_;
 
  public:
   enum {
     Type = UserType + TypeOffset::kPlanet,
   };
+
+ protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 };
 
 #endif  // PLANETGRAPHICS_H
