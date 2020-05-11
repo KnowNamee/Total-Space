@@ -33,7 +33,7 @@ class ButtonItem : public QObject, public QGraphicsItem {
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  QPixmap* button_image_;
+  QPixmap* button_image_ = nullptr;
   bool is_scalable_;
 };
 

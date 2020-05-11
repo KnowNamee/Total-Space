@@ -3,6 +3,8 @@
 #include <QGraphicsItem>
 #include <memory>
 
+#include "util/utility.h"
+
 enum class ButtonsEnum {
   kNewGameButton,
   kExitButton,
@@ -10,7 +12,16 @@ enum class ButtonsEnum {
   kSimpleButton,
   kToMenuButton,
   kBackToGameButton,
-  kMainBackground
+  kMainBackground,
+  kMenuBackground,
+  kAttackButton,
+  kBeautifulAttackButton,
+  kCancelButton,
+  kMoveButton,
+  kShopButton,
+  kNextTurnButton,
+  kUnactiveWidget,
+  kActiveWidget
 };
 
 class Loader : public QGraphicsItem {
@@ -20,11 +31,13 @@ class Loader : public QGraphicsItem {
   static QPixmap* GetPlanetImage(int number);
   static QPixmap* GetBackgroundImage();
   static QPixmap* GetButtonImage(ButtonsEnum);
+  static QPixmap* GetUnitImage(UnitType);
 
  private:
   static QVector<std::shared_ptr<QPixmap>> planet_pictures_;
   static std::shared_ptr<QPixmap> background_image_;
   static QMap<ButtonsEnum, std::shared_ptr<QPixmap>> button_images_;
+  static QMap<UnitType, std::shared_ptr<QPixmap>> unit_images_;
 };
 
 #endif  // LOADER_H

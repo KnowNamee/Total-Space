@@ -12,11 +12,13 @@ class ImageItem : public QGraphicsItem {
  public:
   ImageItem() = default;
   ImageItem(const QPixmap* image_, int width, int heigt);
+  ImageItem(const QPixmap* image_, QRectF background_rect);
   int type() const override;
 
  private:
   const QPixmap* image_;
   QSize size_;
+  QRectF background_rect_;
 
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
