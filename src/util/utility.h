@@ -2,6 +2,8 @@
 #define UTILITY_H
 
 #include <cstdint>
+#include <QPixmap>
+#include <QString>
 
 class Resources {
  public:
@@ -66,6 +68,12 @@ class UnitCharacteristics {
   double armor_;
   double health_;
   double stamina_;
+};
+
+struct UnitData {
+  QPixmap* unit_image;
+  QString caption;
+  int32_t quantity = 0;
 };
 
 enum class BuildingType {

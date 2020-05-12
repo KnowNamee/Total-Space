@@ -31,12 +31,15 @@ class Planet : public QObject {
   int32_t GetBatteriesIncome() const;
   int32_t GetToolsIncome() const;
   const Resources& GetIncome() const;
+  Resources GetUpgradeCost() const;
   QPointF GetCoordinates() const;
+  int32_t GetPower() const;
   double GetRadius() const;
   int32_t GetLevel() const;
   const QVector<BuildingType>& GetBuildings() const;
   const QVector<UnitType>& GetUnits() const;
   const QVector<UnitType>& GetTiredUnits() const;
+  std::map<UnitType, UnitData> GetUnitsToData() const;
   PlayerBase* GetOwner() const;
 
   std::set<BuildingType> GetAvailableBuildings() const;

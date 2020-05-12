@@ -10,6 +10,7 @@
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "data/objectsstorage.h"
 #include "graphics/buttonitem.h"
 #include "graphics/drawer.h"
 #include "graphics/planetgraphics.h"
@@ -76,6 +77,7 @@ void GameScene::NewGame() {
   player_planet->AddUnit(UnitType::kMarine);
 
   player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
+  player_->SetName("Player");
   player_planet->SetOwner(player_.get());
   screen.StopLoad();
   screen.LoadNext("Creating scene ...");
@@ -89,10 +91,13 @@ void GameScene::NewGame() {
   screen.LoadNext("Adding bots ...");
   bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
   bot1_->GetPlanets()[0]->SetOwner(bot1_.get());
+  // TODO
+  // Придумать имена ботов
+  bot1_->SetName("First Bot");
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
+  bot2_->SetName("Second Bot");
   screen.StopLoad();
-
   // Перерисовываем рёбра графа
   screen.LoadNext("Updating map ...");
   UpdatePlanetsGraph();
@@ -191,6 +196,26 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
     }
   }
   return nearby_units;
+}
+
+int32_t GameScene::GetNearestPower(PlayerBase* player) {
+  std::map<Planet*, QVector<UnitType>> planets_to_units =
+      GetNearestUnits(player);
+  int32_t power = 0;
+  for (const auto& planet_to_units : planets_to_units) {
+    for (UnitType unit : planet_to_units.second) {
+      power += ObjectsStorage::GetUnitPower(unit);
+    }
+  }
+  return power;
+}
+
+bool GameScene::IsPlanetReachable(PlayerBase* player) {
+  if (Controller::GetActivePlanet() != nullptr &&
+      Controller::GetActivePlanet()->GetOwner() == player) {
+    return true;
+  }
+  return GetNearestUnits(player).size() != 0;
 }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }

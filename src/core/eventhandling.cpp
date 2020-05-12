@@ -114,7 +114,7 @@ void EventHandler::View::Move() {
     // TODO
     // Выбрать скорость перемещения
     double velocity =
-        width / view_->matrix().m11() / 80;  // 20px на моем экране
+        width / view_->matrix().m11() / 60;  // 20px на моем экране
 
     double x_velocity = velocity * scale_coeff_x;
     double y_velocity = sqrt(velocity * velocity - x_velocity * x_velocity);
@@ -194,6 +194,9 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
         Controller::SwitchMenu(Controller::MenuType::kPlanet);
         break;
       case Controller::MenuType::kMove:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
+      case Controller::MenuType::kPlanetInfo:
         Controller::SwitchMenu(Controller::MenuType::kPlanet);
         break;
       default:

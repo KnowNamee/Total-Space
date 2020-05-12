@@ -13,13 +13,14 @@
 // -----------------------------------------------------------
 
 Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
-int Controller::kMenuCount = 7;
+int Controller::kMenuCount = 8;
 
 MainMenu* Controller::main_menu_ = nullptr;
 UnitMenu* Controller::unit_menu_ = nullptr;
 AttackMenu* Controller::attack_menu_ = nullptr;
 MoveMenu* Controller::move_menu_ = nullptr;
 PauseMenu* Controller::pause_menu_ = nullptr;
+PlanetInfoMenu* Controller::planet_info_menu_ = nullptr;
 PlanetMenu* Controller::planet_menu_ = nullptr;
 GameMenu* Controller::game_menu_ = nullptr;
 
@@ -54,6 +55,9 @@ void Controller::SwitchMenu(MenuType menu) {
     case MenuType::kMove:
       move_menu_->SwitchTo(menu);
       break;
+    case MenuType::kPlanetInfo:
+      planet_info_menu_->SwitchTo(menu);
+      break;
     default:
       break;
   }
@@ -65,9 +69,10 @@ void Controller::LoadMenuGraph() {
   connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame};
   connections[static_cast<int>(MenuType::kGame)] = {MenuType::kPlanet,
                                                     MenuType::kPause};
-  connections[static_cast<int>(MenuType::kPlanet)] = {MenuType::kGame,
-                                                      MenuType::kAttack,
-                                                      MenuType::kMove};
+  connections[static_cast<int>(MenuType::kPlanet)] = {
+      MenuType::kGame, MenuType::kAttack, MenuType::kMove,
+      MenuType::kPlanetInfo};
+  connections[static_cast<int>(MenuType::kPlanetInfo)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kAttack)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kMove)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kPause)] = {MenuType::kMain,
@@ -91,6 +96,7 @@ void Controller::Destroy() {
   Controller::SetUnitMenu(nullptr);
   Controller::SetAttackMenu(nullptr);
   Controller::SetMoveMenu(nullptr);
+  Controller::SetPlanetInfoMenu(nullptr);
   Controller::SetPauseMenu(nullptr);
   Controller::SetMainMenu(nullptr);
   Controller::SetGameMenu(
@@ -108,6 +114,8 @@ UnitMenu* Controller::GetUnitMenu() { return unit_menu_; }
 AttackMenu* Controller::GetAttackMenu() { return attack_menu_; }
 
 MoveMenu* Controller::GetMoveMenu() { return move_menu_; }
+
+PlanetInfoMenu* Controller::GetPlanetInfoMenu() { return planet_info_menu_; }
 
 PauseMenu* Controller::GetPauseMenu() { return pause_menu_; }
 
@@ -133,6 +141,11 @@ void Controller::SetAttackMenu(AttackMenu* menu) {
 void Controller::SetMoveMenu(MoveMenu* menu) {
   delete (move_menu_);
   move_menu_ = menu;
+}
+
+void Controller::SetPlanetInfoMenu(PlanetInfoMenu* menu) {
+  delete (planet_info_menu_);
+  planet_info_menu_ = menu;
 }
 
 void Controller::SetPauseMenu(PauseMenu* menu) {

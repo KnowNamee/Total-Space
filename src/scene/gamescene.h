@@ -32,6 +32,8 @@ class GameScene : public QGraphicsScene {
   int32_t GetWidth() const;
   int32_t GetHeight() const;
   std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
+  int32_t GetNearestPower(PlayerBase* player);
+  bool IsPlanetReachable(PlayerBase* player);
 
   void UpdatePlanetsGraph();
 

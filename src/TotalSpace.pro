@@ -34,6 +34,7 @@ SOURCES += \
         graphics/attackresultwindow.cpp \
         graphics/buttonitem.cpp \
         graphics/drawer.cpp \
+        graphics/fullplanetinfo.cpp \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     graphics/attackresultwindow.h \
     graphics/buttonitem.h \
     graphics/drawer.h \
+    graphics/fullplanetinfo.h \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
