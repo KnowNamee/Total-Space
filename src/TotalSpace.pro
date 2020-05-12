@@ -37,6 +37,7 @@ SOURCES += \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
+        graphics/shopwidget.cpp \
         graphics/unitwidget.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
+    graphics/shopwidget.h \
     graphics/unitwidget.h \
         mainwindow.h \
         core/menu.h \

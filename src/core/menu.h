@@ -93,6 +93,7 @@ class PlanetMenu : public Menu {
 
  public slots:
   void btnDefaultClicked();
+  void btnShopClicked();
   void btnAttackClicked();
   void btnMoveClicked();
 
@@ -114,14 +115,27 @@ class ShopMenu : public Menu {
   ShopMenu();
   ~ShopMenu() override;
 
+  void SetZValue() override;
   void Draw() override;
-  void Hide();
-  void Show();
-
   void SwitchTo(Controller::MenuType menu) override;
 
- private:
+  void Hide();
+
+private slots:
+  void Show();
+
+private:
   friend class EventHandler::View;
+
+  int32_t width_;
+  int32_t height_;
+
+  QGraphicsRectItem *background_rect_ = nullptr;
+  ButtonItem *buildings_btn_ = nullptr;
+  ButtonItem *units_btn_ = nullptr;
+  ButtonItem *exit_bnt_ = nullptr;
+
+  const double kSizeCoefficient = 0.9;
 };
 
 class UnitsInteractionMenu : public Menu {

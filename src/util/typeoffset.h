@@ -21,6 +21,7 @@ enum {
   kPlanetMenu = 3,
   kMainMenu = 3,  
   kInteractionMenu = 4,
+  kShopMenu = 4,
 };
 
 }  // namespace ZValues

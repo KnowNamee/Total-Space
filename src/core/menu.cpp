@@ -185,7 +185,7 @@ PlanetMenu::PlanetMenu() {
     btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
-    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnShopClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   }
   this->Draw();
@@ -236,6 +236,7 @@ Controller::MenuType PlanetMenu::GetNextMenu(ButtonItem* button) const {
 
 void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
+    qDebug() << "Yo";
     return;
   }
   switch (menu) {
@@ -257,6 +258,12 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       Controller::SetMenuType(Controller::MenuType::kMove);
       break;
     }
+    case Controller::MenuType::kShop: {
+     Controller::SetPlanetMenu(nullptr);
+     Controller::SetShopMenu(new ShopMenu());
+     Controller::SetMenuType(Controller::MenuType::kShop);
+     break;
+    }
     default: {
       break;
     }
@@ -271,17 +278,44 @@ void PlanetMenu::btnAttackClicked() {
   Controller::SwitchMenu(Controller::MenuType::kAttack);
 }
 
+void PlanetMenu::btnShopClicked() {
+    Controller::SwitchMenu(Controller::MenuType::kShop);
+}
+
 void PlanetMenu::btnMoveClicked() {
   Controller::SwitchMenu(Controller::MenuType::kMove);
 }
 
-ShopMenu::ShopMenu() { this->Draw(); }
+ShopMenu::ShopMenu() {
+    width_ = static_cast<int32_t>(kWidth * kSizeCoefficient);
+    height_ = static_cast<int32_t>(kHeight * kSizeCoefficient);
+
+    background_rect_ = new QGraphicsRectItem();
+
+    this->Draw();
+}
 
 ShopMenu::~ShopMenu() {}
 
-void ShopMenu::Draw() {}
+void ShopMenu::Draw() {
+    QRectF background(Controller::GetActivePlanet()->GetCoordinates() - QPointF(width_ / 2, height_ / 2), QSize(width_, height_));
+
+    background_rect_->setRect(background);
+    background_rect_->setBrush(Qt::black);
+    background_rect_->setPen(Qt::NoPen);
+
+    QTimer::singleShot(1, this, SLOT(Show()));
+}
 
 void ShopMenu::SwitchTo(Controller::MenuType) {}
+
+void ShopMenu::Show() {
+    SetZValue();
+    Controller::scene->addItem(background_rect_);
+}
+void ShopMenu::SetZValue() {
+    background_rect_->setZValue(ZValues::kShopMenu);
+}
 
 GameMenu::GameMenu() {
   this->StartGame();
@@ -388,7 +422,7 @@ void UnitsInteractionMenu::SetZValue() {
 void UnitsInteractionMenu::Draw() {
   QPointF coordinates = Controller::GetActivePlanet()->GetCoordinates();
   QSize size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
-  size *= kSizeCoefficient / Controller::view->matrix().m11();
+  size  *= kSizeCoefficient / Controller::view->matrix().m11();
 
   QRectF background_rect(
       2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
