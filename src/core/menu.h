@@ -107,12 +107,12 @@ class PlanetMenu : public Menu {
   double radius_;
 };
 
-class UnitMenu : public Menu {
+class ShopMenu : public Menu {
   Q_OBJECT
 
  public:
-  UnitMenu();
-  ~UnitMenu() override;
+  ShopMenu();
+  ~ShopMenu() override;
 
   void Draw() override;
   void Hide();

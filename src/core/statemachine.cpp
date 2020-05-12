@@ -16,7 +16,7 @@ Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
 int Controller::kMenuCount = 7;
 
 MainMenu* Controller::main_menu_ = nullptr;
-UnitMenu* Controller::unit_menu_ = nullptr;
+ShopMenu* Controller::shop_menu_ = nullptr;
 AttackMenu* Controller::attack_menu_ = nullptr;
 MoveMenu* Controller::move_menu_ = nullptr;
 PauseMenu* Controller::pause_menu_ = nullptr;
@@ -88,7 +88,7 @@ Controller::MenuType Controller::GetMenuType() { return current_state_; }
 // GAME MENU должно удаляться последним !!!
 void Controller::Destroy() {
   Controller::SetPlanetMenu(nullptr);
-  Controller::SetUnitMenu(nullptr);
+  Controller::SetShopMenu(nullptr);
   Controller::SetAttackMenu(nullptr);
   Controller::SetMoveMenu(nullptr);
   Controller::SetPauseMenu(nullptr);
@@ -103,7 +103,7 @@ void Controller::SetActivePlanet(Planet* planet) { active_planet_ = planet; }
 
 MainMenu* Controller::GetMainMenu() { return main_menu_; }
 
-UnitMenu* Controller::GetUnitMenu() { return unit_menu_; }
+ShopMenu* Controller::GetShopMenu() { return shop_menu_; }
 
 AttackMenu* Controller::GetAttackMenu() { return attack_menu_; }
 
@@ -120,9 +120,9 @@ void Controller::SetMainMenu(MainMenu* menu) {
   main_menu_ = menu;
 }
 
-void Controller::SetUnitMenu(UnitMenu* menu) {
-  delete (unit_menu_);
-  unit_menu_ = menu;
+void Controller::SetShopMenu(ShopMenu* menu) {
+  delete (shop_menu_);
+  shop_menu_ = menu;
 }
 
 void Controller::SetAttackMenu(AttackMenu* menu) {

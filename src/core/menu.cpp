@@ -275,13 +275,13 @@ void PlanetMenu::btnMoveClicked() {
   Controller::SwitchMenu(Controller::MenuType::kMove);
 }
 
-UnitMenu::UnitMenu() { this->Draw(); }
+ShopMenu::ShopMenu() { this->Draw(); }
 
-UnitMenu::~UnitMenu() {}
+ShopMenu::~ShopMenu() {}
 
-void UnitMenu::Draw() {}
+void ShopMenu::Draw() {}
 
-void UnitMenu::SwitchTo(Controller::MenuType) {}
+void ShopMenu::SwitchTo(Controller::MenuType) {}
 
 GameMenu::GameMenu() {
   this->StartGame();
