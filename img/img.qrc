@@ -30,5 +30,6 @@
         <file>falcon.png</file>
         <file>active_widget.png</file>
         <file>unactive_widget.png</file>
+        <file>cursor.png</file>
     </qresource>
 </RCC>

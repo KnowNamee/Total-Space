@@ -21,7 +21,7 @@ PlanetInfoGraphics::PlanetInfoGraphics(QPixmap* planet_image, int32_t width,
   QVector<UnitType> units = Controller::GetActivePlanet()->GetUnits();
   for (UnitType unit : units) {
     if (units_to_data_[unit].quantity == 0) {
-      units_to_data_[unit].unit_image = QPixmap(*Loader::GetUnitImage(unit));
+      units_to_data_[unit].unit_image = Loader::GetUnitImage(unit);
       units_to_data_[unit].caption = ObjectsStorage::GetUnitCaption(unit);
     }
     units_to_data_[unit].quantity++;
@@ -58,11 +58,11 @@ void PlanetInfoGraphics::paint(QPainter* painter,
     painter->drawText(level_text_x + width_ / 15, unit_y,
                       QString::number(unit_to_data.second.quantity));
 
-    if (!unit_to_data.second.unit_image.isNull()) {
+    if (!unit_to_data.second.unit_image->isNull()) {
       painter->drawPixmap(
           QRect(level_text_x + 2 * width_ / 15, unit_y - height_ / 15,
                 width_ / 12, width_ / 12),
-          unit_to_data.second.unit_image);
+          *unit_to_data.second.unit_image);
     }
 
     unit_y += height_ / 7;

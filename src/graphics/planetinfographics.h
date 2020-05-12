@@ -10,7 +10,7 @@ class QPixmap;
 
 class PlanetInfoGraphics : public QGraphicsItem {
   struct UnitData {
-    QPixmap unit_image;
+    QPixmap* unit_image;
     QString caption;
     int32_t quantity = 0;
   };

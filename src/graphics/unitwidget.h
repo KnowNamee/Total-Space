@@ -42,7 +42,7 @@ class UnitWidget : public ButtonItem {
   int font_;
   UnitsInteractionMenu* parent_;
   Planet* unit_planet_;
-  //  QColor current_color_ = Qt::black;
+
   UnitType cell_unit_;
   const QString caption_;
   bool is_chosen_ = false;

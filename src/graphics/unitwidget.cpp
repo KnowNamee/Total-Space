@@ -95,16 +95,10 @@ Planet* UnitWidget::GetPlanet() const { return unit_planet_; }
 UnitType UnitWidget::GetUnit() const { return cell_unit_; }
 
 void UnitWidget::SwitchWidget() {
-  // Если менять цвета здесь, то и значение по умолчанию в .h файле
   if (current_widget_ == unactive_widget_) {
     current_widget_ = active_widget_;
   } else {
     current_widget_ = unactive_widget_;
   }
-  //  if (current_color_ == Qt::black) {
-  //    current_color_ = Qt::green;
-  //  } else {
-  //    current_color_ = Qt::black;
-  //  }
   update();
 }
