@@ -1,14 +1,14 @@
 #ifndef PLANETINFOGRAPHICS_H
 #define PLANETINFOGRAPHICS_H
 
+#include <util/utility.h>
+
 #include <QGraphicsItem>
 #include <cstdint>
-#include <util/utility.h>
 
 class QPixmap;
 
 class PlanetInfoGraphics : public QGraphicsItem {
-
   struct UnitData {
     QPixmap* unit_image;
     QString caption;
@@ -23,6 +23,8 @@ class PlanetInfoGraphics : public QGraphicsItem {
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
+
+  int font_;
 
   std::map<UnitType, UnitData> units_to_data_;
   QPixmap* planet_image_;

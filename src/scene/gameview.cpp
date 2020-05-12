@@ -10,6 +10,8 @@
 
 GameView::GameView(GameScene* scene, QWidget* parent)
     : QGraphicsView(scene, parent) {
+  QCursor cursor = QCursor(QPixmap(":/Img/cursor.png"));
+  setCursor(cursor);
   setMouseTracking(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

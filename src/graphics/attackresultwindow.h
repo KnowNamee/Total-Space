@@ -21,11 +21,12 @@ class AttackResultWindow : public QGraphicsItem {
   const QString caption_;
   int32_t width_;
   int32_t height_;
+  int font_;
 
-  const int32_t kUnitsTextLeft = width_  / 8;
+  const int32_t kUnitsTextLeft = width_ / 8;
   const int32_t kUnitsTextRight = width_ - width_ / 8;
   const int32_t kStepX = (kUnitsTextRight - kUnitsTextLeft) / 3;
-  const int32_t kUnitsTextTop = height_ / 3;
+  const int32_t kUnitsTextTop = height_ / 4;
   const int32_t kUnitsTextBottom = 2 * height_ / 3;
   const int32_t kStepY = (kUnitsTextBottom - kUnitsTextTop) / 3;
 };

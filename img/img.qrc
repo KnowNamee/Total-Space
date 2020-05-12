@@ -10,5 +10,26 @@
         <file>start_background.jpg</file>
         <file>to_main_menu_button.png</file>
         <file>main_background.jpg</file>
+        <file>attack_beautiful_button.png</file>
+        <file>attack_button.png</file>
+        <file>cancel_button.png</file>
+        <file>Fabulist.ttf</file>
+        <file>menu_background.jpg</file>
+        <file>move_button.png</file>
+        <file>shop_button.png</file>
+        <file>start_screen.jpg</file>
+        <file>marine.png</file>
+        <file>rover.png</file>
+        <file>next_turn_button.png</file>
+        <file>upgrade_active_button.png</file>
+        <file>upgrade_unactive_button.png</file>
+        <file>transparent_bg.png</file>
+        <file>ranger.png</file>
+        <file>droid.png</file>
+        <file>EmptyUnit.png</file>
+        <file>falcon.png</file>
+        <file>active_widget.png</file>
+        <file>unactive_widget.png</file>
+        <file>cursor.png</file>
     </qresource>
 </RCC>
