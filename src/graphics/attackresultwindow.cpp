@@ -14,7 +14,7 @@ AttackResultWindow::AttackResultWindow(
       caption_(caption),
       width_(width),
       height_(height),
-      font_(QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf")) {}
+      font_(Loader::GetFont()) {}
 
 QRectF AttackResultWindow::boundingRect() const {
   return QRectF(0, 0, width_, height_);
@@ -27,18 +27,21 @@ void AttackResultWindow::paint(QPainter* painter,
                       *Loader::GetButtonImage(ButtonsEnum::kMenuBackground));
 
   QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 15);
+      QFontDatabase::applicationFontFamilies(font_).first(), 37);
+  QFont fabulist_general = QFont(
+      QFontDatabase::applicationFontFamilies(font_).first(), 23);
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(width_ / 2 - width_ / 20, height_ / 7, result_);
 
   if (units_to_quantity_.size() > 0) {
-    painter->drawText(width_ / 2 - width_ / 5, height_ / 4, caption_);
+    painter->drawText(width_ / 2 - width_ / 4, height_ / 4, caption_);
   } else {
     painter->drawText(width_ / 2 - width_ / 9, height_ / 4, "No one is dead");
   }
   uint64_t counter = 0;
   auto unit_to_quantity = units_to_quantity_.begin();
+  painter->setFont(fabulist_general);
   for (int32_t y = kUnitsTextTop;
        y < kUnitsTextBottom - kStepY && counter < units_to_quantity_.size();
        y += kStepY) {
@@ -52,11 +55,6 @@ void AttackResultWindow::paint(QPainter* painter,
 
       painter->drawText(x + 2 * kStepX / 3, y + height_ / 5,
                         QString::number(number_of_dead));
-      painter->drawPixmap(
-          QRect(x + kStepX, y + height_ / 20 + height_ / 40, width_ / 10,
-                width_ / 10),
-          *Loader::GetUnitImage(ObjectsStorage::GetUnitType(
-              ObjectsStorage::GetUnitCaption(unit_to_quantity->first))));
       unit_to_quantity++;
       counter++;
     }
