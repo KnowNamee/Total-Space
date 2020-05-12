@@ -11,6 +11,7 @@
 #include "scene/gameview.h"
 
 PlanetGraphics::PlanetGraphics(Planet* planet) : planet_(planet) {
+  setZValue(ZValues::kPlanet);
   planet_image_ =
       Loader::GetPlanetImage(QRandomGenerator::global()->generate() % 3);
   setFlag(ItemIsSelectable);
@@ -49,6 +50,5 @@ void PlanetGraphics::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) {
 
   Controller::SetActivePlanet(GetPlanet());
   Controller::scene->UpdatePlanetsGraph();
-
   Q_UNUSED(mouseEvent);
 }

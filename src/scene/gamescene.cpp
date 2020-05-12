@@ -5,6 +5,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
+#include <thread>
 
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
@@ -16,6 +17,7 @@
 #include "objects/planet.h"
 #include "objects/player.h"
 #include "scene/gameview.h"
+#include "scene/loadscreen.h"
 
 GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
@@ -55,6 +57,9 @@ int32_t GameScene::GetWidth() const { return kWidth; }
 int32_t GameScene::GetHeight() const { return kHeight; }
 
 void GameScene::NewGame() {
+  LoadScreen screen(5);
+
+  screen.LoadNext("Configuring player settings ...");
   const double kWidth = views()[0]->sceneRect().width();
 
   // TODO
@@ -74,11 +79,16 @@ void GameScene::NewGame() {
   player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
   player_->SetName("Player");
   player_planet->SetOwner(player_.get());
-
+  screen.StopLoad();
+  screen.LoadNext("Creating scene ...");
   SetSceneSettings();
+  screen.StopLoad();
+  screen.LoadNext("Generating map ...");
   GenerateMap();
+  screen.StopLoad();
 
   // Добавляем ботов
+  screen.LoadNext("Adding bots ...");
   bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
   bot1_->GetPlanets()[0]->SetOwner(bot1_.get());
   // TODO
@@ -87,8 +97,11 @@ void GameScene::NewGame() {
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
   bot2_->SetName("Second Bot");
+  screen.StopLoad();
   // Перерисовываем рёбра графа
+  screen.LoadNext("Updating map ...");
   UpdatePlanetsGraph();
+  screen.StopLoad();
 }
 
 void GameScene::SetSceneSettings() {

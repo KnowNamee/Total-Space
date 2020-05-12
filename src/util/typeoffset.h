@@ -19,9 +19,12 @@ enum {
   kGameMenu = 2,
   kPauseMenu = 3,
   kPlanetMenu = 3,
-  kMainMenu = 3,  
+  kMainMenu = 3,
   kInteractionMenu = 4,
   kPlanetInfo = 4,
+  kLoadScreen = 5,
+  kLoadScreenStage = 6,
+  kLoadScreenBar = 6,
 };
 
 }  // namespace ZValues

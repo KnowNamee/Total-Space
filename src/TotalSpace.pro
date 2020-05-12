@@ -50,7 +50,8 @@ SOURCES += \
         objects/playerbase.cpp \
         objects/unit.cpp \
         scene/gamescene.cpp \
-        scene/gameview.cpp
+        scene/gameview.cpp \
+        scene/loadscreen.cpp
 
 HEADERS += \
     core/eventhandling.h \
@@ -79,6 +80,7 @@ HEADERS += \
     scene/gamescene.h \
     scene/gameview.h \
          \
+  scene/loadscreen.h \
     util/typeoffset.h \
         util/utility.h
 FORMS += \
