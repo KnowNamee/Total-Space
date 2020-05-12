@@ -47,11 +47,7 @@ void PlanetGraphics::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) {
     return;
   }
 
-  //  if (Controller::GetActivePlanet() == GetPlanet()) {
-  //    Controller::SetActivePlanet(nullptr);
-  //  } else {
   Controller::SetActivePlanet(GetPlanet());
-  //  }
   Controller::scene->UpdatePlanetsGraph();
 
   Q_UNUSED(mouseEvent);

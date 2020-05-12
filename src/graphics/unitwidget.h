@@ -26,28 +26,26 @@ class UnitWidget : public ButtonItem {
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  void SwitchWidget();
-  QColor current_color_ = Qt::black;
-  QPixmap active_widget_;
-  QPixmap unactive_widget_;
-  QPixmap current_widget_ = unactive_widget_;
-
-  QPixmap unit_icon_;
+  void SwitchWidget();  
 
   QString attack_;
   QString armor_;
   QString health_;
   QString stamina_;
-
-  int font_;
-  UnitsInteractionMenu* parent_;
-  Planet* unit_planet_;
-
   UnitType cell_unit_;
   const QString caption_;
+
+  UnitsInteractionMenu* parent_;
+  Planet* unit_planet_;
+  QPixmap* active_widget_;
+  QPixmap* unactive_widget_;
+  QPixmap* current_widget_ = unactive_widget_;
+  QPixmap* unit_icon_;
+  QColor current_color_ = Qt::black;
   bool is_chosen_ = false;
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+  int font_;
 };
 
 #endif  // UNITWIDGET_H

@@ -15,17 +15,10 @@ PlanetInfoGraphics::PlanetInfoGraphics(QPixmap* planet_image, int32_t width,
     : planet_image_(planet_image),
       level_("level\t" +
              QString::number(Controller::GetActivePlanet()->GetLevel())),
-      font_(QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf")),
       width_(width),
-      height_(height) {
-  QVector<UnitType> units = Controller::GetActivePlanet()->GetUnits();
-  for (UnitType unit : units) {
-    if (units_to_data_[unit].quantity == 0) {
-      units_to_data_[unit].unit_image = Loader::GetUnitImage(unit);
-      units_to_data_[unit].caption = ObjectsStorage::GetUnitCaption(unit);
-    }
-    units_to_data_[unit].quantity++;
-  }
+      height_(height),
+      font_(Loader::GetFont()) {
+  units_to_data_ = Controller::GetActivePlanet()->GetUnitsToData();
 }
 
 int32_t PlanetInfoGraphics::GetWidth() const { return width_; }
@@ -41,10 +34,10 @@ void PlanetInfoGraphics::paint(QPainter* painter,
       *planet_image_);
   painter->setPen(QColor(Qt::white));
 
-  QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 20);
-  QFont fabulist_general = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 25);
+  QFont fabulist_header =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 37);
+  QFont fabulist_general =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 30);
   painter->setFont(fabulist_header);
 
   int32_t level_text_x = width_ / 4 * 3 - width_ / 30;
@@ -52,7 +45,6 @@ void PlanetInfoGraphics::paint(QPainter* painter,
   int32_t unit_y = height_ / 4;
   painter->setFont(fabulist_general);
   for (const auto& unit_to_data : units_to_data_) {
-    //   отрисовка картинки юнита подобрать размеры
     painter->drawText(level_text_x - width_ / 15, unit_y,
                       unit_to_data.second.caption);
     painter->drawText(level_text_x + width_ / 15, unit_y,

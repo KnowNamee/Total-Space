@@ -19,10 +19,13 @@ class PlayerBase {
   explicit PlayerBase(Planet* planet);
   PlayerBase() = default;
   PlayerBase(Planet* planet, Type type, const QString& color);
+  virtual ~PlayerBase() = default;
 
   const Resources& GetResources() const;
   int32_t GetTools() const;
   int32_t GetBatteries() const;
+  const QString& GetName() const;
+  void SetName(const QString& name);
 
   void UpdateResources();
 
@@ -39,6 +42,7 @@ class PlayerBase {
   virtual void Next() = 0;
 
  private:
+  QString name_;
   Resources resources_;
   int64_t army_power_ = 0;
   QVector<Planet*> planets_;

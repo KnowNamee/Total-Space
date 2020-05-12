@@ -1,5 +1,6 @@
 #include "data/loader.h"
 
+#include <QFontDatabase>
 #include <QVector>
 #include <memory>
 
@@ -7,8 +8,11 @@ std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
 QVector<std::shared_ptr<QPixmap>> Loader::planet_pictures_;
 QMap<ButtonsEnum, std::shared_ptr<QPixmap>> Loader::button_images_;
 QMap<UnitType, std::shared_ptr<QPixmap>> Loader::unit_images_;
+int32_t Loader::font_;
 
 void Loader::LoadAll() {
+  // font
+  font_ = QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf");
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/1.png"));
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/2.png"));
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/3.png"));
@@ -77,3 +81,5 @@ QPixmap* Loader::GetButtonImage(ButtonsEnum type) {
 QPixmap* Loader::GetUnitImage(UnitType type) {
   return unit_images_[type].get();
 }
+
+int32_t Loader::GetFont() { return font_; }

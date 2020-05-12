@@ -17,6 +17,7 @@ class MainWindow;
 class UnitWidget;
 class ButtonItem;
 class PlanetInfoGraphics;
+class FullPlanetInfo;
 class AttackResultWindow;
 
 class Menu : public QObject {
@@ -25,6 +26,10 @@ class Menu : public QObject {
  protected:
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+  const double kSizeCoefficient = 0.9;
+  const double kScrollPosition = 0.07;
+  const int32_t kButtonWidth = kWidth / 6;
+  const int32_t kButtonHeight = kHeight / 10;
   const int32_t kGeneralButtonHeight = kHeight / 13;
   const int32_t kGeneralButtonWidth = kWidth / 5;
 
@@ -94,6 +99,7 @@ class PlanetMenu : public Menu {
   void SwitchTo(Controller::MenuType menu) override;
 
  public slots:
+  void btnInfoClicked();
   void btnDefaultClicked();
   void btnAttackClicked();
   void btnMoveClicked();
@@ -172,15 +178,12 @@ class UnitsInteractionMenu : public Menu {
   PlanetInfoGraphics* planet_info_ = nullptr;
   int32_t last_chosen_y_ = 0;
 
-  const double kSizeCoefficient = 0.9;
-  const double kScrollPosition = 0.07;
   const int32_t kUnitCellWidth = 2 * kWidth / 9;
   const int32_t kUnitCellHeight = kHeight / 5;
-  const int32_t button_width_ = kWidth / 6;
-  const int32_t button_height_ = kHeight / 10;
-  const int32_t result_width_ =
+
+  const int32_t kResultWidth =
       static_cast<int32_t>(kWidth / 2 / Controller::view->matrix().m11());
-  const int32_t result_height =
+  const int32_t kResultHeight =
       static_cast<int32_t>(kHeight / 2 / Controller::view->matrix().m11());
 
  private slots:
@@ -208,6 +211,27 @@ class MoveMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+};
+
+class PlanetInfoMenu : public Menu {
+  Q_OBJECT
+public:
+ PlanetInfoMenu();
+ ~PlanetInfoMenu() override;
+ void SetZValue() override;
+ void Draw() override;
+ void SwitchTo(Controller::MenuType menu) override;
+private:
+ void Destroy();
+
+ QGraphicsRectItem* background_ = nullptr;
+ ButtonItem* upgrade_button_ = nullptr;
+ ButtonItem* exit_button_ = nullptr;
+ FullPlanetInfo* planet_info_ = nullptr;
+
+private slots:
+ void Upgrade();
+ void Exit();
 };
 
 class GameMenu : public Menu {
