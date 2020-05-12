@@ -196,6 +196,9 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
       case Controller::MenuType::kMove:
         Controller::SwitchMenu(Controller::MenuType::kPlanet);
         break;
+      case Controller::MenuType::kShop:
+        Controller::SwitchMenu(Controller::MenuType::kPlanet);
+        break;
       default:
         break;
     }

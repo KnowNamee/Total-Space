@@ -111,6 +111,11 @@ class PlanetMenu : public Menu {
 class ShopMenu : public Menu {
   Q_OBJECT
 
+ enum ShopState{
+   kUnits,
+   kBuildings,
+ };
+
  public:
   ShopMenu();
   ~ShopMenu() override;
@@ -121,21 +126,26 @@ class ShopMenu : public Menu {
 
   void Hide();
 
+  void SwitchState(ShopState state);
+
 private slots:
+  void ChangeShop();
   void Show();
+  void Close();
 
 private:
   friend class EventHandler::View;
 
-  int32_t width_;
-  int32_t height_;
-
+  ShopState current_state_ = kUnits;
   QGraphicsRectItem *background_rect_ = nullptr;
   ButtonItem *buildings_btn_ = nullptr;
   ButtonItem *units_btn_ = nullptr;
   ButtonItem *exit_bnt_ = nullptr;
 
   const double kSizeCoefficient = 0.9;
+  const int32_t kExitBtnSize = kHeight / 15;
+  const int32_t kBtnWidth = kHeight / 15;
+  const int32_t kBtnHeight = kHeight / 15;
 };
 
 class UnitsInteractionMenu : public Menu {

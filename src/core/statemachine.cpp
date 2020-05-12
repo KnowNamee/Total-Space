@@ -54,7 +54,8 @@ void Controller::SwitchMenu(MenuType menu) {
     case MenuType::kMove:
       move_menu_->SwitchTo(menu);
       break;
-    default:
+    case MenuType::kShop:
+      shop_menu_->SwitchTo(menu);
       break;
   }
 }
@@ -73,6 +74,7 @@ void Controller::LoadMenuGraph() {
   connections[static_cast<int>(MenuType::kMove)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kPause)] = {MenuType::kMain,
                                                      MenuType::kGame};
+  connections[static_cast<int>(MenuType::kShop)] = {MenuType::kPlanet};
 
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }

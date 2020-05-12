@@ -236,7 +236,6 @@ Controller::MenuType PlanetMenu::GetNextMenu(ButtonItem* button) const {
 
 void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
-    qDebug() << "Yo";
     return;
   }
   switch (menu) {
@@ -287,35 +286,91 @@ void PlanetMenu::btnMoveClicked() {
 }
 
 ShopMenu::ShopMenu() {
-    width_ = static_cast<int32_t>(kWidth * kSizeCoefficient);
-    height_ = static_cast<int32_t>(kHeight * kSizeCoefficient);
-
     background_rect_ = new QGraphicsRectItem();
+    // TO DO размер кнопки выхода
+    exit_bnt_ = new ButtonItem(kExitBtnSize, kExitBtnSize, false);
+    // TO DO размеры кнопок смены магазина юниты/постройки
+    units_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
+    buildings_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
+
+    connect(exit_bnt_, SIGNAL(clicked()), this, SLOT(Close()));
+    connect(units_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
+    connect(buildings_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
 
     this->Draw();
 }
 
-ShopMenu::~ShopMenu() {}
+ShopMenu::~ShopMenu() {
+    Controller::scene->removeItem(background_rect_);
+    Controller::scene->removeItem(exit_bnt_);
+    Controller::scene->removeItem(units_btn_);
+    Controller::scene->removeItem(buildings_btn_);
+
+    delete exit_bnt_;
+    delete units_btn_;
+    delete buildings_btn_;
+    delete background_rect_;
+}
 
 void ShopMenu::Draw() {
-    QRectF background(Controller::GetActivePlanet()->GetCoordinates() - QPointF(width_ / 2, height_ / 2), QSize(width_, height_));
+    QSize size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+    size  *= kSizeCoefficient / Controller::view->matrix().m11();
+
+    QPointF top_left_cor(Controller::GetActivePlanet()->GetCoordinates() - QPointF(size.width() / 2, size.height() / 2));
+    QPointF top_right_cor(Controller::GetActivePlanet()->GetCoordinates() + QPointF(size.width() / 2, -size.height() / 2));
+    QRectF background(top_left_cor, size);
 
     background_rect_->setRect(background);
     background_rect_->setBrush(Qt::black);
     background_rect_->setPen(Qt::NoPen);
 
+    exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / 2);
+    units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / 2);
+    // + 20 для небольшого отступа между вкладками
+    buildings_btn_->setPos(top_left_cor + QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / 2);
+
     QTimer::singleShot(1, this, SLOT(Show()));
 }
 
-void ShopMenu::SwitchTo(Controller::MenuType) {}
+void ShopMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
+    return;
+  }
+  Controller::SetShopMenu(nullptr);
+  Controller::SetPlanetMenu(new PlanetMenu());
+  Controller::SetMenuType(Controller::MenuType::kPlanet);
+}
 
 void ShopMenu::Show() {
     SetZValue();
     Controller::scene->addItem(background_rect_);
+    Controller::scene->addItem(exit_bnt_);
+    Controller::scene->addItem(units_btn_);
+    Controller::scene->addItem(buildings_btn_);
+}
+void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet);}
+void ShopMenu::ChangeShop() {
+    ButtonItem* sender = dynamic_cast<ButtonItem*>(QObject::sender());
+    if ((sender == units_btn_ && current_state_ == kUnits) ||
+        (sender == buildings_btn_ && current_state_ == kBuildings)) {
+        return;
+    }
+    //TO DO смена магазина
+    qDebug() << "Changes";
+    if (current_state_ == kUnits) {
+        SwitchState(kBuildings);
+    } else {
+        SwitchState(kUnits);
+    }
 }
 void ShopMenu::SetZValue() {
     background_rect_->setZValue(ZValues::kShopMenu);
+    exit_bnt_->setZValue(ZValues::kShopMenu);
+    units_btn_->setZValue(ZValues::kShopMenu);
+    buildings_btn_->setZValue(ZValues::kShopMenu);
 }
+
+void ShopMenu::SwitchState(ShopState state) { current_state_ = state;}
 
 GameMenu::GameMenu() {
   this->StartGame();
