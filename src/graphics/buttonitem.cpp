@@ -49,9 +49,12 @@ void ButtonItem::paint(QPainter* painter,
                        QWidget* widget) {
   Q_UNUSED(widget)
   Q_UNUSED(option)
-  painter->setBrush(QColor(Qt::white));
-  // TODO
-  // Отрисовка кнопки
-  painter->drawRect(boundingRect());
+  if (button_image_ == nullptr) {
+    painter->setBrush(QColor(Qt::white));
+    painter->drawRect(boundingRect());
+  } else {
+    QRect rect = boundingRect().toAlignedRect();
+    painter->drawPixmap(rect, *button_image_);
+  }
 }
 int ButtonItem::type() const { return Type; }

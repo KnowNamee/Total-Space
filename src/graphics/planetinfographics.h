@@ -18,11 +18,13 @@ class PlanetInfoGraphics : public QGraphicsItem {
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
+
   std::map<UnitType, UnitData> units_to_data_;
   QPixmap* planet_image_;
   const QString level_;
   int32_t width_;
   int32_t height_;
+  int font_;
 };
 
 #endif  // PLANETINFOGRAPHICS_H

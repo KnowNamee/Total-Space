@@ -6,6 +6,7 @@
 
 #include "core/statemachine.h"
 #include "data/objectsstorage.h"
+#include "data/loader.h"
 #include "objects/player.h"
 #include "scene/gamescene.h"
 
@@ -92,10 +93,8 @@ std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
       Controller::scene->IsPlanetReachable(Controller::scene->GetPlayer());
   for (UnitType unit : units) {
     if (units_to_data[unit].quantity == 0) {
-      //       TODO
-      //       подгpузка картинки
       if (is_reachable) {
-        units_to_data[unit].unit_image = nullptr;
+        units_to_data[unit].unit_image = Loader::GetUnitImage(unit);
         units_to_data[unit].caption = ObjectsStorage::GetUnitCaption(unit);
       } else {
         // TODO

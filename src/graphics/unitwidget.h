@@ -25,16 +25,27 @@ class UnitWidget : public ButtonItem {
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
-  void SwitchColor();
+
+  void SwitchWidget();  
+
+  QString attack_;
+  QString armor_;
+  QString health_;
+  QString stamina_;
+  UnitType cell_unit_;
+  const QString caption_;
 
   UnitsInteractionMenu* parent_;
   Planet* unit_planet_;
+  QPixmap* active_widget_;
+  QPixmap* unactive_widget_;
+  QPixmap* current_widget_ = unactive_widget_;
+  QPixmap* unit_icon_;
   QColor current_color_ = Qt::black;
-  UnitType cell_unit_;
-  const QString caption_;
   bool is_chosen_ = false;
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+  int font_;
 };
 
 #endif  // UNITWIDGET_H

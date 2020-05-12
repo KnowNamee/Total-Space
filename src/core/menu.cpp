@@ -38,9 +38,9 @@ MainMenu::~MainMenu() {
 }
 
 void MainMenu::SetZValue() {
+  btn_exit_->setZValue(ZValues::kMainMenu);
   txt_total_space_->setZValue(ZValues::kMainMenu);
   btn_new_game_->setZValue(ZValues::kMainMenu);
-  btn_exit_->setZValue(ZValues::kMainMenu);
 }
 
 void MainMenu::Draw() {
@@ -49,9 +49,11 @@ void MainMenu::Draw() {
   view->setMatrix(
       QMatrix(1, matrix.m12(), matrix.m21(), 1, matrix.dx(), matrix.dy()));
 
-  btn_exit_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_exit_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_exit_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kExitButton));
 
-  btn_new_game_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_new_game_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_new_game_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNewGameButton));
 
   txt_total_space_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kBackground),
@@ -63,10 +65,10 @@ void MainMenu::Draw() {
   Controller::scene->addItem(btn_exit_);
   Controller::scene->addItem(btn_new_game_);
 
-  btn_new_game_->setPos(
-      Controller::view->mapToScene(QPoint(kWidth / 2, kHeight / 2)));
+  btn_new_game_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
   btn_exit_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + 2 * kHeight / 15)));
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
 
   txt_total_space_->setPos(Controller::view->sceneRect().center() / 2);
 }
@@ -122,8 +124,10 @@ void PauseMenu::Draw() {
   background_rect_->setOpacity(0.7);
   background_rect_->setBrush(Qt::black);
 
-  btn_back_ = new ButtonItem(kWidth / 5, kHeight / 12);
-  btn_exit_ = new ButtonItem(kWidth / 5, kHeight / 12);
+  btn_back_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_back_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kBackToGameButton));
+  btn_exit_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_exit_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kToMenuButton));
 
   SetZValue();
 
@@ -131,10 +135,10 @@ void PauseMenu::Draw() {
   Controller::scene->addItem(btn_back_);
   Controller::scene->addItem(btn_exit_);
 
-  btn_back_->setPos(
-      Controller::view->mapToScene(QPoint(kWidth / 2, kHeight / 2)));
+  btn_back_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
   btn_exit_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + 2 * kHeight / 15)));
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
 }
 
 void PauseMenu::SwitchTo(Controller::MenuType menu) {
@@ -169,21 +173,34 @@ PlanetMenu::PlanetMenu() {
       Controller::GetActivePlanet()->GetOwner() !=
           Controller::scene->GetPlayer()) {
     // TODO убрать граф перехода по кнопке (getNextMenu)
-    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    btn1_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kAttackButton));
     button_to_menu_[btn1_] = Controller::MenuType::kAttack;
-    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn2_] = Controller::MenuType::kPlanetInfo;
-    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    btn2_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+    btn3_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   } else {
-    btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    btn1_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kMoveButton));
     button_to_menu_[btn1_] = Controller::MenuType::kGame;
-    btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn2_] = Controller::MenuType::kPlanetInfo;
-    btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
+    btn2_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+    btn3_ =
+        new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+    btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kShopButton));
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
@@ -330,7 +347,8 @@ void GameMenu::Draw() {
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
 
-  btn_next_ = new ButtonItem(width / 12, height / 15);
+  btn_next_ = new ButtonItem(width / 10, height / 15);
+  btn_next_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNextTurnButton));
 
   SetZValue();
   btn_next_->setPos(Controller::view->mapToScene(
@@ -371,9 +389,12 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
         planet_graphics->GetImage(), planet_info_width, planet_info_height);
   }
 
-  background_rect_ = new QGraphicsRectItem();
   interaction_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+  interaction_button_->SetPixmap(
+      Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
   cancel_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+  cancel_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
+
   std::map<Planet*, QVector<UnitType>> nearest_units =
       Controller::scene->GetNearestUnits(Controller::scene->GetPlayer());
   for (const auto& planet_to_units : nearest_units) {
@@ -390,7 +411,7 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
 UnitsInteractionMenu::~UnitsInteractionMenu() { Destroy(); }
 
 void UnitsInteractionMenu::SetZValue() {
-  background_rect_->setZValue(ZValues::kInteractionMenu);
+  background_image_->setZValue(ZValues::kInteractionMenu);
   interaction_button_->setZValue(ZValues::kInteractionMenu);
   cancel_button_->setZValue(ZValues::kInteractionMenu);
   planet_info_->setZValue(ZValues::kInteractionMenu);
@@ -403,12 +424,15 @@ void UnitsInteractionMenu::Draw() {
 
   QRectF background_rect(
       2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
-  background_rect_->setRect(background_rect);
-  background_rect_->setPen(QColor(Qt::black));
-  background_rect_->setBrush(QColor(Qt::black));
+  background_image_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background_rect);
 
   scroll_scene_ = new QGraphicsScene();
-  scroll_scene_->setBackgroundBrush(QColor(Qt::black));
+
+  QBrush* ibrush = new QBrush;
+  ibrush->setTextureImage(QImage(":/Img/transparent_bg.png"));
+  scroll_scene_->setBackgroundBrush(*ibrush);
+
   scroll_view_ = new ScrollingView(scroll_scene_, Controller::window);
   // Выставление положение и размер относительно экрана,
   // т.е. левый верхний угол - (0, 0)
@@ -500,16 +524,19 @@ void UnitsInteractionMenu::ShowAttackResult(
     const std::map<UnitType, int32_t>& units_to_quantity, const QString& result,
     const QString& caption) {
   attack_result_ = new AttackResultWindow(units_to_quantity, result, caption,
-                                          result_width_, result_height);
+                                          kResultWidth, kResultHeight);
   attack_result_->setPos(Controller::view->mapToScene(kWidth / 4, kHeight / 4));
   attack_result_->setZValue(ZValues::kInteractionMenu);
 
-  result_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
+  result_button_ =
+      new ButtonItem(kButtonWidth, kButtonHeight - kButtonHeight / 3, true);
+  result_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kExitButton));
   result_button_->setPos(Controller::view->mapToScene(
       static_cast<int32_t>(kWidth / 2),
       static_cast<int32_t>(kHeight / 4 +
-                           result_height * Controller::view->matrix().m11() -
+                           kResultHeight * Controller::view->matrix().m11() -
                            kHeight / 15)));
+
   result_button_->setZValue(ZValues::kInteractionMenu);
   connect(result_button_, SIGNAL(clicked()), this, SLOT(Close()));
 
@@ -521,7 +548,7 @@ void UnitsInteractionMenu::ShowAttackResult(
 
 void UnitsInteractionMenu::Hide() {
   scroll_view_->hide();
-  background_rect_->hide();
+  background_image_->hide();
   interaction_button_->hide();
   cancel_button_->hide();
   planet_info_->hide();
@@ -530,7 +557,7 @@ void UnitsInteractionMenu::Hide() {
 void UnitsInteractionMenu::Show() {
   SetZValue();
   scroll_view_->show();
-  Controller::scene->addItem(background_rect_);
+  Controller::scene->addItem(background_image_);
   Controller::scene->addItem(planet_info_);
   Controller::scene->addItem(interaction_button_);
   Controller::scene->addItem(cancel_button_);
@@ -542,7 +569,7 @@ void UnitsInteractionMenu::Destroy() {
   Controller::scene->removeItem(cancel_button_);
   Controller::scene->removeItem(interaction_button_);
   Controller::scene->removeItem(planet_info_);
-  Controller::scene->removeItem(background_rect_);
+  Controller::scene->removeItem(background_image_);
 }
 
 void UnitsInteractionMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
@@ -554,7 +581,7 @@ void UnitsInteractionMenu::CloseResult() {
 
 AttackMenu::AttackMenu() : UnitsInteractionMenu() {
   // TODO
-  // interaction_button_->SetPixmap()
+  //   interaction_button_->SetPixmap()
 }
 
 void AttackMenu::Interact() {

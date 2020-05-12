@@ -28,8 +28,10 @@ class Menu : public QObject {
   const int32_t kHeight = qApp->screens()[0]->size().height();
   const double kSizeCoefficient = 0.9;
   const double kScrollPosition = 0.07;
-  const int32_t kButtonWidth = kWidth / 4;
+  const int32_t kButtonWidth = kWidth / 6;
   const int32_t kButtonHeight = kHeight / 10;
+  const int32_t kGeneralButtonHeight = kHeight / 13;
+  const int32_t kGeneralButtonWidth = kWidth / 5;
 
  public:
   virtual void SetZValue() = 0;
@@ -104,6 +106,8 @@ class PlanetMenu : public Menu {
 
  private:
   friend class EventHandler::View;
+  const int32_t kPlanetMenuButtonWidth = kWidth / 12;
+  const int32_t kPlanetMenuButtonHeight = kHeight / 15;
 
   ButtonItem* btn1_;
   ButtonItem* btn2_;
@@ -153,8 +157,7 @@ class UnitsInteractionMenu : public Menu {
   State current_state_ = State::kMain;
   QVector<UnitWidget*> chosen_units_;
   ButtonItem* interaction_button_ = nullptr;
-
-protected slots:
+ protected slots:
   void Close();
 
  private:
@@ -168,23 +171,25 @@ protected slots:
   QGraphicsRectItem* background_rect_ = nullptr;
   AttackResultWindow* attack_result_ = nullptr;
   ButtonItem* cancel_button_ = nullptr;
+  ImageItem* background_image_ = nullptr;
   ButtonItem* result_button_ = nullptr;
   QGraphicsScene* scroll_scene_ = nullptr;
   ScrollingView* scroll_view_ = nullptr;
   PlanetInfoGraphics* planet_info_ = nullptr;
   int32_t last_chosen_y_ = 0;
 
-  const int32_t kUnitCellWidth = kWidth / 4;
+  const int32_t kUnitCellWidth = 2 * kWidth / 9;
   const int32_t kUnitCellHeight = kHeight / 5;
-  const int32_t result_width_ =
+
+  const int32_t kResultWidth =
       static_cast<int32_t>(kWidth / 2 / Controller::view->matrix().m11());
-  const int32_t result_height =
+  const int32_t kResultHeight =
       static_cast<int32_t>(kHeight / 2 / Controller::view->matrix().m11());
 
  private slots:
   void Show();
   virtual void Interact() = 0;
-  void Destroy();  
+  void Destroy();
   void CloseResult();
 };
 
