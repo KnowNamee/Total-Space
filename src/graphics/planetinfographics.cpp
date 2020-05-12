@@ -14,16 +14,7 @@ PlanetInfoGraphics::PlanetInfoGraphics(QPixmap* planet_image, int32_t width,
              QString::number(Controller::GetActivePlanet()->GetLevel())),
       width_(width),
       height_(height) {
-  QVector<UnitType> units = Controller::GetActivePlanet()->GetUnits();
-  for (UnitType unit : units) {
-    if (units_to_data_[unit].quantity == 0) {
-      //       TODO
-      //       подгpузка картинки
-      units_to_data_[unit].unit_image = nullptr;
-      units_to_data_[unit].caption = ObjectsStorage::GetUnitCaption(unit);
-    }
-    units_to_data_[unit].quantity++;
-  }
+  units_to_data_ = Controller::GetActivePlanet()->GetUnitsToData();
 }
 
 int32_t PlanetInfoGraphics::GetWidth() const { return width_; }

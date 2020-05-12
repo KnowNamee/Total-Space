@@ -18,8 +18,12 @@ void ButtonItem::SetPixmap(QPixmap* button_image) {
   button_image_ = button_image;
 }
 
+void ButtonItem::SetEnabled(bool is_enabled) { is_enabled_ = is_enabled; }
+
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
-  emit clicked();
+  if (is_enabled_) {
+    emit clicked();
+  }
 
   Q_UNUSED(event);
 }
@@ -32,6 +36,12 @@ QRectF ButtonItem::boundingRect() const {
   double width = width_ / scale;
   double height = height_ / scale;
   return QRectF(-width / 2, -height / 2, width, height);
+}
+
+QPainterPath ButtonItem::shape() const {
+  QPainterPath path;
+  path.addRect(boundingRect());
+  return path;
 }
 
 void ButtonItem::paint(QPainter* painter,

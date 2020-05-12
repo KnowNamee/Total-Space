@@ -4,8 +4,10 @@
 #include <QRandomGenerator>
 #include <memory>
 
+#include "core/statemachine.h"
 #include "data/objectsstorage.h"
-#include "objects/playerbase.h"
+#include "objects/player.h"
+#include "scene/gamescene.h"
 
 Planet::Planet(QPointF coordinates, double radius)
     : radius_(radius), coordinates_(coordinates) {}
@@ -13,6 +15,11 @@ Planet::Planet(QPointF coordinates, double radius)
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
 const Resources& Planet::GetIncome() const { return income_; }
+
+Resources Planet::GetUpgradeCost() const {
+  return Resources((level_ + 1) * (level_ + 1) * 1000,
+                   (level_ + 1) * (level_ + 1) * 1000);
+}
 
 void Planet::AddBuilding(BuildingType building) {
   buildings_.push_back(building);
@@ -58,6 +65,17 @@ void Planet::Next() {
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
+
+int32_t Planet::GetPower() const {
+  int32_t power = 0;
+  for (UnitType unit : units_on_planet_) {
+    power += ObjectsStorage::GetUnitPower(unit);
+  }
+  for (UnitType unit : tired_units_) {
+    power += ObjectsStorage::GetUnitPower(unit);
+  }
+  return power;
+}
 double Planet::GetRadius() const { return radius_; }
 
 int32_t Planet::GetLevel() const { return level_; }
@@ -65,6 +83,31 @@ const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
 const QVector<UnitType>& Planet::GetTiredUnits() const { return tired_units_; }
+
+std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
+  std::map<UnitType, UnitData> units_to_data;
+  QVector<UnitType> units = GetUnits();
+  units.append(GetTiredUnits());
+  bool is_reachable =
+      Controller::scene->IsPlanetReachable(Controller::scene->GetPlayer());
+  for (UnitType unit : units) {
+    if (units_to_data[unit].quantity == 0) {
+      //       TODO
+      //       подгpузка картинки
+      if (is_reachable) {
+        units_to_data[unit].unit_image = nullptr;
+        units_to_data[unit].caption = ObjectsStorage::GetUnitCaption(unit);
+      } else {
+        // TODO
+        // Картинка вопроса
+        units_to_data[unit].unit_image = nullptr;
+        units_to_data[unit].caption = "No Name";
+      }
+    }
+    units_to_data[unit].quantity++;
+  }
+  return units_to_data;
+}
 
 PlayerBase* Planet::GetOwner() const { return owner_; }
 

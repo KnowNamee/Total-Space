@@ -1,20 +1,14 @@
 #ifndef PLANETINFOGRAPHICS_H
 #define PLANETINFOGRAPHICS_H
 
+#include <util/utility.h>
+
 #include <QGraphicsItem>
 #include <cstdint>
-#include <util/utility.h>
 
 class QPixmap;
 
 class PlanetInfoGraphics : public QGraphicsItem {
-
-  struct UnitData {
-    QPixmap* unit_image;
-    QString caption;
-    int32_t quantity = 0;
-  };
-
  public:
   PlanetInfoGraphics(QPixmap* planet_image, int32_t width, int32_t height);
   int32_t GetWidth() const;

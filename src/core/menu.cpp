@@ -13,6 +13,7 @@
 #include "data/loader.h"
 #include "graphics/attackresultwindow.h"
 #include "graphics/buttonitem.h"
+#include "graphics/fullplanetinfo.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "graphics/planetinfographics.h"
@@ -171,21 +172,21 @@ PlanetMenu::PlanetMenu() {
     btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn1_] = Controller::MenuType::kAttack;
     btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+    button_to_menu_[btn2_] = Controller::MenuType::kPlanetInfo;
     btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
-    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   } else {
     btn1_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn1_] = Controller::MenuType::kGame;
     btn2_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
-    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+    button_to_menu_[btn2_] = Controller::MenuType::kPlanetInfo;
     btn3_ = new ButtonItem(kWidth / 12, kHeight / 15, false);
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
-    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   }
   this->Draw();
@@ -257,10 +258,20 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       Controller::SetMenuType(Controller::MenuType::kMove);
       break;
     }
+    case Controller::MenuType::kPlanetInfo: {
+      Controller::SetPlanetMenu(nullptr);
+      Controller::SetPlanetInfoMenu(new PlanetInfoMenu());
+      Controller::SetMenuType(Controller::MenuType::kPlanetInfo);
+      break;
+    }
     default: {
       break;
     }
   }
+}
+
+void PlanetMenu::btnInfoClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kPlanetInfo);
 }
 
 void PlanetMenu::btnDefaultClicked() {
@@ -351,8 +362,7 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   const double kScale = Controller::view->matrix().m11();
   if (planet_graphics != nullptr) {
     int32_t planet_info_width = static_cast<int32_t>(
-        kWidth * kSizeCoefficient / kScale -
-        kWidth / 3 / kScale +
+        kWidth * kSizeCoefficient / kScale - kWidth / 3 / kScale +
         kWidth * (1 - kSizeCoefficient) / 2);
     int32_t planet_info_height = static_cast<int32_t>(
         (kHeight * (1 - 2 * kScrollPosition) - kHeight / 10) / kScale);
@@ -362,8 +372,8 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   }
 
   background_rect_ = new QGraphicsRectItem();
-  interaction_button_ = new ButtonItem(button_width_, button_height_);
-  cancel_button_ = new ButtonItem(button_width_, button_height_);
+  interaction_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+  cancel_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
   std::map<Planet*, QVector<UnitType>> nearest_units =
       Controller::scene->GetNearestUnits(Controller::scene->GetPlayer());
   for (const auto& planet_to_units : nearest_units) {
@@ -421,17 +431,18 @@ void UnitsInteractionMenu::Draw() {
   const int32_t distance_between = static_cast<int32_t>(
       (background_rect.width() * Controller::view->matrix().m11() -
        ((kScrollPosition - (1 - kSizeCoefficient) / 2) * kWidth +
-        kUnitCellWidth + 2 * button_width_)) /
+        kUnitCellWidth + 2 * kButtonWidth)) /
       3);
   const int32_t attack_x =
       static_cast<int32_t>(kWidth * kScrollPosition + distance_between +
-                           kUnitCellWidth + button_width_ / 2);
+                           kUnitCellWidth + kButtonWidth / 2);
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
-      button_height_ + button_height_ / 2);
-  interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
+      kButtonHeight + kButtonHeight / 2);
+  interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));  
+  interaction_button_->SetEnabled(false);
   cancel_button_->setPos(Controller::view->mapToScene(
-      static_cast<int32_t>(attack_x + button_width_ + distance_between),
+      static_cast<int32_t>(attack_x + kButtonWidth + distance_between),
       attack_y));
 
   planet_info_->setPos(Controller::view->mapToScene(
@@ -454,6 +465,9 @@ void UnitsInteractionMenu::SwitchTo(Controller::MenuType menu) {
 }
 
 void UnitsInteractionMenu::ChooseUnit(UnitWidget* unit) {
+  if (chosen_units_.size() == 0) {
+    interaction_button_->SetEnabled(true);
+  }
   for (const auto& another_unit : unit_widgets_) {
     double another_y = another_unit.get()->y();
     if (another_y < unit->y() && another_y >= last_chosen_y_) {
@@ -477,6 +491,9 @@ void UnitsInteractionMenu::RemoveUnit(UnitWidget* unit) {
   last_chosen_y_ -= kUnitCellHeight / 2;
   unit->setY(last_chosen_y_);
   chosen_units_.removeOne(unit);
+  if (chosen_units_.size() == 0) {
+    interaction_button_->SetEnabled(false);
+  }
 }
 
 void UnitsInteractionMenu::ShowAttackResult(
@@ -487,7 +504,7 @@ void UnitsInteractionMenu::ShowAttackResult(
   attack_result_->setPos(Controller::view->mapToScene(kWidth / 4, kHeight / 4));
   attack_result_->setZValue(ZValues::kInteractionMenu);
 
-  result_button_ = new ButtonItem(button_width_, button_height_, true);
+  result_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
   result_button_->setPos(Controller::view->mapToScene(
       static_cast<int32_t>(kWidth / 2),
       static_cast<int32_t>(kHeight / 4 +
@@ -542,7 +559,6 @@ AttackMenu::AttackMenu() : UnitsInteractionMenu() {
 
 void AttackMenu::Interact() {
   current_state_ = State::kResult;
-
   std::map<Planet*, QVector<UnitType>> planets_to_units;
   for (const auto& unit_widget : chosen_units_) {
     planets_to_units[unit_widget->GetPlanet()].push_back(
@@ -625,3 +641,109 @@ void MoveMenu::Switch(Controller::MenuType menu) {
     Controller::SetMenuType(Controller::MenuType::kPlanet);
   }
 }
+
+PlanetInfoMenu::PlanetInfoMenu() {
+  background_ = new QGraphicsRectItem;
+  if (Controller::GetActivePlanet()->GetOwner() ==
+      Controller::scene->GetPlayer()) {
+    upgrade_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
+    connect(upgrade_button_, SIGNAL(clicked()), this, SLOT(Upgrade()));
+  }
+
+  exit_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
+  connect(exit_button_, SIGNAL(clicked()), this, SLOT(Exit()));
+
+  Draw();
+}
+
+PlanetInfoMenu::~PlanetInfoMenu() { Destroy(); }
+
+void PlanetInfoMenu::SetZValue() {
+  background_->setZValue(ZValues::kPlanetInfo);
+  if (upgrade_button_ != nullptr) {
+    upgrade_button_->setZValue(ZValues::kPlanetInfo);
+  }
+  exit_button_->setZValue(ZValues::kPlanetInfo);
+  planet_info_->setZValue(ZValues::kPlanetInfo);
+}
+
+void PlanetInfoMenu::Draw() {
+  const double kScale = Controller::view->matrix().m11();
+  QPointF coordinates = Controller::GetActivePlanet()->GetCoordinates();
+  QSize size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+  size *= kSizeCoefficient / kScale;
+
+  QRectF background_rect(
+      2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
+  background_->setRect(background_rect);
+  background_->setPen(QColor(Qt::black));
+  background_->setBrush(QColor(Qt::black));
+  Controller::scene->addItem(background_);
+
+  const double kLeftTopCornerCoeffient = (1 - kSizeCoefficient) / 2;
+  const int32_t upgrade_x = static_cast<int32_t>(
+      kLeftTopCornerCoeffient * kWidth + background_rect.width() * kScale / 6);
+  const int32_t button_y = static_cast<int32_t>(
+      2 * kLeftTopCornerCoeffient * kHeight +
+      background_rect.height() * kScale - kButtonHeight - kHeight / 30);
+
+  if (upgrade_button_ != nullptr) {
+    upgrade_button_->setPos(Controller::view->mapToScene(upgrade_x, button_y));
+    Controller::scene->addItem(upgrade_button_);
+    Resources upgrade = Controller::GetActivePlanet()->GetUpgradeCost();
+    if (!(Controller::GetActivePlanet()->GetOwner()->GetTools() >
+              upgrade.GetTools() &&
+          Controller::GetActivePlanet()->GetOwner()->GetBatteries() >
+              upgrade.GetBatteries())) {
+      upgrade_button_->SetEnabled(false);
+      // TODO
+      // установка другой картинки для кнопки
+    }
+  }
+
+  const int32_t exit_x = static_cast<int32_t>(
+      upgrade_x + background_rect.width() * kScale * 2 / 3);
+  exit_button_->setPos(Controller::view->mapToScene(exit_x, button_y));
+  Controller::scene->addItem(exit_button_);
+
+  planet_info_ = new FullPlanetInfo(
+      static_cast<int32_t>(background_rect.width() * kScale),
+      static_cast<int32_t>(background_rect.height() * kScale - kHeight / 30 -
+                           kButtonHeight),
+      Controller::GetActivePlanet());
+  planet_info_->setPos(Controller::view->mapToScene(
+      (upgrade_x + exit_x) / 2,
+      static_cast<int32_t>((button_y + kLeftTopCornerCoeffient * kHeight) / 2 -
+                           kHeight / 20)));
+
+  Controller::scene->addItem(planet_info_);
+  SetZValue();
+}
+
+void PlanetInfoMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
+    return;
+  }
+
+  if (menu == Controller::MenuType::kPlanet) {
+    Controller::SetPlanetInfoMenu(nullptr);
+    Controller::SetPlanetMenu(new PlanetMenu());
+    Controller::SetMenuType(Controller::MenuType::kPlanet);
+  }
+}
+
+void PlanetInfoMenu::Destroy() {
+  if (upgrade_button_ != nullptr) {
+    Controller::scene->removeItem(upgrade_button_);
+  }
+  Controller::scene->removeItem(exit_button_);
+  Controller::scene->removeItem(planet_info_);
+  Controller::scene->removeItem(background_);
+}
+
+void PlanetInfoMenu::Upgrade() {
+  Controller::GetActivePlanet()->Upgrade();
+  planet_info_->SetLevel(Controller::GetActivePlanet()->GetLevel());
+}
+
+void PlanetInfoMenu::Exit() { SwitchTo(Controller::MenuType::kPlanet); }
