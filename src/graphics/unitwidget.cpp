@@ -31,7 +31,7 @@ UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
       active_widget_(Loader::GetButtonImage(ButtonsEnum::kActiveWidget)),
       unactive_widget_(Loader::GetButtonImage(ButtonsEnum::kUnactiveWidget)),
       unit_icon_(Loader::GetUnitImage(unit)),
-      font_(QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf")) {}
+      font_(Loader::GetFont()) {}
 
 QRectF UnitWidget::boundingRect() const {
   return QRectF(pos().x(), pos().y(), width_, height_);
@@ -55,9 +55,9 @@ void UnitWidget::paint(QPainter* painter,
   }
 
   QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 10);
+      QFontDatabase::applicationFontFamilies(font_).first(), 18);
   QFont fabulist_general = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 13);
+      QFontDatabase::applicationFontFamilies(font_).first(), 15);
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(unit_image_x + width_ / 20,
