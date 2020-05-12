@@ -11,7 +11,7 @@
 
 FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet *planet)
     : width_(width), height_(height) {
-  PlanetGraphics *planet_graphics = dynamic_cast<PlanetGraphics *>(
+  PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform()));
   planet_image_ = planet_graphics->GetImage();
   // TODO
@@ -26,7 +26,7 @@ FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet *planet)
   tools_cost_ = res.GetTools();
   batteries_cost_ = res.GetBatteries();
   is_players_ = Controller::GetActivePlanet()->GetOwner() ==
-                dynamic_cast<PlayerBase *>(Controller::scene->GetPlayer());
+                dynamic_cast<PlayerBase*>(Controller::scene->GetPlayer());
   nearest_power_ =
       Controller::scene->GetNearestPower(Controller::scene->GetPlayer());
   power_ = planet->GetPower();
@@ -52,9 +52,9 @@ QRectF FullPlanetInfo::boundingRect() const {
                 height_ / kScale);
 }
 
-void FullPlanetInfo::paint(QPainter *painter,
-                           const QStyleOptionGraphicsItem *option,
-                           QWidget *widget) {
+void FullPlanetInfo::paint(QPainter* painter,
+                           const QStyleOptionGraphicsItem* option,
+                           QWidget* widget) {
   // Planet
   painter->drawPixmap(QRect(static_cast<int32_t>(-boundingRect().width() / 2),
                             static_cast<int32_t>(-boundingRect().width() / 6),
