@@ -25,6 +25,8 @@ class Menu : public QObject {
  protected:
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+  const int32_t kGeneralButtonHeight = kHeight / 13;
+  const int32_t kGeneralButtonWidth = kWidth / 5;
 
  public:
   virtual void SetZValue() = 0;
@@ -98,6 +100,8 @@ class PlanetMenu : public Menu {
 
  private:
   friend class EventHandler::View;
+  const int32_t kPlanetMenuButtonWidth = kWidth / 12;
+  const int32_t kPlanetMenuButtonHeight = kHeight / 15;
 
   ButtonItem* btn1_;
   ButtonItem* btn2_;
@@ -162,6 +166,7 @@ class UnitsInteractionMenu : public Menu {
   QGraphicsRectItem* background_rect_ = nullptr;
   AttackResultWindow* attack_result_ = nullptr;
   ButtonItem* cancel_button_ = nullptr;
+  ImageItem* background_image_ = nullptr;
   ButtonItem* result_button_ = nullptr;
   QGraphicsScene* scroll_scene_ = nullptr;
   ScrollingView* scroll_view_ = nullptr;
@@ -170,9 +175,9 @@ class UnitsInteractionMenu : public Menu {
 
   const double kSizeCoefficient = 0.9;
   const double kScrollPosition = 0.07;
-  const int32_t kUnitCellWidth = kWidth / 4;
+  const int32_t kUnitCellWidth = 2 * kWidth / 9;
   const int32_t kUnitCellHeight = kHeight / 5;
-  const int32_t button_width_ = kWidth / 4;
+  const int32_t button_width_ = kWidth / 6;
   const int32_t button_height_ = kHeight / 10;
   const int32_t result_width_ =
       static_cast<int32_t>(kWidth / 2 / Controller::view->matrix().m11());
