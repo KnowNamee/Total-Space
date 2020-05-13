@@ -4,12 +4,15 @@
 #include <QGraphicsItem>
 #include "objects/unit.h"
 #include "graphics/buttonitem.h"
+#include "util/utility.h"
 
 class ShopWidget : public QObject, public QGraphicsItem{
   Q_OBJECT
   Q_INTERFACES(QGraphicsItem)
 public:
-  ShopWidget(int32_t width, int32_t height, Unit* unit);
+  ShopWidget(int32_t width, int32_t height, QString name, Resources cost);
+
+  void Destroy();
 
 private:
   QRectF boundingRect() const override;
@@ -20,9 +23,15 @@ private:
   int32_t height_;
   int32_t border_;
 
-  Unit* unit_ = nullptr;
-  ButtonItem* but_btn_ = nullptr;
-  QGraphicsRectItem* background_rect_ = nullptr;
+  ButtonItem* buy_btn_ = nullptr;
+
+  QString object_name_;
+  Resources cost_;
+
+  const double kNameZoneCoef = 0.15;
+  const double kPictureCoef = 0.6;
+  const double kInfoCoef = 0.15;
+  const double kBtnCoef = 0.1;
 };
 
 #endif // SHOPWIDGET_H

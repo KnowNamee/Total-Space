@@ -11,15 +11,19 @@
 #include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "data/objectsstorage.h"
 #include "graphics/attackresultwindow.h"
 #include "graphics/buttonitem.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "graphics/planetinfographics.h"
+#include "graphics/shopwidget.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
+#include "objects/building.h"
 #include "objects/planet.h"
 #include "objects/player.h"
+#include "objects/unit.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 #include "util/typeoffset.h"
@@ -286,7 +290,23 @@ void PlanetMenu::btnMoveClicked() {
 }
 
 ShopMenu::ShopMenu() {
+    for (const UnitType& unit : Controller::GetActivePlanet()->GetAvailableUnits()) {
+        auto unit_data_ptr = ObjectsStorage::GetUnit(unit);
+        ShopWidget* unit_widget = new ShopWidget(kWidgetWidth, kWidgetHeight, unit_data_ptr->GetCaption(), unit_data_ptr->GetCost());
+        units_.push_back(unit_widget);
+    }
+
+    for (BuildingType building : Controller::GetActivePlanet()->GetAvailableBuildings()) {
+      auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
+      ShopWidget *building_widget = new ShopWidget(
+          kWidgetWidth, kWidgetHeight, buildings_data_ptr->GetCaption(),
+          buildings_data_ptr->GetCost());
+      buildings_.push_back(building_widget);
+    }
+
     background_rect_ = new QGraphicsRectItem();
+    border_line_ = new QGraphicsLineItem();
+    text_ = new QGraphicsSimpleTextItem();
     // TO DO размер кнопки выхода
     exit_bnt_ = new ButtonItem(kExitBtnSize, kExitBtnSize, false);
     // TO DO размеры кнопок смены магазина юниты/постройки
@@ -302,14 +322,18 @@ ShopMenu::ShopMenu() {
 
 ShopMenu::~ShopMenu() {
     Controller::scene->removeItem(background_rect_);
+    Controller::scene->removeItem(border_line_);
     Controller::scene->removeItem(exit_bnt_);
     Controller::scene->removeItem(units_btn_);
     Controller::scene->removeItem(buildings_btn_);
+    Controller::scene->removeItem(text_);
 
     delete exit_bnt_;
+    delete text_;
     delete units_btn_;
     delete buildings_btn_;
     delete background_rect_;
+    delete border_line_;
 }
 
 void ShopMenu::Draw() {
@@ -323,6 +347,14 @@ void ShopMenu::Draw() {
     background_rect_->setRect(background);
     background_rect_->setBrush(Qt::black);
     background_rect_->setPen(Qt::NoPen);
+
+    border_line_->setPen(QPen(Qt::green));
+    border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y(),
+                          top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y() + size.height());
+
+    text_->setText("Player info");
+    text_->setBrush(Qt::green);
+    text_->setPos(top_left_cor);
 
     exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / 2);
     units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / 2);
@@ -344,6 +376,8 @@ void ShopMenu::SwitchTo(Controller::MenuType menu) {
 void ShopMenu::Show() {
     SetZValue();
     Controller::scene->addItem(background_rect_);
+    Controller::scene->addItem(border_line_);
+    Controller::scene->addItem(text_);
     Controller::scene->addItem(exit_bnt_);
     Controller::scene->addItem(units_btn_);
     Controller::scene->addItem(buildings_btn_);
@@ -365,11 +399,12 @@ void ShopMenu::ChangeShop() {
 }
 void ShopMenu::SetZValue() {
     background_rect_->setZValue(ZValues::kShopMenu);
+    border_line_->setZValue(ZValues::kShopMenu);
+    text_->setZValue(ZValues::kShopMenu);
     exit_bnt_->setZValue(ZValues::kShopMenu);
     units_btn_->setZValue(ZValues::kShopMenu);
     buildings_btn_->setZValue(ZValues::kShopMenu);
 }
-
 void ShopMenu::SwitchState(ShopState state) { current_state_ = state;}
 
 GameMenu::GameMenu() {

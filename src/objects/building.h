@@ -14,6 +14,7 @@ class Building : public QObject {
            const Resources& cost, const Resources& income);
   const Resources& GetIncome() const;
   const QString& GetCaption() const;
+  const Resources& GetCost() const;
   int32_t GetLevel() const;
   const QVector<BuildingType>& GetUpgrades() const;
   UnitType GetUnit() const;

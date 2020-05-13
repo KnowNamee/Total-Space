@@ -7,6 +7,7 @@
 #include <QWidget>
 
 #include "core/eventhandling.h"
+#include "data/objectsstorage.h"
 #include "core/statemachine.h"
 #include "scene/gameview.h"
 #include "util/utility.h"
@@ -16,6 +17,7 @@ class GameScene;
 class MainWindow;
 class UnitWidget;
 class ButtonItem;
+class ShopWidget;
 class PlanetInfoGraphics;
 class AttackResultWindow;
 
@@ -134,15 +136,26 @@ private slots:
   void Close();
 
 private:
-  friend class EventHandler::View;
+  friend class EventHandler::View; 
+  friend class ObjectsStorage;
+
+  QGraphicsSimpleTextItem *text_ = nullptr;
 
   ShopState current_state_ = kUnits;
   QGraphicsRectItem *background_rect_ = nullptr;
+  QGraphicsLineItem *border_line_ = nullptr;
   ButtonItem *buildings_btn_ = nullptr;
   ButtonItem *units_btn_ = nullptr;
   ButtonItem *exit_bnt_ = nullptr;
 
+  QVector <ShopWidget*> buildings_;
+  QVector <ShopWidget*> units_;
+
   const double kSizeCoefficient = 0.9;
+  const double kBorderCoefficient = 0.25;
+  const int32_t kWidgetWidth =
+      static_cast<int32_t>(kWidth * (1 - kBorderCoefficient)) / 4;
+  const int32_t kWidgetHeight = kHeight / 3;
   const int32_t kExitBtnSize = kHeight / 15;
   const int32_t kBtnWidth = kHeight / 15;
   const int32_t kBtnHeight = kHeight / 15;

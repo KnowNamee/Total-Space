@@ -16,6 +16,7 @@ const Resources& Building::GetIncome() const { return income_; }
 
 const QString& Building::GetCaption() const { return caption_; }
 
+const Resources& Building::GetCost() const { return cost_;}
 int32_t Building::GetLevel() const { return level_; }
 
 const QVector<BuildingType>& Building::GetUpgrades() const { return upgrades_; }
