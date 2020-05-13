@@ -429,8 +429,7 @@ void UnitsInteractionMenu::Draw() {
 
   scroll_scene_ = new QGraphicsScene();
 
-  QBrush* ibrush = new QBrush;
-  ibrush->setTextureImage(QImage(":/Img/transparent_bg.png"));
+  QBrush* ibrush = Loader::GetBrush();
   scroll_scene_->setBackgroundBrush(*ibrush);
 
   scroll_view_ = new ScrollingView(scroll_scene_, Controller::window);
@@ -570,6 +569,11 @@ void UnitsInteractionMenu::Destroy() {
   Controller::scene->removeItem(interaction_button_);
   Controller::scene->removeItem(planet_info_);
   Controller::scene->removeItem(background_image_);
+
+  delete cancel_button_;
+  delete interaction_button_;
+  delete planet_info_;
+  delete background_image_;
 }
 
 void UnitsInteractionMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
@@ -766,6 +770,9 @@ void PlanetInfoMenu::Destroy() {
   Controller::scene->removeItem(exit_button_);
   Controller::scene->removeItem(planet_info_);
   Controller::scene->removeItem(background_);
+  delete exit_button_;
+  delete planet_info_;
+  delete background_;
 }
 
 void PlanetInfoMenu::Upgrade() {

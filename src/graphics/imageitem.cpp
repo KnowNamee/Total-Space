@@ -13,7 +13,7 @@ ImageItem::ImageItem(const QPixmap* image, int width, int height)
     : image_(image), size_(QSize(width, height)) {}
 
 ImageItem::ImageItem(const QPixmap* image_, QRectF background_rect)
-    : image_(image_), background_rect_(background_rect) {}
+  : image_(image_), background_rect_(background_rect) {}
 
 int32_t ImageItem::type() const { return Type; }
 
