@@ -9,6 +9,7 @@
 #include "util/utility.h"
 
 class PlayerBase;
+class PlanetGraphics;
 class Building;
 class Unit;
 
@@ -47,10 +48,15 @@ class Planet : public QObject {
   const QVector<UnitType>& GetUnits() const;
   const QVector<UnitType>& GetTiredUnits() const;
   std::map<UnitType, UnitData> GetUnitsToData() const;
+  PlanetGraphics* GetPlanetGraphics() const;
+  QVector<Planet*> GetNearestPlanets() const;
   PlayerBase* GetOwner() const;
 
   std::set<BuildingType> GetAvailableBuildings() const;
   std::set<UnitType> GetAvailableUnits() const;
+
+  bool IsBorder() const;
+  std::map<Planet*, QVector<UnitType>> GetNonBorderUnits() const;
 
   bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units);
   AttackResult CalculateAttack(

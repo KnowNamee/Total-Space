@@ -30,8 +30,8 @@
             "level": 2,
             "batteries_cost": 2500,
             "tools_cost": 300,
-            "batteries_income": 20,
-            "tools_income": -5
+            "batteries_income": -20,
+            "tools_income": -25
           },
         "electronics": {
             "caption": "Electronics",
@@ -53,7 +53,7 @@
             "batteries_cost": 400,
             "tools_cost": 2500,
             "batteries_income": -20,
-            "tools_income": 40
+            "tools_income": -40
           },
         "battery factory": {
             "caption": "Battery Factory",

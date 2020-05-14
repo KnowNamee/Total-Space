@@ -4,14 +4,16 @@
 #include <QRandomGenerator>
 #include <memory>
 
+#include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
+#include "graphics/planetgraphics.h"
 #include "objects/player.h"
 #include "scene/gamescene.h"
 
 Planet::Planet(QPointF coordinates, double radius)
-  : radius_(radius), coordinates_(coordinates) {}
+    : radius_(radius), coordinates_(coordinates) {}
 
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
@@ -108,6 +110,16 @@ std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
   return units_to_data;
 }
 
+PlanetGraphics* Planet::GetPlanetGraphics() const {
+  return dynamic_cast<PlanetGraphics*>(
+      Controller::scene->itemAt(2 * GetCoordinates(), QTransform()));
+}
+
+QVector<Planet*> Planet::GetNearestPlanets() const {
+  return Controller::scene->GetGraph()->GetConnectedPlanets(
+      GetPlanetGraphics());
+}
+
 PlayerBase* Planet::GetOwner() const { return owner_; }
 
 std::set<BuildingType> Planet::GetAvailableBuildings() const {
@@ -135,8 +147,21 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
   return available_units;
 }
 
+bool Planet::IsBorder() const {
+  for (Planet* planet : GetNearestPlanets()) {
+    if (planet->GetOwner() != GetOwner()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+std::map<Planet*, QVector<UnitType>> Planet::GetNonBorderUnits() const {
+
+}
+
 bool Planet::TakeAttack(
-    const std::map<Planet*, QVector<UnitType>>& enemy_units) {  
+    const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   AttackResult result = CalculateAttack(enemy_units);
   switch (result) {
     case AttackResult::kDraw: {

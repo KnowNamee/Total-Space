@@ -24,7 +24,7 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  clear(); 
+  clear();
   bot1_.reset();
   bot2_.reset();
   player_.reset();
@@ -181,11 +181,9 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
   if (planet == nullptr) {
     return {};
   }
-  PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
-      itemAt(2 * planet->GetCoordinates(), QTransform()));
+
   std::map<Planet*, QVector<UnitType>> nearby_units;
-  for (const auto& nearby_planet :
-       graph_->GetConnectedPlanets(planet_graphics)) {
+  for (const auto& nearby_planet : planet->GetNearestPlanets()) {
     if (nearby_planet->GetOwner() == player) {
       QVector<UnitType> planet_units = nearby_planet->GetUnits();
       if (planet_units.size() > 0) {
@@ -215,6 +213,8 @@ bool GameScene::IsPlanetReachable(PlayerBase* player) {
   }
   return GetNearestUnits(player).size() != 0;
 }
+
+PlanetsGraph* GameScene::GetGraph() const { return graph_.get(); }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
 
