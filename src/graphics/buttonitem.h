@@ -10,7 +10,7 @@ class ButtonItem : public QObject, public QGraphicsItem {
   Q_OBJECT
   Q_INTERFACES(QGraphicsItem)
  public:
-  ButtonItem(int32_t width, int32_t height, bool is_scalable = true);
+  ButtonItem(int32_t width, int32_t height, bool is_scalable = true); 
   void SetPixmap(QPixmap* button_image);
   void SetEnabled(bool is_enabled);
 

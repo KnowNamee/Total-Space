@@ -42,22 +42,21 @@ void UnitWidget::paint(QPainter* painter,
                        QWidget* widget) {
   Q_UNUSED(option);
   Q_UNUSED(widget);
-
   QRect rect = boundingRect().toAlignedRect();
   painter->drawPixmap(rect, *current_widget_);
 
   int32_t unit_image_x = static_cast<int32_t>(pos().x() + width_ / 10);
   int32_t unit_image_y = static_cast<int32_t>(pos().y() + height_ / 8);
 
-  if (!unit_icon_->isNull()) {
+  if (unit_icon_ != nullptr) {
     painter->drawPixmap(
         QRect(unit_image_x, unit_image_y, width_ / 4, width_ / 4), *unit_icon_);
   }
 
-  QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), 18);
-  QFont fabulist_general = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), 15);
+  QFont fabulist_header =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 18);
+  QFont fabulist_general =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 15);
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(unit_image_x + width_ / 20,

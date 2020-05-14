@@ -3,8 +3,10 @@
 #include <QFontDatabase>
 #include <QPainter>
 
+#include "core/statemachine.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
+#include "scene/gameview.h"
 
 AttackResultWindow::AttackResultWindow(
     const std::map<UnitType, int32_t>& units_to_quantity, const QString& result,
@@ -25,11 +27,13 @@ void AttackResultWindow::paint(QPainter* painter,
                                QWidget* widget) {
   painter->drawPixmap(boundingRect().toAlignedRect(),
                       *Loader::GetButtonImage(ButtonsEnum::kMenuBackground));
-
-  QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), 37);
-  QFont fabulist_general = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), 23);
+  const double kScale = Controller::view->matrix().m11();
+  QFont fabulist_header =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            static_cast<int32_t>(37 / kScale));
+  QFont fabulist_general =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            static_cast<int32_t>(23 / kScale));
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(width_ / 2 - width_ / 20, height_ / 7, result_);

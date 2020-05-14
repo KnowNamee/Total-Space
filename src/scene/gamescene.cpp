@@ -24,9 +24,7 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  clear();
-  // TODO
-  // reset указатели на ботов
+  clear(); 
   bot1_.reset();
   bot2_.reset();
   player_.reset();

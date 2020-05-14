@@ -14,6 +14,13 @@ class Unit;
 
 class Planet : public QObject {
   Q_OBJECT
+ private:
+  enum class AttackResult {
+    kWin,
+    kLose,
+    kDraw,
+  };
+
  public:
   Planet(QPointF coordinates, double radius);
 
@@ -46,6 +53,8 @@ class Planet : public QObject {
   std::set<UnitType> GetAvailableUnits() const;
 
   bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units);
+  AttackResult CalculateAttack(
+      const std::map<Planet*, QVector<UnitType>>& enemy_units);
   std::pair<int32_t, int32_t> CountPoints(const UnitCharacteristics& self,
                                           const UnitCharacteristics& enemy);
   bool Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units);
@@ -61,6 +70,7 @@ class Planet : public QObject {
   const QPointF coordinates_;
   PlayerBase* owner_ = nullptr;
   Resources income_;
+  std::pair<int32_t, int32_t> attack_points_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
   QVector<UnitType> tired_units_;
