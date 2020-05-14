@@ -12,11 +12,13 @@ class Bot : public PlayerBase {
  public:
   Bot() = delete;
   Bot(Planet* planet, const QString& color);
-  virtual ~Bot();
+  virtual ~Bot() override;
 
   void Next() override;
 
  private:
+  void ApplyAttackStrategy();
+  void ConsiderBorderPlanet();
 };
 
 #endif  // BOT_H

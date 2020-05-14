@@ -56,7 +56,10 @@ class Planet : public QObject {
   std::set<UnitType> GetAvailableUnits() const;
 
   bool IsBorder() const;
-  std::map<Planet*, QVector<UnitType>> GetNonBorderUnits() const;
+  std::map<Planet*, QVector<UnitType>> GetNearestNonBorderUnits() const;
+  QVector<UnitType> GetMostProfitableUnits(const QVector<UnitType>& units,
+                                           Resources resources) const;
+  std::set<UnitType> GetAffordableUnits(const Resources& resources) const;
 
   bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units);
   AttackResult CalculateAttack(
@@ -71,6 +74,10 @@ class Planet : public QObject {
   void MoveUnits(const std::map<Planet*, QVector<UnitType>>& enemy_units);
 
  private:
+  std::pair<UnitType, UnitType> GetMaxAndMin(
+      const std::map<UnitType, int32_t>& units_to_quantity,
+      const std::set<UnitType>& types) const;
+
   int32_t level_ = 1;
   const double radius_;
   const QPointF coordinates_;

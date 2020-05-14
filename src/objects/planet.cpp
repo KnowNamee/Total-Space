@@ -150,14 +150,88 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
 bool Planet::IsBorder() const {
   for (Planet* planet : GetNearestPlanets()) {
     if (planet->GetOwner() != GetOwner()) {
-      return false;
+      return true;
     }
   }
-  return true;
+  return false;
 }
 
-std::map<Planet*, QVector<UnitType>> Planet::GetNonBorderUnits() const {
+std::map<Planet*, QVector<UnitType>> Planet::GetNearestNonBorderUnits() const {
+  QVector<Planet*> nearest_planets = GetNearestPlanets();
+  std::map<Planet*, QVector<UnitType>> planets_to_units;
+  for (Planet* planet : nearest_planets) {
+    if (!planet->IsBorder()) {
+      for (UnitType unit : planet->GetUnits()) {
+        planets_to_units[planet].push_back(unit);
+      }
+    }
+  }
+  return planets_to_units;
+}
 
+QVector<UnitType> Planet::GetMostProfitableUnits(
+    const QVector<UnitType>& units, Resources resources) const {
+  std::set<UnitType> types = GetAffordableUnits(resources);
+  std::map<UnitType, int32_t> units_to_quantity;
+  for (UnitType type : types) {
+    units_to_quantity[type] = 0;
+  }
+  for (UnitType unit : units) {
+    if (units_to_quantity.find(unit) != units_to_quantity.end()) {
+      units_to_quantity[unit]++;
+    }
+  }
+  QVector<UnitType> result;
+  while (types.size() > 0) {
+    std::pair<UnitType, UnitType> max_and_min =
+        GetMaxAndMin(units_to_quantity, types);
+    UnitType unit_to_add;
+    if (units_to_quantity[max_and_min.first] ==
+        units_to_quantity[max_and_min.second]) {
+      auto it = types.begin();
+      uint32_t rand_index =
+          QRandomGenerator::global()->generate() % types.size();
+      std::advance(it, rand_index);
+      unit_to_add = *it;
+    } else {
+      unit_to_add = max_and_min.second;
+    }
+    result.push_back(unit_to_add);
+    units_to_quantity[unit_to_add]++;
+    resources -= ObjectsStorage::GetUnitCost(unit_to_add);
+    types = GetAffordableUnits(resources);
+  }
+  return result;
+}
+
+std::pair<UnitType, UnitType> Planet::GetMaxAndMin(
+    const std::map<UnitType, int32_t>& units_to_quantity,
+    const std::set<UnitType>& types) const {
+  UnitType max_unit = (*units_to_quantity.begin()).first;
+  UnitType min_unit = max_unit;
+  for (const auto& unit_to_quantity : units_to_quantity) {
+    if (types.find(unit_to_quantity.first) == types.end()) {
+      continue;
+    }
+    if (unit_to_quantity.second > units_to_quantity.at(max_unit)) {
+      max_unit = unit_to_quantity.first;
+    }
+    if (unit_to_quantity.second < units_to_quantity.at(min_unit)) {
+      min_unit = unit_to_quantity.first;
+    }
+  }
+  return std::make_pair(max_unit, min_unit);
+}
+
+std::set<UnitType> Planet::GetAffordableUnits(
+    const Resources& resources) const {
+  std::set<UnitType> result;
+  for (UnitType unit : GetAvailableUnits()) {
+    if (ObjectsStorage::GetUnitCost(unit) <= resources) {
+      result.insert(unit);
+    }
+  }
+  return result;
 }
 
 bool Planet::TakeAttack(

@@ -25,6 +25,7 @@ class ObjectsStorage {
   static UnitRole GetUnitRole(const QString& role);
   static int32_t GetUnitPower(UnitType unit);
   static const UnitCharacteristics& GetUnitCharacteristics(UnitType unit);
+  static const Resources& GetUnitCost(UnitType unit);
   static UnitRole GetUnitRole(UnitType unit);
   static UnitType GetUnitEnemy(UnitType unit);
   static const QString& GetUnitCaption(UnitType unit);

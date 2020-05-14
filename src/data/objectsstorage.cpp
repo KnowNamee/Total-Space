@@ -65,6 +65,10 @@ const UnitCharacteristics& ObjectsStorage::GetUnitCharacteristics(
   return type_to_unit_[unit]->GetUnitCharacteristics();
 }
 
+const Resources& ObjectsStorage::GetUnitCost(UnitType unit) {
+  return type_to_unit_[unit]->GetCost();
+}
+
 UnitRole ObjectsStorage::GetUnitRole(UnitType unit) {
   return type_to_unit_[unit]->GetUnitRole();
 }
