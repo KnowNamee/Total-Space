@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <memory>
+#include <cmath>
 
 #include "core/menugraph.h"
 #include "core/statemachine.h"
@@ -288,27 +289,28 @@ void PlanetMenu::btnShopClicked() {
 void PlanetMenu::btnMoveClicked() {
   Controller::SwitchMenu(Controller::MenuType::kMove);
 }
-
+//-------------------------------- Shop Menu -------------------------
 ShopMenu::ShopMenu() {
     for (const UnitType& unit : Controller::GetActivePlanet()->GetAvailableUnits()) {
         auto unit_data_ptr = ObjectsStorage::GetUnit(unit);
-        ShopWidget* unit_widget = new ShopWidget(kWidgetWidth, kWidgetHeight, unit_data_ptr->GetCaption(), unit_data_ptr->GetCost());
-        units_.push_back(unit_widget);
+        ShopWidget* unit_widget = new ShopWidget(kWidgetWidth, kWidgetHeight, ShopItemType::kUnit,
+                                                 unit_data_ptr->GetCaption(), unit_data_ptr->GetCost());
+        shop_units_.push_back(unit_widget);
     }
 
     for (BuildingType building : Controller::GetActivePlanet()->GetAvailableBuildings()) {
-      auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
-      ShopWidget *building_widget = new ShopWidget(
-          kWidgetWidth, kWidgetHeight, buildings_data_ptr->GetCaption(),
-          buildings_data_ptr->GetCost());
-      buildings_.push_back(building_widget);
+          auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
+        ShopWidget *building_widget = new ShopWidget(
+            kWidgetWidth, kWidgetHeight, ShopItemType::kBuilding, buildings_data_ptr->GetCaption(),
+            buildings_data_ptr->GetCost());
+        shop_buildings_.push_back(building_widget);
     }
 
     background_rect_ = new QGraphicsRectItem();
     border_line_ = new QGraphicsLineItem();
     text_ = new QGraphicsSimpleTextItem();
-    // TO DO размер кнопки выхода
     exit_bnt_ = new ButtonItem(kExitBtnSize, kExitBtnSize, false);
+
     // TO DO размеры кнопок смены магазина юниты/постройки
     units_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
     buildings_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
@@ -334,10 +336,16 @@ ShopMenu::~ShopMenu() {
     delete buildings_btn_;
     delete background_rect_;
     delete border_line_;
+
+    for (auto el : shop_units_) { el->deleteLater();}
+    for (auto el : shop_buildings_) { el->deleteLater();}
+
+    shop_scrolling_view_->deleteLater();
+    shop_scene_scroll_->deleteLater();
 }
 
 void ShopMenu::Draw() {
-    QSize size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+    QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
     size  *= kSizeCoefficient / Controller::view->matrix().m11();
 
     QPointF top_left_cor(Controller::GetActivePlanet()->GetCoordinates() - QPointF(size.width() / 2, size.height() / 2));
@@ -351,6 +359,42 @@ void ShopMenu::Draw() {
     border_line_->setPen(QPen(Qt::green));
     border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y(),
                           top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y() + size.height());
+
+    shop_scene_scroll_ = new QGraphicsScene;
+    shop_scene_scroll_->setBackgroundBrush(Qt::black);
+    shop_scrolling_view_ =
+        new ScrollingView(shop_scene_scroll_, Controller::window);
+    shop_scrolling_view_->setStyleSheet("border: 0px");
+
+    // расчёт размеров и позиции самого магазина фактически
+    int32_t x_offset = static_cast<int32_t>(size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+    int32_t y_offset = static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
+    QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                     size.height() - 2 * y_offset);
+    QPointF shop_pos(kWidth * (1 - kSizeCoefficient) / 2 +
+                     size.width() * kBorderCoefficient,
+                     kHeight * (1 - kSizeCoefficient) / 2);
+    shop_pos += QPointF(x_offset, y_offset);
+    shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()), static_cast<int32_t>(shop_pos.y()),
+                                      static_cast<int32_t>(shop_size.width()), static_cast<int32_t>(shop_size.height()));
+    shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
+                    (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) - y_offset);
+
+    // добавление тайлов в магазин
+    QPointF start_pos(kWidgetWidth / 2, kWidgetHeight / 2);
+    for (auto i = 0; i < shop_units_.size(); ++i) {
+        shop_units_[i]->SetScene(shop_scene_scroll_);
+        shop_units_[i]->setPos(start_pos + QPointF(kWidgetWidth + x_offset, 0) * (i % kWidthCount)
+                          + QPointF(0, kWidgetHeight + y_offset) * (i / kWidthCount));
+        shop_scene_scroll_->addItem(shop_units_[i]);
+        shop_units_[i]->WidgetHide();
+    }
+    for (auto i = 0; i < shop_buildings_.size(); ++i) {
+        shop_buildings_[i]->SetScene(shop_scene_scroll_);
+        shop_buildings_[i]->setPos(start_pos + QPointF(kWidgetWidth + x_offset, 0) * (i % kWidthCount)
+                              + QPointF(0, kWidgetHeight + y_offset) * (i / kWidthCount));
+        shop_scene_scroll_->addItem(shop_buildings_[i]);
+    }
 
     text_->setText("Player info");
     text_->setBrush(Qt::green);
@@ -375,6 +419,7 @@ void ShopMenu::SwitchTo(Controller::MenuType menu) {
 
 void ShopMenu::Show() {
     SetZValue();
+    shop_scrolling_view_->show();
     Controller::scene->addItem(background_rect_);
     Controller::scene->addItem(border_line_);
     Controller::scene->addItem(text_);
@@ -382,21 +427,39 @@ void ShopMenu::Show() {
     Controller::scene->addItem(units_btn_);
     Controller::scene->addItem(buildings_btn_);
 }
+
 void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet);}
+
 void ShopMenu::ChangeShop() {
-    ButtonItem* sender = dynamic_cast<ButtonItem*>(QObject::sender());
-    if ((sender == units_btn_ && current_state_ == kUnits) ||
-        (sender == buildings_btn_ && current_state_ == kBuildings)) {
-        return;
-    }
-    //TO DO смена магазина
-    qDebug() << "Changes";
-    if (current_state_ == kUnits) {
+  ButtonItem *sender = dynamic_cast<ButtonItem*>(QObject::sender());
+  if ((sender == units_btn_ && current_state_ == kUnits) ||
+      (sender == buildings_btn_ && current_state_ == kBuildings)) {
+    return;
+  }
+
+  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+  size  *= kSizeCoefficient / Controller::view->matrix().m11();
+  int32_t x_offset = static_cast<int32_t>(size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+  int32_t y_offset =
+      static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
+  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   size.height() - 2 * y_offset);
+
+  if (current_state_ == kUnits) {
         SwitchState(kBuildings);
+        for (const auto unit_widget : shop_units_) { unit_widget->WidgetHide();}
+        for (const auto build_widget : shop_buildings_) { build_widget->WidgetShow();}
+        shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
+                        (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) - y_offset);
     } else {
         SwitchState(kUnits);
-    }
+        for (const auto build_widget : shop_buildings_) { build_widget->WidgetHide();}
+        for (const auto unit_widget : shop_units_) { unit_widget->WidgetShow();}
+        shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
+                        (shop_units_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) - y_offset);
+  }
 }
+
 void ShopMenu::SetZValue() {
     background_rect_->setZValue(ZValues::kShopMenu);
     border_line_->setZValue(ZValues::kShopMenu);
@@ -405,8 +468,20 @@ void ShopMenu::SetZValue() {
     units_btn_->setZValue(ZValues::kShopMenu);
     buildings_btn_->setZValue(ZValues::kShopMenu);
 }
+
 void ShopMenu::SwitchState(ShopState state) { current_state_ = state;}
 
+void ShopMenu::MakePurchase(ShopItemType type, Resources cost, QString item_name) {
+    Controller::GetActivePlanet()->GetOwner()->SubResources(cost);
+    if (type == ShopItemType::kUnit) {
+        Controller::GetActivePlanet()->AddUnit(
+                    ObjectsStorage::GetUnitType(item_name));
+    } else {
+        Controller::GetActivePlanet()->AddBuilding(
+                    ObjectsStorage::GetBuildingType(item_name));
+    }
+}
+// ----------------------------- Game Menu -------------------------------
 GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();

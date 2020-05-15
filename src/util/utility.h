@@ -61,7 +61,7 @@ class UnitCharacteristics {
   UnitCharacteristics operator+(const UnitCharacteristics& rhs) const {
     return UnitCharacteristics(attack_ + rhs.attack_, armor_ + rhs.armor_,
                                health_ + rhs.health_, stamina_ + rhs.stamina_);
-  }
+  }  
 
   UnitCharacteristics& operator+=(const UnitCharacteristics& rhs) {
     *this = *this + rhs;
@@ -97,6 +97,11 @@ enum class UnitRole {
   kMelee,
   kRange,
   kHealer,
+};
+
+enum class ShopItemType {
+  kUnit,
+  kBuilding,
 };
 
 #endif  // UTILITY_H

@@ -18,6 +18,7 @@ class MainWindow;
 class UnitWidget;
 class ButtonItem;
 class ShopWidget;
+class ShopPlanetInfo;
 class PlanetInfoGraphics;
 class AttackResultWindow;
 
@@ -126,9 +127,10 @@ class ShopMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
-  void Hide();
+//  void Hide();
 
   void SwitchState(ShopState state);
+  void MakePurchase(ShopItemType type, Resources cost, QString item_name);
 
 private slots:
   void ChangeShop();
@@ -137,26 +139,38 @@ private slots:
 
 private:
   friend class EventHandler::View; 
-  friend class ObjectsStorage;
 
   QGraphicsSimpleTextItem *text_ = nullptr;
+  ShopState current_state_ = kBuildings;
 
-  ShopState current_state_ = kUnits;
   QGraphicsRectItem *background_rect_ = nullptr;
   QGraphicsLineItem *border_line_ = nullptr;
   ButtonItem *buildings_btn_ = nullptr;
   ButtonItem *units_btn_ = nullptr;
   ButtonItem *exit_bnt_ = nullptr;
 
-  QVector <ShopWidget*> buildings_;
-  QVector <ShopWidget*> units_;
+  QGraphicsScene* shop_scene_scroll_ = nullptr;
+  ScrollingView* shop_scrolling_view_ = nullptr;
+
+  QVector <ShopWidget*> shop_buildings_;
+  QVector <ShopWidget*> shop_units_;
+  QVector <ShopPlanetInfo*> info_buildings_;
+  QVector <ShopPlanetInfo*> info_units_;
 
   const double kSizeCoefficient = 0.9;
   const double kBorderCoefficient = 0.25;
+
+  // группа констов отвечающихся за размер и кол-во тайлов магазина
+  const int32_t kWidthCount = 3;
+  const int32_t kHeightCount = 2;
+  const double kWidgetWidthCoef = 1. / (kWidthCount + 1);
+  const double kWidgetHeightCoef = 1. / (kHeightCount + 1);
   const int32_t kWidgetWidth =
-      static_cast<int32_t>(kWidth * (1 - kBorderCoefficient)) / 4;
-  const int32_t kWidgetHeight = kHeight / 3;
-  const int32_t kExitBtnSize = kHeight / 15;
+      static_cast<int32_t>(kWidth * kSizeCoefficient * (1 - kBorderCoefficient) * kWidgetWidthCoef);
+  const int32_t kWidgetHeight = static_cast<int32_t>(kHeight * kSizeCoefficient * kWidgetHeightCoef);
+  //-------------------------------------------------------------
+
+  const int32_t kExitBtnSize = kHeight / 20;
   const int32_t kBtnWidth = kHeight / 15;
   const int32_t kBtnHeight = kHeight / 15;
 };

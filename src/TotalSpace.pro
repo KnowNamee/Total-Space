@@ -65,6 +65,7 @@ HEADERS += \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
+    graphics/shopplanetinfo.h \
     graphics/shopwidget.h \
     graphics/unitwidget.h \
         mainwindow.h \
