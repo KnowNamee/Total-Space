@@ -26,6 +26,7 @@ CONFIG += c++17
 
 SOURCES += \
         core/eventhandling.cpp \
+        core/keyhandler.cpp \
         core/planetsgraph.cpp \
         core/statemachine.cpp \
         data/loader.cpp \
@@ -55,6 +56,7 @@ SOURCES += \
 
 HEADERS += \
     core/eventhandling.h \
+  core/keyhandler.h \
     core/planetsgraph.h \
     core/statemachine.h \
     data/loader.h \

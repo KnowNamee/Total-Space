@@ -19,6 +19,8 @@ class GameView : public QGraphicsView {
   std::shared_ptr<EventHandler::View> EventHandler();
 
  private:
+  friend class ScrollingView;
+
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
@@ -31,8 +33,13 @@ class GameView : public QGraphicsView {
 
 class ScrollingView : public QGraphicsView {
   Q_OBJECT
+
  public:
   ScrollingView(QGraphicsScene* scene, QWidget* parent = nullptr);
+
+ private:
+  void keyReleaseEvent(QKeyEvent* event) override;
+  bool is_released = true;
 };
 
 #endif  // GAMEVIEW_H

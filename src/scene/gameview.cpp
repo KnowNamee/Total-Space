@@ -1,8 +1,12 @@
 #include "scene/gameview.h"
 
 #include <QDebug>
+#include <QShortcut>
+#include <map>
 
 #include "core/eventhandling.h"
+#include "core/keyhandler.h"
+#include "core/menu.h"
 #include "core/statemachine.h"
 #include "graphics/buttonitem.h"
 #include "graphics/unitwidget.h"
@@ -59,4 +63,8 @@ ScrollingView::ScrollingView(QGraphicsScene* scene, QWidget* parent)
     : QGraphicsView(scene, parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}
+
+void ScrollingView::keyReleaseEvent(QKeyEvent* event) {
+  Controller::view->event_handler_->KeyReleaseEvent(event);
 }

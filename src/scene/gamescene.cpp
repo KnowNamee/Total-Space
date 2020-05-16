@@ -24,7 +24,7 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  clear(); 
+  clear();
   bot1_.reset();
   bot2_.reset();
   player_.reset();

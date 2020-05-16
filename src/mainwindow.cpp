@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 #include <QScreen>
 
+#include "core/keyhandler.h"
 #include "core/menu.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
@@ -21,6 +22,8 @@ MainWindow::MainWindow(QWidget* parent)
 
   int32_t width = qApp->screens()[0]->size().width();
   int32_t height = qApp->screens()[0]->size().height();
+
+  Controller::CreateKeyHandler();
 
   Controller::scene = new GameScene();
   Controller::window = this;

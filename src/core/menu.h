@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QGraphicsItem>
 #include <QScreen>
+#include <QShortcut>
 #include <QWidget>
 
 #include "core/eventhandling.h"
@@ -19,6 +20,7 @@ class ButtonItem;
 class PlanetInfoGraphics;
 class FullPlanetInfo;
 class AttackResultWindow;
+class SettingsMenu;
 
 class Menu : public QObject {
   Q_OBJECT
@@ -33,10 +35,14 @@ class Menu : public QObject {
   const int32_t kGeneralButtonHeight = kHeight / 13;
   const int32_t kGeneralButtonWidth = kWidth / 5;
 
+  std::map<int, std::shared_ptr<QShortcut>> shortcuts_;
+
  public:
   virtual void SetZValue() = 0;
   virtual void Draw() = 0;
   virtual void SwitchTo(Controller::MenuType menu) = 0;
+
+  QShortcut* GetShortcut(int key);
 };
 
 class MainMenu : public Menu {
@@ -50,8 +56,12 @@ class MainMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnNewGameClicked();
+  void btnSettingsClicked();
 
  private:
   friend class EventHandler::View;
@@ -59,6 +69,7 @@ class MainMenu : public Menu {
   ImageItem* txt_total_space_;
   ButtonItem* btn_new_game_;
   ButtonItem* btn_exit_;
+  ButtonItem* btn_settings_;
 };
 
 class PauseMenu : public Menu {
@@ -72,15 +83,21 @@ class PauseMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnBackClicked();
   void btnExitClicked();
+  void btnSettingsClicked();
+  void keyEscapeReleased();
 
  private:
   friend class EventHandler::View;
 
   ButtonItem* btn_exit_;
   ButtonItem* btn_back_;
+  ButtonItem* btn_settings_;
   QGraphicsRectItem* background_rect_;
 };
 
@@ -103,6 +120,11 @@ class PlanetMenu : public Menu {
   void btnDefaultClicked();
   void btnAttackClicked();
   void btnMoveClicked();
+
+  void keyEscapeReleased();
+  void keyInfoReleased();
+  void keyAttackReleased();
+  void keyMoveReleased();
 
  private:
   friend class EventHandler::View;
@@ -202,6 +224,9 @@ class AttackMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class MoveMenu : public UnitsInteractionMenu {
@@ -212,27 +237,32 @@ class MoveMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class PlanetInfoMenu : public Menu {
   Q_OBJECT
-public:
- PlanetInfoMenu();
- ~PlanetInfoMenu() override;
- void SetZValue() override;
- void Draw() override;
- void SwitchTo(Controller::MenuType menu) override;
-private:
- void Destroy();
+ public:
+  PlanetInfoMenu();
+  ~PlanetInfoMenu() override;
+  void SetZValue() override;
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
 
- QGraphicsRectItem* background_ = nullptr;
- ButtonItem* upgrade_button_ = nullptr;
- ButtonItem* exit_button_ = nullptr;
- FullPlanetInfo* planet_info_ = nullptr;
+ private:
+  void Destroy();
 
-private slots:
- void Upgrade();
- void Exit();
+  QGraphicsRectItem* background_ = nullptr;
+  ButtonItem* upgrade_button_ = nullptr;
+  ButtonItem* exit_button_ = nullptr;
+  FullPlanetInfo* planet_info_ = nullptr;
+
+ private slots:
+  void Upgrade();
+  void Exit();
+  void keyEscapePressed();
 };
 
 class GameMenu : public Menu {
@@ -251,10 +281,69 @@ class GameMenu : public Menu {
   void Hide();
   void Show();
 
+ private slots:
+  void keyEscapeReleased();
+  void keyNextReleased();
+
  private:
   friend class EventHandler::View;
 
   ButtonItem* btn_next_;
+};
+
+class SettingsMenu : public Menu {
+  Q_OBJECT
+
+ public:
+  SettingsMenu();
+  ~SettingsMenu() override;
+
+  void SwitchTo(Controller::MenuType menu) override;
+  void Draw() override;
+  void SetZValue() override;
+  void Hide();
+  void Show();
+
+  Controller::MenuType GetPrevMenu();
+  void SetPrevMenu(Controller::MenuType menu);
+
+ private slots:
+  void keyEscapeReleased();
+
+ private:
+  friend class EventHandler::View;
+  class Section;
+
+  ScrollingView* scroll_view_;
+  QGraphicsScene* scroll_scene_;
+  std::vector<std::shared_ptr<Section>> sections_;
+  Controller::MenuType prev_menu_;
+
+  std::shared_ptr<Section> AddSection(const QString& name);
+
+  class Section {
+    class SubSection;
+
+   public:
+    Section() = delete;
+    Section(const QString& name);
+
+    std::shared_ptr<SubSection> AddSubSection(const QString& name);
+
+   private:
+    std::vector<std::shared_ptr<SubSection>> sub_sections_;
+
+    class SubSection {
+     public:
+      SubSection() = delete;
+      SubSection(const QString& name);
+
+      void AddKeyDescription(const QString& des, Qt::Key key, bool is_unique_);
+
+     private:
+      std::map<Qt::Key, std::vector<QString>> description_;
+    };
+  };
 };
 
 #endif  // MENU_H

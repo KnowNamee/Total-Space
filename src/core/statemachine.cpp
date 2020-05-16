@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "core/keyhandler.h"
 #include "core/menu.h"
 #include "core/menugraph.h"
 #include "mainwindow.h"
@@ -13,7 +14,7 @@
 // -----------------------------------------------------------
 
 Controller::MenuType Controller::current_state_ = Controller::MenuType::kMain;
-int Controller::kMenuCount = 8;
+int Controller::kMenuCount = 9;
 
 MainMenu* Controller::main_menu_ = nullptr;
 UnitMenu* Controller::unit_menu_ = nullptr;
@@ -23,6 +24,8 @@ PauseMenu* Controller::pause_menu_ = nullptr;
 PlanetInfoMenu* Controller::planet_info_menu_ = nullptr;
 PlanetMenu* Controller::planet_menu_ = nullptr;
 GameMenu* Controller::game_menu_ = nullptr;
+SettingsMenu* Controller::settings_menu_ = nullptr;
+std::shared_ptr<KeyHandler> Controller::key_handler_ = nullptr;
 
 GameView* Controller::view = nullptr;
 
@@ -58,6 +61,9 @@ void Controller::SwitchMenu(MenuType menu) {
     case MenuType::kPlanetInfo:
       planet_info_menu_->SwitchTo(menu);
       break;
+    case MenuType::kSettings:
+      settings_menu_->SwitchTo(menu);
+      break;
     default:
       break;
   }
@@ -66,7 +72,8 @@ void Controller::SwitchMenu(MenuType menu) {
 void Controller::LoadMenuGraph() {
   QVector<QVector<MenuType>> connections(kMenuCount);
 
-  connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame};
+  connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame,
+                                                    MenuType::kSettings};
   connections[static_cast<int>(MenuType::kGame)] = {MenuType::kPlanet,
                                                     MenuType::kPause};
   connections[static_cast<int>(MenuType::kPlanet)] = {
@@ -75,8 +82,11 @@ void Controller::LoadMenuGraph() {
   connections[static_cast<int>(MenuType::kPlanetInfo)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kAttack)] = {MenuType::kPlanet};
   connections[static_cast<int>(MenuType::kMove)] = {MenuType::kPlanet};
-  connections[static_cast<int>(MenuType::kPause)] = {MenuType::kMain,
-                                                     MenuType::kGame};
+  connections[static_cast<int>(MenuType::kPause)] = {
+      MenuType::kMain, MenuType::kGame, MenuType::kSettings};
+
+  connections[static_cast<int>(MenuType::kSettings)] = {MenuType::kPause,
+                                                        MenuType::kMain};
 
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }
@@ -99,6 +109,7 @@ void Controller::Destroy() {
   Controller::SetPlanetInfoMenu(nullptr);
   Controller::SetPauseMenu(nullptr);
   Controller::SetMainMenu(nullptr);
+  Controller::SetSettingsMenu(nullptr);
   Controller::SetGameMenu(
       nullptr);  // ! эта строка должна идти последней всегда
 }
@@ -122,6 +133,8 @@ PauseMenu* Controller::GetPauseMenu() { return pause_menu_; }
 PlanetMenu* Controller::GetPlanetMenu() { return planet_menu_; }
 
 GameMenu* Controller::GetGameMenu() { return game_menu_; }
+
+SettingsMenu* Controller::GetSettingsMenu() { return settings_menu_; }
 
 void Controller::SetMainMenu(MainMenu* menu) {
   delete (main_menu_);
@@ -161,4 +174,15 @@ void Controller::SetPlanetMenu(PlanetMenu* menu) {
 void Controller::SetGameMenu(GameMenu* menu) {
   delete (game_menu_);
   game_menu_ = menu;
+}
+
+void Controller::SetSettingsMenu(SettingsMenu* menu) {
+  delete (settings_menu_);
+  settings_menu_ = menu;
+}
+
+KeyHandler* Controller::GetKeyHandler() { return key_handler_.get(); }
+
+void Controller::CreateKeyHandler() {
+  key_handler_ = std::make_shared<KeyHandler>();
 }
