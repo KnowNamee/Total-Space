@@ -6,4 +6,6 @@ Player::Player(Planet* planet, const QString& color)
 
 Player::~Player() {}
 
-void Player::Next() {}
+void Player::Next() {
+  UpdateResources();
+}

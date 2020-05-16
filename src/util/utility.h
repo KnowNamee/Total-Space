@@ -22,6 +22,15 @@ class Resources {
     return Resources(batteries_ - rhs.batteries_, tools_ - rhs.tools_);
   }
 
+  Resources operator*(double rhs) const {
+    return Resources(static_cast<int32_t>(batteries_ * rhs),
+                     static_cast<int32_t>(tools_ * rhs));
+  }
+
+  Resources operator/(int32_t rhs) const {
+    return Resources(batteries_ / rhs, tools_ / rhs);
+  }
+
   Resources& operator+=(const Resources& rhs) {
     *this = *this + rhs;
     return *this;
@@ -34,6 +43,9 @@ class Resources {
 
   bool operator<=(const Resources& rhs) const {
     return batteries_ <= rhs.batteries_ && tools_ <= rhs.tools_;
+  }
+  bool operator<(const Resources& rhs) const {
+    return batteries_ < rhs.batteries_ && tools_ < rhs.tools_;
   }
 
  private:

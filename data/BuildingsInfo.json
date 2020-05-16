@@ -83,8 +83,8 @@
         "droid" : {
             "caption": "Droid",
             "power": 320,
-            "batteries_cost": 600,
-            "tools_cost": 200,
+            "batteries_cost": 100,
+            "tools_cost": 100,
             "role": "Range",
             "enemy": "Falcon",
             "attack": 30,

@@ -10,7 +10,7 @@
 
 #include "graphics/planetgraphics.h"
 
-class PlanetsGraph {
+class   PlanetsGraph {
  private:
   class Edge;
 

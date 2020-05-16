@@ -94,6 +94,14 @@ void GameScene::NewGame() {
   bot1_->SetName("First Bot");
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
+  bot2_->GetPlanets()[0]->Upgrade();
+  bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kRobotsLine);
+  bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kBatteryFactory);
+  bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kWorkshop);
+  bot1_->GetPlanets()[0]->Upgrade();
+  bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kRobotsLine);
+  bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kBatteryFactory);
+  bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kWorkshop);
   bot2_->SetName("Second Bot");
   screen.StopLoad();
   // Перерисовываем рёбра графа

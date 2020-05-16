@@ -36,12 +36,32 @@ void Planet::AddUnit(UnitType unit) {
   }
 }
 
+void Planet::BuyUnit(UnitType unit) {
+  if (owner_ != nullptr) {
+    owner_->SubResources(ObjectsStorage::GetUnitCost(unit));
+    units_on_planet_.push_back(unit);
+  }
+}
+
+void Planet::BuyUnits(QVector<UnitType> units) {
+  for (UnitType unit : units) {
+    BuyUnit(unit);
+  }
+}
+
 void Planet::AddUnits(const QVector<UnitType>& units) {
   tired_units_.append(units);
 }
 
 void Planet::RemoveUnit(UnitType unit) {
   units_on_planet_.removeOne(unit);
+  if (owner_ != nullptr) {
+    owner_->IncreasePower(-1 * ObjectsStorage::GetUnitPower(unit));
+  }
+}
+
+void Planet::RemoveTiredUnit(UnitType unit) {
+  tired_units_.removeOne(unit);
   if (owner_ != nullptr) {
     owner_->IncreasePower(-1 * ObjectsStorage::GetUnitPower(unit));
   }
@@ -161,16 +181,18 @@ std::map<Planet*, QVector<UnitType>> Planet::GetNearestNonBorderUnits() const {
   std::map<Planet*, QVector<UnitType>> planets_to_units;
   for (Planet* planet : nearest_planets) {
     if (!planet->IsBorder()) {
-      for (UnitType unit : planet->GetUnits()) {
-        planets_to_units[planet].push_back(unit);
+      QVector<UnitType> units = planet->GetUnits();
+      if (units.empty()) {
+        continue;
       }
+      planets_to_units[planet].append(units);
     }
   }
   return planets_to_units;
 }
 
-QVector<UnitType> Planet::GetMostProfitableUnits(
-    const QVector<UnitType>& units, Resources resources) const {
+QVector<UnitType> Planet::GetMostProfitableUnits(const QVector<UnitType>& units,
+                                                 Resources resources) const {
   std::set<UnitType> types = GetAffordableUnits(resources);
   std::map<UnitType, int32_t> units_to_quantity;
   for (UnitType type : types) {
@@ -234,9 +256,59 @@ std::set<UnitType> Planet::GetAffordableUnits(
   return result;
 }
 
+std::map<PlayerBase*, QVector<Planet*>> Planet::GetNearestEnemies() const {
+  std::map<PlayerBase*, QVector<Planet*>> enemies_to_planets;
+  for (Planet* planet : GetNearestPlanets()) {
+    PlayerBase* enemy = planet->GetOwner();
+    if (enemy != nullptr && enemy != owner_) {
+      if (!enemies_to_planets[enemy].contains(planet)) {
+        enemies_to_planets[enemy].push_back(planet);
+      }
+    }
+  }
+  return enemies_to_planets;
+}
+
+bool Planet::IsAbleToDefend(const QVector<UnitType>& current_units,
+                            Planet* retired_planet) {
+  std::map<PlayerBase*, QVector<Planet*>> enemies_to_planets =
+      GetNearestEnemies();
+  for (const auto& enemy_to_units : enemies_to_planets) {
+    std::map<Planet*, QVector<UnitType>> enemy_units;
+    for (Planet* planet : enemy_to_units.second) {
+      if (planet == retired_planet) {
+        continue;
+      }
+      QVector<UnitType> planet_units = planet->units_on_planet_;
+      planet_units.append(planet->tired_units_);
+      enemy_units[planet] = planet_units;
+    }
+    AttackResult result = CalculateAttack(enemy_units, current_units);
+    if (result != AttackResult::kLose) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Planet::TryTakeAttack(const QVector<UnitType>& attacking_units,
+                           Planet* attacking_planet) {
+  QVector<UnitType> defending_units = units_on_planet_;
+  defending_units.append(tired_units_);
+  std::map<Planet*, QVector<UnitType>> enemy = {
+      std::make_pair(attacking_planet, attacking_units)};
+  AttackResult result = CalculateAttack(enemy, defending_units);
+  if (result == AttackResult::kWin) {
+    return true;
+  }
+  return false;
+}
+
 bool Planet::TakeAttack(
     const std::map<Planet*, QVector<UnitType>>& enemy_units) {
-  AttackResult result = CalculateAttack(enemy_units);
+  QVector<UnitType> units_under_attack = units_on_planet_;
+  units_under_attack.append(tired_units_);
+  AttackResult result = CalculateAttack(enemy_units, units_under_attack);
   switch (result) {
     case AttackResult::kDraw: {
       return Draw(enemy_units, attack_points_);
@@ -251,7 +323,8 @@ bool Planet::TakeAttack(
 }
 
 Planet::AttackResult Planet::CalculateAttack(
-    const std::map<Planet*, QVector<UnitType>>& enemy_units) {
+    const std::map<Planet*, QVector<UnitType>>& enemy_units,
+    const QVector<UnitType>& defending_units) {
   UnitCharacteristics enemy_characteristics;
   int32_t enemy_meele_count = 0;
   int32_t enemy_range_count = 0;
@@ -278,7 +351,7 @@ Planet::AttackResult Planet::CalculateAttack(
         enemy_range_count++;
       }
 
-      if (units_on_planet_.contains(ObjectsStorage::GetUnitEnemy(unit))) {
+      if (defending_units.contains(ObjectsStorage::GetUnitEnemy(unit))) {
         enemy_characteristics += ObjectsStorage::GetUnitCharacteristics(unit) *
                                  kEnemyUnitCoefficient;
         continue;
@@ -291,7 +364,7 @@ Planet::AttackResult Planet::CalculateAttack(
   int32_t self_range_count = 0;
   int32_t self_power = 0;
   UnitCharacteristics self_characteristics;
-  for (UnitType unit : units_on_planet_) {
+  for (UnitType unit : defending_units) {
     self_power += ObjectsStorage::GetUnitPower(unit);
     if (ObjectsStorage::GetUnitRole(unit) == UnitRole::kMelee) {
       self_meele_count++;
@@ -489,6 +562,9 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
   for (UnitType unit : units_on_planet_) {
     RemoveUnit(unit);
+  }
+  for (UnitType unit : tired_units_) {
+    RemoveTiredUnit(unit);
   }
   MoveUnits(enemy_units_copy);
   if (owner_ != nullptr) {

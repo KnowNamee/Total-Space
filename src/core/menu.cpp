@@ -35,6 +35,10 @@ MainMenu::~MainMenu() {
   Controller::scene->removeItem(txt_total_space_);
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_new_game_);
+
+  delete txt_total_space_;
+  delete btn_exit_;
+  delete btn_new_game_;
 }
 
 void MainMenu::SetZValue() {
@@ -99,6 +103,10 @@ PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(btn_back_);
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(background_rect_);
+
+  delete btn_back_;
+  delete btn_exit_;
+  delete background_rect_;
 }
 
 void PauseMenu::SetZValue() {
@@ -214,6 +222,9 @@ PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn1_);
   Controller::scene->removeItem(btn2_);
   Controller::scene->removeItem(btn3_);
+  delete btn1_;
+  delete btn2_;
+  delete btn3_;
 }
 
 void PlanetMenu::SetZValue() {
@@ -444,6 +455,7 @@ void UnitsInteractionMenu::Draw() {
   // и количества виджетов
   scroll_view_->setSceneRect(0, 0, kUnitCellWidth + 5,
                              kUnitCellHeight * unit_widgets_.size() + 1);
+  scroll_view_->setStyleSheet("border: 0px");
   int32_t y = 0;
   for (const auto& unit : unit_widgets_) {
     unit.get()->setPos(0, y);

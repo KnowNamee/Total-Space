@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <functional>
 #include <memory>
 #include <set>
 
@@ -29,8 +30,11 @@ class Planet : public QObject {
 
   void AddBuilding(BuildingType building);
   void AddUnit(UnitType unit);
+  void BuyUnit(UnitType unit);
+  void BuyUnits(QVector<UnitType> units);
   void AddUnits(const QVector<UnitType>& units);
   void RemoveUnit(UnitType unit);
+  void RemoveTiredUnit(UnitType unit);
   void RemoveUnits(const QVector<UnitType>& units);
 
   void Upgrade();
@@ -60,10 +64,16 @@ class Planet : public QObject {
   QVector<UnitType> GetMostProfitableUnits(const QVector<UnitType>& units,
                                            Resources resources) const;
   std::set<UnitType> GetAffordableUnits(const Resources& resources) const;
+  std::map<PlayerBase*, QVector<Planet*>> GetNearestEnemies() const;
+  bool IsAbleToDefend(const QVector<UnitType>& current_units,
+                      Planet* retired_planet = nullptr);
+  bool TryTakeAttack(const QVector<UnitType>& attacking_units,
+                     Planet* attacking_planet);
 
   bool TakeAttack(const std::map<Planet*, QVector<UnitType>>& enemy_units);
   AttackResult CalculateAttack(
-      const std::map<Planet*, QVector<UnitType>>& enemy_units);
+      const std::map<Planet*, QVector<UnitType>>& enemy_units,
+      const QVector<UnitType>& defending_units);
   std::pair<int32_t, int32_t> CountPoints(const UnitCharacteristics& self,
                                           const UnitCharacteristics& enemy);
   bool Lose(const std::map<Planet*, QVector<UnitType>>& enemy_units);
