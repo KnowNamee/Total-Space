@@ -6,8 +6,9 @@
 #include <QGraphicsView>
 #include <QPushButton>
 #include <QTimer>
-#include <memory>
+#include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "core/menugraph.h"
 #include "core/statemachine.h"
@@ -18,6 +19,7 @@
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "graphics/planetinfographics.h"
+#include "graphics/shopplanetinfo.h"
 #include "graphics/shopwidget.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
@@ -291,27 +293,77 @@ void PlanetMenu::btnMoveClicked() {
 }
 //-------------------------------- Shop Menu -------------------------
 ShopMenu::ShopMenu() {
+    // создание виджетов магазина и меню инфы
+    std::map <BuildingType, int32_t> buildings_number;
+    std::map <BuildingType, ShopPlanetInfo*> building_info_ptr;
+    std::map <UnitType, int32_t> units_number;
+    std::map <UnitType, ShopPlanetInfo*> unit_info_ptr;
+
+    for (const BuildingType& building : Controller::GetActivePlanet()->GetBuildings()) {
+        ++buildings_number[building];
+    }
+    for (const auto& building : buildings_number) {
+        ShopPlanetInfo* building_info = new ShopPlanetInfo
+         (kInfoWidth, kInfoHeight, ObjectsStorage::GetBuildingCaption(building.first), building.second);
+        info_buildings_.push_back(building_info);
+        building_info_ptr[building.first] = building_info;
+    }
+
+    for (const UnitType& unit : Controller::GetActivePlanet()->GetUnits()) {
+        ++units_number[unit];
+    }
+    for (const UnitType& unit : Controller::GetActivePlanet()->GetTiredUnits()) {
+        ++units_number[unit];
+    }
+    for (const auto& unit : units_number) {
+        ShopPlanetInfo* unit_info = new ShopPlanetInfo(
+          kInfoWidth, kInfoHeight, ObjectsStorage::GetUnitCaption(unit.first), unit.second);
+        info_units_.push_back(unit_info);
+        unit_info_ptr[unit.first] = unit_info;
+    }
+
     for (const UnitType& unit : Controller::GetActivePlanet()->GetAvailableUnits()) {
         auto unit_data_ptr = ObjectsStorage::GetUnit(unit);
+        if (units_number.find(unit) == units_number.end()) {
+            ShopPlanetInfo* unit_info = new ShopPlanetInfo(
+                        kInfoWidth, kInfoHeight, unit_data_ptr->GetCaption(), 0);
+            info_units_.push_back(unit_info);
+            unit_info_ptr[unit] = unit_info;
+        }
+
         ShopWidget* unit_widget = new ShopWidget(kWidgetWidth, kWidgetHeight, ShopItemType::kUnit,
-                                                 unit_data_ptr->GetCaption(), unit_data_ptr->GetCost());
+                                                 unit_data_ptr->GetCaption(), unit_data_ptr->GetCost(),
+                                                 unit_info_ptr[unit]);
         shop_units_.push_back(unit_widget);
     }
+    for (const BuildingType& building : Controller::GetActivePlanet()->GetAvailableBuildings()) {
+        auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
+        if (buildings_number.find(building) == buildings_number.end()) {
+            ShopPlanetInfo* building_info = new ShopPlanetInfo(
+                        kInfoWidth, kInfoHeight, buildings_data_ptr->GetCaption(), 0);
+            info_buildings_.push_back(building_info);
+            building_info_ptr[building] = building_info;
+        }
 
-    for (BuildingType building : Controller::GetActivePlanet()->GetAvailableBuildings()) {
-          auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
         ShopWidget *building_widget = new ShopWidget(
             kWidgetWidth, kWidgetHeight, ShopItemType::kBuilding, buildings_data_ptr->GetCaption(),
-            buildings_data_ptr->GetCost());
+            buildings_data_ptr->GetCost(), building_info_ptr[building]);
         shop_buildings_.push_back(building_widget);
+
     }
 
+    std::sort(info_units_.begin(), info_units_.end(), [](ShopPlanetInfo* l, ShopPlanetInfo* r){
+        return l->GetQuant() > r->GetQuant();
+    });
+    std::sort(info_buildings_.begin(), info_buildings_.end(), [](ShopPlanetInfo* l, ShopPlanetInfo* r){
+        return l->GetQuant() > r->GetQuant();
+    });
+
+    // создание всего прочего
     background_rect_ = new QGraphicsRectItem();
     border_line_ = new QGraphicsLineItem();
     text_ = new QGraphicsSimpleTextItem();
     exit_bnt_ = new ButtonItem(kExitBtnSize, kExitBtnSize, false);
-
-    // TO DO размеры кнопок смены магазина юниты/постройки
     units_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
     buildings_btn_ = new ButtonItem(kBtnWidth, kBtnHeight, false);
 
@@ -339,9 +391,13 @@ ShopMenu::~ShopMenu() {
 
     for (auto el : shop_units_) { el->deleteLater();}
     for (auto el : shop_buildings_) { el->deleteLater();}
+    for (auto el : info_units_) { el->deleteLater();}
+    for (auto el : info_buildings_) { el->deleteLater();}
 
     shop_scrolling_view_->deleteLater();
     shop_scene_scroll_->deleteLater();
+    info_scrolling_view_->deleteLater();
+    info_scene_scroll_->deleteLater();
 }
 
 void ShopMenu::Draw() {
@@ -360,13 +416,13 @@ void ShopMenu::Draw() {
     border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y(),
                           top_left_cor.x() + size.width() * kBorderCoefficient, top_left_cor.y() + size.height());
 
+    // создание и размещения магазина
     shop_scene_scroll_ = new QGraphicsScene;
     shop_scene_scroll_->setBackgroundBrush(Qt::black);
     shop_scrolling_view_ =
         new ScrollingView(shop_scene_scroll_, Controller::window);
     shop_scrolling_view_->setStyleSheet("border: 0px");
 
-    // расчёт размеров и позиции самого магазина фактически
     int32_t x_offset = static_cast<int32_t>(size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
     int32_t y_offset = static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
     QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
@@ -396,6 +452,37 @@ void ShopMenu::Draw() {
         shop_scene_scroll_->addItem(shop_buildings_[i]);
     }
 
+    // создание зоны с инфой
+    info_scene_scroll_ = new QGraphicsScene();
+    info_scene_scroll_->setBackgroundBrush(Qt::white);
+    info_scrolling_view_ = new ScrollingView(info_scene_scroll_, Controller::window);
+    info_scrolling_view_->setStyleSheet("border: 0px");
+
+    QPointF info_pos(kWidth * (1 - kSizeCoefficient) / 2, kHeight * (1 - kSizeCoefficient) / 2);
+    info_pos += QPointF(size.width() * kBorderCoefficient * (1 - kSizeCoefficient) / 2,
+                size.height() * (1 - kSizeCoefficient) / 2);
+    info_scrolling_view_->setGeometry(
+        static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
+        static_cast<int32_t>(size.width() * kBorderCoefficient * kSizeCoefficient),
+        static_cast<int32_t>(size.height() * kSizeCoefficient));
+    int32_t visible_widgets = 0;
+
+    // добавление виджетов в меню инфы
+    for (auto i = 0; i < info_buildings_.size(); ++i) {
+        info_buildings_[i]->setPos(QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+        info_scene_scroll_->addItem(info_buildings_[i]);
+        visible_widgets += info_buildings_[i]->GetQuant() != 0 ? 1 : 0;
+    }
+    for (auto i = 0; i < info_units_.size(); ++i) {
+        info_units_[i]->setPos(QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+        info_scene_scroll_->addItem(info_units_[i]);
+        info_units_[i]->hide();
+    }
+
+    info_scrolling_view_->setSceneRect(0,0,size.width() * kBorderCoefficient * kSizeCoefficient,
+                                       std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+                                                static_cast<int32_t>(size.height() * kSizeCoefficient)));
+
     text_->setText("Player info");
     text_->setBrush(Qt::green);
     text_->setPos(top_left_cor);
@@ -420,6 +507,7 @@ void ShopMenu::SwitchTo(Controller::MenuType menu) {
 void ShopMenu::Show() {
     SetZValue();
     shop_scrolling_view_->show();
+    info_scrolling_view_->show();
     Controller::scene->addItem(background_rect_);
     Controller::scene->addItem(border_line_);
     Controller::scene->addItem(text_);
@@ -437,6 +525,7 @@ void ShopMenu::ChangeShop() {
     return;
   }
 
+  // Это просто копи-паст из Draw(). Не вижу смысла ещё такое большое кол-во констант выносить
   QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
   size  *= kSizeCoefficient / Controller::view->matrix().m11();
   int32_t x_offset = static_cast<int32_t>(size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
@@ -447,16 +536,43 @@ void ShopMenu::ChangeShop() {
 
   if (current_state_ == kUnits) {
         SwitchState(kBuildings);
-        for (const auto unit_widget : shop_units_) { unit_widget->WidgetHide();}
-        for (const auto build_widget : shop_buildings_) { build_widget->WidgetShow();}
+        for (const auto& unit_widget : shop_units_) { unit_widget->WidgetHide();}
+        for (const auto& build_widget : shop_buildings_) { build_widget->WidgetShow();}
+        int32_t lines = shop_buildings_.size() / kWidthCount;
+        lines += shop_buildings_.size() % kWidthCount != 0 ? 1 : 0;
+        qDebug() << lines;
         shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
-                        (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) - y_offset);
+                        lines * (kWidgetHeight + y_offset) - y_offset);
+
+        int32_t visible_widgets = 0;
+        for (const auto& unit_info : info_units_) { unit_info->hide();}
+        for (const auto& building_info : info_buildings_) {
+            if (building_info->GetQuant() == 0) { break;}
+            ++visible_widgets;
+            building_info->show();
+        }
+        info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                            std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+                                     static_cast<int32_t>(size.height() * kSizeCoefficient)));
     } else {
         SwitchState(kUnits);
-        for (const auto build_widget : shop_buildings_) { build_widget->WidgetHide();}
-        for (const auto unit_widget : shop_units_) { unit_widget->WidgetShow();}
+        for (const auto& build_widget : shop_buildings_) { build_widget->WidgetHide();}
+        for (const auto& unit_widget : shop_units_) { unit_widget->WidgetShow();}
+        int32_t lines = shop_units_.size() / kWidthCount;
+        lines += shop_units_.size() % kWidthCount != 0 ? 1 : 0;
         shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
-                        (shop_units_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) - y_offset);
+                        lines * (kWidgetHeight + y_offset) - y_offset);
+
+        int32_t visible_widgets = 0;
+        for (const auto& building_info : info_buildings_) { building_info->hide();}
+        for (const auto& unit_info : info_units_) {
+            if (unit_info->GetQuant() == 0) { break;}
+            ++visible_widgets;
+            unit_info->show();
+        }
+        info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                            std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+                                     static_cast<int32_t>(size.height() * kSizeCoefficient)));
   }
 }
 
@@ -479,6 +595,28 @@ void ShopMenu::MakePurchase(ShopItemType type, Resources cost, QString item_name
     } else {
         Controller::GetActivePlanet()->AddBuilding(
                     ObjectsStorage::GetBuildingType(item_name));
+    }
+    UpdateInfo();
+}
+
+void ShopMenu::UpdateInfo() {
+    if (current_state_ == ShopState::kBuildings) {
+        std::sort(info_buildings_.begin(), info_buildings_.end(), [](ShopPlanetInfo* l, ShopPlanetInfo* r){
+            return l->GetQuant() > r->GetQuant();
+        });
+        for (auto i = 0; i < info_buildings_.size(); ++i) {
+            info_buildings_[i]->setPos(QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+            info_buildings_[i]->update();
+        }
+        return;
+    }
+
+    std::sort(info_units_.begin(), info_units_.end(), [](ShopPlanetInfo* l, ShopPlanetInfo* r){
+        return  l->GetQuant() > r->GetQuant();
+    });
+    for (auto i = 0; i < info_units_.size(); ++i) {
+        info_units_[i]->setPos(QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+        info_units_[i]->update();
     }
 }
 // ----------------------------- Game Menu -------------------------------

@@ -131,6 +131,7 @@ class ShopMenu : public Menu {
 
   void SwitchState(ShopState state);
   void MakePurchase(ShopItemType type, Resources cost, QString item_name);
+  void UpdateInfo();
 
 private slots:
   void ChangeShop();
@@ -151,9 +152,11 @@ private:
 
   QGraphicsScene* shop_scene_scroll_ = nullptr;
   ScrollingView* shop_scrolling_view_ = nullptr;
-
   QVector <ShopWidget*> shop_buildings_;
   QVector <ShopWidget*> shop_units_;
+
+  QGraphicsScene* info_scene_scroll_ = nullptr;
+  ScrollingView* info_scrolling_view_ = nullptr;
   QVector <ShopPlanetInfo*> info_buildings_;
   QVector <ShopPlanetInfo*> info_units_;
 
@@ -169,6 +172,11 @@ private:
       static_cast<int32_t>(kWidth * kSizeCoefficient * (1 - kBorderCoefficient) * kWidgetWidthCoef);
   const int32_t kWidgetHeight = static_cast<int32_t>(kHeight * kSizeCoefficient * kWidgetHeightCoef);
   //-------------------------------------------------------------
+  const int32_t kInfoCount = 5;
+  const int32_t kInfoWidth = static_cast<int32_t>(kWidth *
+                             kSizeCoefficient * kBorderCoefficient * kSizeCoefficient);
+  const int32_t kInfoHeight = static_cast<int32_t>(kHeight *
+                              kSizeCoefficient * kSizeCoefficient / kInfoCount);
 
   const int32_t kExitBtnSize = kHeight / 20;
   const int32_t kBtnWidth = kHeight / 15;

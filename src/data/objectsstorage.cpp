@@ -102,6 +102,11 @@ UnitType ObjectsStorage::GetBuildingUnit(BuildingType building) {
 const Unit* ObjectsStorage::GetUnit(UnitType unit) {
     return type_to_unit_[unit];
 }
+
 const Building* ObjectsStorage::GetBuilding(BuildingType building) {
     return type_to_building_[building];
+}
+
+const QString& ObjectsStorage::GetBuildingCaption(BuildingType building) {
+    return type_to_building_.at(building)->GetCaption();
 }

@@ -6,11 +6,14 @@
 #include "graphics/buttonitem.h"
 #include "util/utility.h"
 
+class ShopPlanetInfo;
+
 class ShopWidget : public QObject, public QGraphicsItem{
   Q_OBJECT
   Q_INTERFACES(QGraphicsItem)
 public:
-  ShopWidget(int32_t width, int32_t height, ShopItemType type, QString name, Resources cost);
+  ShopWidget(int32_t width, int32_t height, ShopItemType type,
+             QString name, Resources cost, ShopPlanetInfo* info);
 
   void Destroy();
   void SetScene(QGraphicsScene* scene);
@@ -41,6 +44,8 @@ private:
 
   QString object_name_;
   Resources cost_;
+  ShopPlanetInfo* object_info_ = nullptr;
+
 
   const double kNameZoneCoef = 0.075;
   const double kPictureCoef = 0.65;

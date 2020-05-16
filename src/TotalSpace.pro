@@ -37,6 +37,7 @@ SOURCES += \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
+        graphics/shopplanetinfo.cpp \
         graphics/shopwidget.cpp \
         graphics/unitwidget.cpp \
         main.cpp \

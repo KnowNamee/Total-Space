@@ -1,4 +1,5 @@
 #include "graphics/shopwidget.h"
+#include "graphics/shopplanetinfo.h"
 #include "core/statemachine.h"
 #include "core/menu.h"
 #include "objects/unit.h"
@@ -10,14 +11,16 @@
 #include <QPen>
 #include <scene/gamescene.h>
 
-ShopWidget::ShopWidget(int32_t width, int32_t height, ShopItemType type, QString name, Resources cost)
-    : width_(width), height_(height), type_(type), object_name_(name), cost_(cost){
+ShopWidget::ShopWidget(int32_t width, int32_t height, ShopItemType type,
+                       QString name, Resources cost, ShopPlanetInfo* info)
+    :  type_(type), width_(width), height_(height), object_name_(name), cost_(cost), object_info_(info){
     // TO DO определить рамки рамки, чтобы было beautiful
     border_ = static_cast<int32_t>(width_ * 0.95);
     buy_btn_ = new ButtonItem(width_,
         static_cast<int32_t>(height_ * kBtnCoef),
                               false);
 
+    connect(buy_btn_, SIGNAL(clicked()), object_info_, SLOT(IncQuant()));
     connect(buy_btn_, SIGNAL(clicked()), this, SLOT(Purchase()));
 }
 
