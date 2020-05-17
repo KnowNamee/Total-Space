@@ -5,6 +5,7 @@
 #include <map>
 
 #include "core/statemachine.h"
+#include "graphics/keyfield.h"
 
 using MType = Controller::MenuType;
 
@@ -19,11 +20,14 @@ class KeyHandler {
   KeyHandler();
 
   void AddToData(MType type, const std::map<Qt::Key, Key>& data);
-  void UpdateData(MType type, Qt::Key, Qt::Key, const QString& description,
-                  bool can_modify = true);
+  void UpdateData(MType type, Qt::Key first_key, Qt::Key secnd_key,
+                  const QString& description, bool can_modify = true);
   const std::map<MType, std::map<Qt::Key, Key>>& GetData();
 
-  const Key& Get(MType type, Qt::Key);
+  const std::map<Qt::Key, Key>& GetKeys(MType type);
+  const Key& Get(MType type, Qt::Key key);
+
+  void UpdateKey(KeyField* field, Qt::Key new_key);
 
  private:
   std::map<MType, std::map<Qt::Key, Key>> data_;

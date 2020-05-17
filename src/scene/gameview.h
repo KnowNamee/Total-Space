@@ -15,6 +15,8 @@ class GameView : public QGraphicsView {
   GameView(GameScene* scene, QWidget* parent);
   GameScene* GetScene() const;
   void SetNewGameSettings();
+  void EnableKeyReleaseListener();
+  bool IsKeyListenerEnabled();
 
   std::shared_ptr<EventHandler::View> EventHandler();
 
@@ -28,6 +30,7 @@ class GameView : public QGraphicsView {
   void keyReleaseEvent(QKeyEvent* event) override;
 
   const double kScaleCoefficient = 0.5;
+  bool is_key_listener_enabled_ = false;
   std::shared_ptr<EventHandler::View> event_handler_;
 };
 
@@ -36,10 +39,10 @@ class ScrollingView : public QGraphicsView {
 
  public:
   ScrollingView(QGraphicsScene* scene, QWidget* parent = nullptr);
+  ~ScrollingView() override;
 
  private:
   void keyReleaseEvent(QKeyEvent* event) override;
-  bool is_released = true;
 };
 
 #endif  // GAMEVIEW_H

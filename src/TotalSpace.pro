@@ -37,6 +37,7 @@ SOURCES += \
         graphics/drawer.cpp \
         graphics/fullplanetinfo.cpp \
         graphics/imageitem.cpp \
+        graphics/keyfield.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
         graphics/unitwidget.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     graphics/drawer.h \
     graphics/fullplanetinfo.h \
     graphics/imageitem.h \
+  graphics/keyfield.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
     graphics/unitwidget.h \

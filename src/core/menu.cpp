@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QPushButton>
@@ -303,9 +304,9 @@ PlanetMenu::PlanetMenu() {
 
     connect(shortcuts_[key_btn1].get(), SIGNAL(activated()), this,
             SLOT(keyMoveReleased()));
-    connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
-            SLOT(keyInfoReleased()));
     connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
+            SLOT(keyInfoReleased()));
+    connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
             SLOT(keyEscapeReleased()));
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
@@ -1004,15 +1005,11 @@ void PlanetInfoMenu::keyEscapePressed() {
 }
 
 SettingsMenu::SettingsMenu() {
-  scroll_scene_ = new QGraphicsScene();
-  scroll_view_ = new ScrollingView(scroll_scene_, Controller::window);
-  int h = qApp->screens()[0]->size().height();
-  int w = qApp->screens()[0]->size().width();
+  Draw();
+  SetZValue();
+  DrawData();
 
-  scroll_view_->setGeometry(0, 0, w, h);
-  scroll_view_->setSceneRect(Controller::view->sceneRect());
-  scroll_view_->show();
-  scroll_scene_->setBackgroundBrush(Qt::red);
+  connect(btn_back_, SIGNAL(clicked()), this, SLOT(btnBackClicked()));
 
   Controller::MenuType type = Controller::MenuType::kSettings;
   Qt::Key key_esc = Controller::GetKeyHandler()->Get(type, Qt::Key_Escape).key;
@@ -1024,8 +1021,10 @@ SettingsMenu::SettingsMenu() {
 }
 
 SettingsMenu::~SettingsMenu() {
-  delete (scroll_scene_);
-  delete (scroll_view_);
+  delete (settings_);
+  delete (background_rect_);
+  delete (btn_back_);
+  delete (keypad_);
 }
 
 void SettingsMenu::SwitchTo(Controller::MenuType menu) {
@@ -1043,9 +1042,62 @@ void SettingsMenu::SwitchTo(Controller::MenuType menu) {
   }
 }
 
-void SettingsMenu::Draw() {}
+void SettingsMenu::Draw() {
+  int h = qApp->screens()[0]->size().height();
+  int w = qApp->screens()[0]->size().width();
 
-void SettingsMenu::SetZValue() {}
+  cur_x = w / 20;
+  cur_y = h / 9;
+
+  GameView* view = Controller::view;
+  QPointF center =
+      view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
+  double coef = view->matrix().m11();
+  QRectF rect = view->sceneRect();
+
+  rect.setX(center.x() - view->rect().width() / coef);
+  rect.setY(center.y() - view->rect().height() / coef);
+  rect.setSize(rect.size() * 4);
+
+  background_rect_ = new QGraphicsRectItem();
+  background_rect_->setScale(1 / coef);
+  background_rect_->setRect(rect);
+  background_rect_->setOpacity(0.7);
+  background_rect_->setBrush(Qt::black);
+
+  settings_ = new QGraphicsTextItem("Settings");
+  settings_->setDefaultTextColor(Qt::white);
+  settings_->setFont(QFont("Arial", 48));
+  settings_->setPos(Controller::view->mapToScene(
+      (w - settings_->boundingRect().width()) / 2, h / 30));
+  settings_->setScale(1 / coef);
+
+  keypad_ = new QGraphicsTextItem("Keypad");
+  keypad_->setDefaultTextColor(Qt::white);
+  keypad_->setFont(QFont("Arial", 36));
+  keypad_->setPos(Controller::view->mapToScene(cur_x, cur_y));
+  keypad_->setScale(1 / coef);
+
+  btn_back_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_back_->setPos(
+      Controller::view->mapToScene(QPoint(w, h) - QPoint(w / 8, h / 15)));
+
+  Controller::scene->addItem(keypad_);
+  Controller::scene->addItem(btn_back_);
+  Controller::scene->addItem(settings_);
+  Controller::scene->addItem(background_rect_);
+}
+
+void SettingsMenu::SetZValue() {
+  background_rect_->setZValue(ZValues::kSettingsMenuDown);
+  settings_->setZValue(ZValues::kSettingsMenuUp);
+  btn_back_->setZValue(ZValues::kSettingsMenuUp);
+  keypad_->setZValue(ZValues::kSettingsMenuUp);
+}
+
+void SettingsMenu::SetActiveKeyField(KeyField* field) { active_field_ = field; }
+
+KeyField* SettingsMenu::GetActiveKeyField() { return active_field_; }
 
 Controller::MenuType SettingsMenu::GetPrevMenu() { return prev_menu_; }
 
@@ -1059,6 +1111,119 @@ void SettingsMenu::keyEscapeReleased() {
   }
 }
 
+void SettingsMenu::btnBackClicked() { Controller::SwitchMenu(prev_menu_); }
+
+bool SettingsMenu::AddSection(const QString& name, int x, int y) {
+  if (name != kStrNoSection) {
+    sections_.push_back(std::make_shared<Section>(name, x, y));
+    return true;
+  }
+  return false;
+}
+
+void SettingsMenu::DrawData() {
+  int offset_section_x = keypad_->boundingRect().width() / 4;
+  for (const std::pair<Controller::MenuType,
+                       std::map<Qt::Key, KeyHandler::Key>>& p1 :
+       Controller::GetKeyHandler()->GetData()) {
+    cur_y += keypad_->boundingRect().height() * 1.25;
+    bool is_added =
+        AddSection(GetSectionName(p1.first), cur_x + offset_section_x, cur_y);
+    cur_y -= (keypad_->boundingRect().height() * 1.25) * (!is_added);
+    if (is_added) {
+      for (const std::pair<Qt::Key, KeyHandler::Key>& p2 : p1.second) {
+        sections_.back()->AddData(p2.second, p1.first);
+      }
+      cur_y = sections_.back()->GetY();
+    }
+  }
+}
+
+QString SettingsMenu::GetSectionName(Controller::MenuType type) {
+  switch (type) {
+    case Controller::MenuType::kGame:
+      return "Game";
+    case Controller::MenuType::kPlanet:
+      return "Planet";
+    default:
+      return kStrNoSection;
+  }
+}
+
 QShortcut* Menu::GetShortcut(int key) {
   return (shortcuts_[key] == nullptr ? nullptr : shortcuts_[key].get());
+}
+
+Section::Section() {}
+
+Section::Section(const QString& name, int x, int y) : cur_x_(x), cur_y_(y) {
+  name_ = new QGraphicsTextItem(name);
+  name_->setDefaultTextColor(Qt::white);
+  name_->setFont(QFont("Arial", 28));
+  name_->setPos(Controller::view->mapToScene(cur_x_, cur_y_));
+  name_->setScale(1 / Controller::view->matrix().m11());
+  name_->setZValue(ZValues::kSettingsMenuUp);
+
+  Controller::scene->addItem(name_);
+}
+
+Section::~Section() {
+  delete (name_);
+  for (auto x : actions_) {
+    delete (x);
+  }
+  for (auto x : actions_keys_) {
+    delete (x);
+  }
+}
+
+void Section::AddData(const KeyHandler::Key& data, Controller::MenuType type) {
+  if (!data.can_modify) {
+    return;
+  }
+  int w = qApp->screens()[0]->size().width();
+
+  cur_y_ += name_->boundingRect().height() * 1.2;
+  QGraphicsTextItem* text = new QGraphicsTextItem(data.description);
+  text->setDefaultTextColor(Qt::white);
+  text->setFont(QFont("Arial", 24));
+  text->setPos(Controller::view->mapToScene(
+      cur_x_ + name_->boundingRect().width() / 4, cur_y_));
+  text->setScale(1 / Controller::view->matrix().m11());
+  text->setZValue(ZValues::kSettingsMenuUp);
+  actions_.push_back(text);
+
+  KeyField* ledit = new KeyField(data.key, type);
+  ledit->setFont(QFont("Arial", 23));
+  ledit->setReadOnly(true);
+  ledit->setStyleSheet(
+      "background-color: transparent;"
+      "border: 2px solid gray;"
+      "border-color: white;"
+      "padding-left: 10;"
+      "color: white;");
+  ledit->setCursor(Controller::view->cursor());
+  actions_keys_.push_back(ledit);
+
+  QGraphicsProxyWidget* widget = Controller::scene->addWidget(ledit);
+  widget->setPos(Controller::view->mapToScene(cur_x_ + w / 3, cur_y_));
+  widget->setScale(1 / Controller::view->matrix().m11());
+  widget->setZValue(ZValues::kSettingsMenuUp);
+  widget->setFlag(QGraphicsItem::ItemIsSelectable);
+
+  connect(ledit, SIGNAL(clicked()), this, SLOT(btnChangeKeyClicked()));
+  Controller::scene->addItem(text);
+}
+
+int Section::GetY() { return cur_y_; }
+
+void Section::btnChangeKeyClicked() {
+  KeyField* ledit = dynamic_cast<KeyField*>(QObject::sender());
+  if (ledit) {
+    if (!Controller::view->IsKeyListenerEnabled()) {
+      ledit->setText("");
+      Controller::view->EnableKeyReleaseListener();
+      Controller::GetSettingsMenu()->SetActiveKeyField(ledit);
+    }
+  }
 }

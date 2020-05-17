@@ -3,12 +3,15 @@
 
 #include <QApplication>
 #include <QGraphicsItem>
+#include <QLineEdit>
 #include <QScreen>
 #include <QShortcut>
 #include <QWidget>
 
 #include "core/eventhandling.h"
+#include "core/keyhandler.h"
 #include "core/statemachine.h"
+#include "graphics/keyfield.h"
 #include "scene/gameview.h"
 #include "util/utility.h"
 
@@ -291,6 +294,29 @@ class GameMenu : public Menu {
   ButtonItem* btn_next_;
 };
 
+class Section : public QObject {
+  Q_OBJECT
+
+ public:
+  Section();
+  Section(const QString& name, int x, int y);
+  ~Section();
+
+  void AddData(const KeyHandler::Key& data, Controller::MenuType type);
+  int GetY();
+
+ private:
+  QGraphicsTextItem* name_;
+  int cur_x_;
+  int cur_y_;
+
+  std::vector<QGraphicsTextItem*> actions_;
+  std::vector<KeyField*> actions_keys_;
+
+ private slots:
+  void btnChangeKeyClicked();
+};
+
 class SettingsMenu : public Menu {
   Q_OBJECT
 
@@ -301,49 +327,37 @@ class SettingsMenu : public Menu {
   void SwitchTo(Controller::MenuType menu) override;
   void Draw() override;
   void SetZValue() override;
-  void Hide();
-  void Show();
+
+  void SetActiveKeyField(KeyField* field);
+  KeyField* GetActiveKeyField();
 
   Controller::MenuType GetPrevMenu();
   void SetPrevMenu(Controller::MenuType menu);
 
  private slots:
   void keyEscapeReleased();
+  void btnBackClicked();
 
  private:
   friend class EventHandler::View;
-  class Section;
 
-  ScrollingView* scroll_view_;
-  QGraphicsScene* scroll_scene_;
+  QGraphicsRectItem* background_rect_;
+  QGraphicsTextItem* settings_;
+  QGraphicsTextItem* keypad_;
+  ButtonItem* btn_back_;
   std::vector<std::shared_ptr<Section>> sections_;
   Controller::MenuType prev_menu_;
 
-  std::shared_ptr<Section> AddSection(const QString& name);
+  int cur_x;
+  int cur_y;
+  int text_field_x;
+  int text_field_y;
+  KeyField* active_field_ = nullptr;
+  const QString kStrNoSection = "~";
 
-  class Section {
-    class SubSection;
-
-   public:
-    Section() = delete;
-    Section(const QString& name);
-
-    std::shared_ptr<SubSection> AddSubSection(const QString& name);
-
-   private:
-    std::vector<std::shared_ptr<SubSection>> sub_sections_;
-
-    class SubSection {
-     public:
-      SubSection() = delete;
-      SubSection(const QString& name);
-
-      void AddKeyDescription(const QString& des, Qt::Key key, bool is_unique_);
-
-     private:
-      std::map<Qt::Key, std::vector<QString>> description_;
-    };
-  };
+  bool AddSection(const QString& name, int x, int y);
+  void DrawData();
+  QString GetSectionName(Controller::MenuType type);
 };
 
 #endif  // MENU_H

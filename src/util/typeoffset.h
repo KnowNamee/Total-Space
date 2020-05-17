@@ -25,6 +25,8 @@ enum {
   kLoadScreen = 5,
   kLoadScreenStage = 6,
   kLoadScreenBar = 6,
+  kSettingsMenuDown = 7,
+  kSettingsMenuUp = 8,
 };
 
 }  // namespace ZValues
