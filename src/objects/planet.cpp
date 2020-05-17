@@ -131,10 +131,9 @@ std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
         units_to_data[unit].unit_image = Loader::GetUnitImage(unit);
         units_to_data[unit].caption = ObjectsStorage::GetUnitCaption(unit);
       } else {
-        // TODO
-        // Картинка вопроса
-        units_to_data[unit].unit_image = nullptr;
-        units_to_data[unit].caption = "No Name";
+        units_to_data[unit].unit_image =
+            Loader::GetButtonImage(ButtonsEnum::kNoNameUnit);
+        units_to_data[unit].caption = "no name";
       }
     }
     units_to_data[unit].quantity++;

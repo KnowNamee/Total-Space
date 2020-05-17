@@ -1,5 +1,6 @@
 #include "data/loader.h"
 
+#include <QBrush>
 #include <QFontDatabase>
 #include <QVector>
 #include <QBrush>
@@ -56,6 +57,18 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/active_widget.png");
     button_images_[ButtonsEnum::kUnactiveWidget] =
         std::make_shared<QPixmap>(":/Img/unactive_widget.png");
+    button_images_[ButtonsEnum::kUnactiveWidget] =
+        std::make_shared<QPixmap>(":/Img/unactive_widget.png");
+    button_images_[ButtonsEnum::kLoadingBackground] =
+        std::make_shared<QPixmap>(":/Img/loading_background.jpg");
+    button_images_[ButtonsEnum::kUpgradActiveButton] =
+        std::make_shared<QPixmap>(":/Img/upgrade_active_button.png");
+    button_images_[ButtonsEnum::kUpgradeUnactiveButton] =
+        std::make_shared<QPixmap>(":/Img/upgrade_unactive_button.png");
+    button_images_[ButtonsEnum::kInfoButton] =
+        std::make_shared<QPixmap>(":/Img/info_button.png");
+    button_images_[ButtonsEnum::kNoNameUnit] =
+        std::make_shared<QPixmap>(":/Img/no_name.png");
   }
   // unit images
   {
