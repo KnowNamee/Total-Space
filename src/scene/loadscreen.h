@@ -21,7 +21,7 @@ class LoadScreen {
  private:
   QProgressBar* bar_;
   QGraphicsTextItem* stage_;
-  QGraphicsRectItem background_;  // TODO заменить на ImageItem
+  ImageItem* background_;
 
   int loaded_ = 0;
   int stages_cnt_;

@@ -179,7 +179,7 @@ PlanetMenu::PlanetMenu() {
     button_to_menu_[btn1_] = Controller::MenuType::kAttack;
     btn2_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     button_to_menu_[btn2_] = Controller::MenuType::kGame;
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
@@ -196,7 +196,7 @@ PlanetMenu::PlanetMenu() {
     button_to_menu_[btn1_] = Controller::MenuType::kGame;
     btn2_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     button_to_menu_[btn2_] = Controller::MenuType::kGame;
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
@@ -462,7 +462,8 @@ void UnitsInteractionMenu::Draw() {
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
       kButtonHeight + kButtonHeight / 2);
-  interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));  
+  
+  interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   interaction_button_->SetEnabled(false);
   cancel_button_->setPos(Controller::view->mapToScene(
       static_cast<int32_t>(attack_x + kButtonWidth + distance_between),
@@ -674,7 +675,6 @@ void MoveMenu::Switch(Controller::MenuType menu) {
 }
 
 PlanetInfoMenu::PlanetInfoMenu() {
-  background_ = new QGraphicsRectItem;
   if (Controller::GetActivePlanet()->GetOwner() ==
       Controller::scene->GetPlayer()) {
     upgrade_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
@@ -706,9 +706,9 @@ void PlanetInfoMenu::Draw() {
 
   QRectF background_rect(
       2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
-  background_->setRect(background_rect);
-  background_->setPen(QColor(Qt::black));
-  background_->setBrush(QColor(Qt::black));
+  background_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background_rect);
+
   Controller::scene->addItem(background_);
 
   const double kLeftTopCornerCoeffient = (1 - kSizeCoefficient) / 2;
@@ -720,6 +720,8 @@ void PlanetInfoMenu::Draw() {
 
   if (upgrade_button_ != nullptr) {
     upgrade_button_->setPos(Controller::view->mapToScene(upgrade_x, button_y));
+    upgrade_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kUpgradActiveButton));
     Controller::scene->addItem(upgrade_button_);
     Resources upgrade = Controller::GetActivePlanet()->GetUpgradeCost();
     if (!(Controller::GetActivePlanet()->GetOwner()->GetTools() >
@@ -727,14 +729,15 @@ void PlanetInfoMenu::Draw() {
           Controller::GetActivePlanet()->GetOwner()->GetBatteries() >
               upgrade.GetBatteries())) {
       upgrade_button_->SetEnabled(false);
-      // TODO
-      // установка другой картинки для кнопки
+      upgrade_button_->SetPixmap(
+          Loader::GetButtonImage(ButtonsEnum::kUpgradeUnactiveButton));
     }
   }
 
   const int32_t exit_x = static_cast<int32_t>(
       upgrade_x + background_rect.width() * kScale * 2 / 3);
   exit_button_->setPos(Controller::view->mapToScene(exit_x, button_y));
+  exit_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
   Controller::scene->addItem(exit_button_);
 
   planet_info_ = new FullPlanetInfo(

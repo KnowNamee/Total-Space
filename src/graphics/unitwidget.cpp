@@ -25,7 +25,8 @@ UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
       stamina_(QString::number(
           ObjectsStorage::GetUnitCharacteristics(unit).GetStamina())),
       cell_unit_(unit),
-      caption_(ObjectsStorage::GetUnitCaption(cell_unit_)),
+      caption_(ObjectsStorage::GetUnitCaption(cell_unit_).toLower()),
+
       parent_(parent),
       unit_planet_(planet),
       active_widget_(Loader::GetButtonImage(ButtonsEnum::kActiveWidget)),
@@ -60,21 +61,21 @@ void UnitWidget::paint(QPainter* painter,
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(unit_image_x + width_ / 20,
-                    static_cast<int32_t>(pos().y() + height_ * 0.9), caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.8), caption_);
 
   painter->setFont(fabulist_general);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.2),
-                    "Health:\t" + health_);
+                    "health:\t" + health_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.4),
-                    "Attack:\t" + attack_);
+                    "attack:\t" + attack_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.6),
-                    "Armor:\t" + armor_);
+                    "armor:\t" + armor_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.8),
-                    "Stamina:\t" + stamina_);
+                    "stamina:\t" + stamina_);
 }
 
 void UnitWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {

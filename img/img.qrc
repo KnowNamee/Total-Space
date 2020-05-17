@@ -31,5 +31,8 @@
         <file>active_widget.png</file>
         <file>unactive_widget.png</file>
         <file>cursor.png</file>
+        <file>info_button.png</file>
+        <file>loading_background.jpg</file>
+        <file>no_name.png</file>
     </qresource>
 </RCC>

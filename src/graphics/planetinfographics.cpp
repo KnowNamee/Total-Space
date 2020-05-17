@@ -38,10 +38,10 @@ void PlanetInfoGraphics::paint(QPainter* painter,
 
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(37 / kScale));
+            static_cast<int32_t>(40 / kScale));
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(26 / kScale));
+            static_cast<int32_t>(35 / kScale));
   painter->setFont(fabulist_header);
 
   int32_t level_text_x = width_ / 4 * 3 - width_ / 30;
@@ -50,9 +50,9 @@ void PlanetInfoGraphics::paint(QPainter* painter,
   painter->setFont(fabulist_general);
   for (const auto& unit_to_data : units_to_data_) {
     painter->drawText(level_text_x - width_ / 15, unit_y,
-                      unit_to_data.second.caption);
+                      unit_to_data.second.caption.toLower());
     painter->drawText(level_text_x + width_ / 15, unit_y,
-                      QString::number(unit_to_data.second.quantity));
+                      QString::number(unit_to_data.second.quantity).toLower());
 
     if (unit_to_data.second.unit_image != nullptr) {
       painter->drawPixmap(

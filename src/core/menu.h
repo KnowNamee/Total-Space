@@ -216,23 +216,24 @@ class MoveMenu : public UnitsInteractionMenu {
 
 class PlanetInfoMenu : public Menu {
   Q_OBJECT
-public:
- PlanetInfoMenu();
- ~PlanetInfoMenu() override;
- void SetZValue() override;
- void Draw() override;
- void SwitchTo(Controller::MenuType menu) override;
-private:
- void Destroy();
+ public:
+  PlanetInfoMenu();
+  ~PlanetInfoMenu() override;
+  void SetZValue() override;
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
 
- QGraphicsRectItem* background_ = nullptr;
- ButtonItem* upgrade_button_ = nullptr;
- ButtonItem* exit_button_ = nullptr;
- FullPlanetInfo* planet_info_ = nullptr;
+ private:
+  void Destroy();
 
-private slots:
- void Upgrade();
- void Exit();
+  ImageItem* background_ = nullptr;
+  ButtonItem* upgrade_button_ = nullptr;
+  ButtonItem* exit_button_ = nullptr;
+  FullPlanetInfo* planet_info_ = nullptr;
+
+ private slots:
+  void Upgrade();
+  void Exit();
 };
 
 class GameMenu : public Menu {
