@@ -8,6 +8,7 @@
 #include <QScreen>
 #include <QScrollBar>
 #include <QTimer>
+#include <thread>
 #include <cmath>
 
 #include "core/menu.h"
@@ -172,6 +173,7 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
       target_ = item;
       timer_ = new QTimer();
       timer_->start(15);
+      is_scaled_motion = true;
       connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
     }
   }
@@ -206,6 +208,7 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
 }
 
 void EventHandler::View::MoveTo() {
+  qDebug() << "MoveTo";
   double width = view_->sceneRect().width();
   double height = view_->sceneRect().height();
 
@@ -213,9 +216,11 @@ void EventHandler::View::MoveTo() {
   double distance =
       sqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-  // TODO
-  // Выбрать скорость передвижения к планете
-  const double kVelocity = width / 30;
+  double velocity_coefficient = 20;
+  if (is_scaled_motion) {
+    velocity_coefficient = 30;
+  }
+  const double kVelocity = width / velocity_coefficient;
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {
@@ -224,7 +229,7 @@ void EventHandler::View::MoveTo() {
         view_->sceneRect().y() + direction.y() / static_cast<int>(time + 1),
         width, height);
   }
-  if (view_->matrix().m11() < kMaxScale) {
+  if (view_->matrix().m11() < kMaxScale && is_scaled_motion) {
     double scale_velocity;
     if (abs(time) < 1e-12) {
       // TODO
@@ -243,12 +248,17 @@ void EventHandler::View::MoveTo() {
     view_->setMatrix(matrix);
     Controller::GetGameMenu()->ReDraw();
   }
-  if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
+  if (distance <= kVelocity &&
+      (view_->matrix().m11() >= kMaxScale || !is_scaled_motion)) {
     view_->setSceneRect(2 * target_->pos().x() - width / 2,
                         2 * target_->pos().y() - height / 2, width, height);
-    Controller::GetGameMenu()->ReDraw();
+    if (is_scaled_motion) {
+      Controller::GetGameMenu()->ReDraw();
+    }
     current_motion_ = MotionType::kNoMotion;
-    Controller::SwitchMenu(Controller::MenuType::kPlanet);
+    if (is_scaled_motion) {
+      Controller::SwitchMenu(Controller::MenuType::kPlanet);
+    }
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
@@ -292,6 +302,28 @@ void EventHandler::View::Scale(QWheelEvent* event) {
     timer_ = new QTimer();
     timer_->start(15);
     connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
+  }
+}
+
+void EventHandler::View::ShowBotAttack(Planet* planet) {
+  current_motion_ = MotionType::kMoveToPlanet;
+  target_ =
+      Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform());
+  if (target_ == nullptr) {
+    return;
+  }
+  is_scaled_motion = false;
+//  MoveToBot();
+  timer_ = new QTimer();
+  timer_->start(15);
+  connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
+//  std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+}
+
+void EventHandler::View::MoveToBot() {
+  while (target_ != nullptr) {
+//    MoveTo();
+    QTimer::singleShot(15, this, SLOT(MoveTo()));
   }
 }
 

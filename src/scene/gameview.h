@@ -15,6 +15,7 @@ class GameView : public QGraphicsView {
   GameView(GameScene* scene, QWidget* parent);
   GameScene* GetScene() const;
   void SetNewGameSettings();
+  void ShowBotAttack(Planet* planet);
 
   std::shared_ptr<EventHandler::View> EventHandler();
 

@@ -30,6 +30,10 @@ void GameView::SetNewGameSettings() {
                     kScaleCoefficient, matrix().dx(), matrix().dy()));
 }
 
+void GameView::ShowBotAttack(Planet* planet) {
+  event_handler_->ShowBotAttack(planet);
+}
+
 std::shared_ptr<EventHandler::View> GameView::EventHandler() {
   return event_handler_;
 }

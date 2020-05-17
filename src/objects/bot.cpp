@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "core/statemachine.h"
+#include "scene/gameview.h"
 #include "data/objectsstorage.h"
 #include "scene/gamescene.h"
 
@@ -158,6 +159,8 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
         std::map<Planet*, QVector<UnitType>> attacking_units = {
             std::make_pair(planet, units_to_attack)};
         planet_to_attack->TakeAttack(attacking_units);
+        Controller::view->ShowBotAttack(planet);
+        qDebug() << "NotMoveTo";
 
         planet->BuyUnits(units_to_buy);
         *available_resources -= necessary_resources;
@@ -190,6 +193,8 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
       std::map<Planet*, QVector<UnitType>> attack;
       attack[planet] = planet->GetUnits();
       planet_to_attack->TakeAttack(attack);
+      Controller::view->ShowBotAttack(planet);
+      qDebug() << "NotMoveTo";
 
       planet->BuyUnits(units_to_defence);
       *available_resources -= defence_resources;
@@ -211,6 +216,8 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
         std::map<Planet*, QVector<UnitType>> attack;
         attack[planet] = planet->GetUnits();
         planet_to_attack->TakeAttack(attack);
+        Controller::view->ShowBotAttack(planet);
+        qDebug() << "NotMoveTo";
 
         planet->BuyUnits(units_to_defence);
         *available_resources -= defence_resources;

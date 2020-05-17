@@ -12,7 +12,7 @@
 #include "scene/gameview.h"
 
 FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
-    : width_(width), height_(height), font_(Loader::GetFont()) {
+    : font_(Loader::GetFont()), width_(width), height_(height) {
   PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform()));
   planet_image_ = planet_graphics->GetImage();

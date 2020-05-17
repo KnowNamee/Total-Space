@@ -9,6 +9,7 @@
 
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
+#include "core/menu.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
 #include "graphics/buttonitem.h"
@@ -117,11 +118,9 @@ void GameScene::SetSceneSettings() {
 }
 
 void GameScene::GenerateMap() {
-  uint32_t required_number_of_planets =
-      QRandomGenerator::global()->generate() % 10 + 20;
-
+  uint32_t required_number_of_planets = 22;
   const double kPlanetRadius = kWidth / 16 * 3;
-  const double kSizeCoefficient = 0.7;
+  const double kSizeCoefficient = 0.76;
   const double kMapWidth =
       kSizeCoefficient * kMapSize * kWidth - kWidth / 2 + kPlanetRadius;
   const double kMapHeight =
@@ -237,11 +236,12 @@ PlanetsGraph* GameScene::GetGraph() const { return graph_.get(); }
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
 
 void GameScene::Next() {
+  Controller::GetGameMenu()->Hide();
   for (const std::shared_ptr<Planet>& planet : planets_) {
     planet->Next();  // обновляем флаги планеты
   }
   bot1_->Next();  // тут определена логика бота на ход
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
-
+  Controller::GetGameMenu()->Show();
 }
