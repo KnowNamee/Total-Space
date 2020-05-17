@@ -34,6 +34,7 @@ SOURCES += \
         graphics/attackresultwindow.cpp \
         graphics/buttonitem.cpp \
         graphics/drawer.cpp \
+        graphics/fullplanetinfo.cpp \
         graphics/imageitem.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
@@ -49,7 +50,8 @@ SOURCES += \
         objects/playerbase.cpp \
         objects/unit.cpp \
         scene/gamescene.cpp \
-        scene/gameview.cpp
+        scene/gameview.cpp \
+        scene/loadscreen.cpp
 
 HEADERS += \
     core/eventhandling.h \
@@ -61,6 +63,7 @@ HEADERS += \
     graphics/attackresultwindow.h \
     graphics/buttonitem.h \
     graphics/drawer.h \
+    graphics/fullplanetinfo.h \
     graphics/imageitem.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
@@ -77,6 +80,7 @@ HEADERS += \
     scene/gamescene.h \
     scene/gameview.h \
          \
+  scene/loadscreen.h \
     util/typeoffset.h \
         util/utility.h
 FORMS += \

@@ -1,5 +1,7 @@
 #include "data/loader.h"
 
+#include <QBrush>
+#include <QFontDatabase>
 #include <QVector>
 #include <memory>
 
@@ -7,8 +9,16 @@ std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
 QVector<std::shared_ptr<QPixmap>> Loader::planet_pictures_;
 QMap<ButtonsEnum, std::shared_ptr<QPixmap>> Loader::button_images_;
 QMap<UnitType, std::shared_ptr<QPixmap>> Loader::unit_images_;
+int32_t Loader::font_;
+QBrush* Loader::ibrush_ = nullptr;
 
 void Loader::LoadAll() {
+  // font
+  font_ = QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf");
+  // brush
+  ibrush_ = new QBrush;
+  ibrush_->setTextureImage(QImage(":/Img/transparent_bg.png"));
+  // pictures
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/1.png"));
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/2.png"));
   planet_pictures_.push_back(std::make_shared<QPixmap>(":/Img/3.png"));
@@ -46,6 +56,18 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/active_widget.png");
     button_images_[ButtonsEnum::kUnactiveWidget] =
         std::make_shared<QPixmap>(":/Img/unactive_widget.png");
+    button_images_[ButtonsEnum::kUnactiveWidget] =
+        std::make_shared<QPixmap>(":/Img/unactive_widget.png");
+    button_images_[ButtonsEnum::kLoadingBackground] =
+        std::make_shared<QPixmap>(":/Img/loading_background.jpg");
+    button_images_[ButtonsEnum::kUpgradActiveButton] =
+        std::make_shared<QPixmap>(":/Img/upgrade_active_button.png");
+    button_images_[ButtonsEnum::kUpgradeUnactiveButton] =
+        std::make_shared<QPixmap>(":/Img/upgrade_unactive_button.png");
+    button_images_[ButtonsEnum::kInfoButton] =
+        std::make_shared<QPixmap>(":/Img/info_button.png");
+    button_images_[ButtonsEnum::kNoNameUnit] =
+        std::make_shared<QPixmap>(":/Img/no_name.png");
   }
   // unit images
   {
@@ -77,3 +99,7 @@ QPixmap* Loader::GetButtonImage(ButtonsEnum type) {
 QPixmap* Loader::GetUnitImage(UnitType type) {
   return unit_images_[type].get();
 }
+
+QBrush* Loader::GetBrush() { return ibrush_; }
+
+int32_t Loader::GetFont() { return font_; }

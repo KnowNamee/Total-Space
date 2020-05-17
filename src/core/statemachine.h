@@ -16,6 +16,7 @@ class MainMenu;
 class PauseMenu;
 class UnitMenu;
 class GameMenu;
+class PlanetInfoMenu;
 class AttackMenu;
 class MoveMenu;
 class MenuGraph;
@@ -34,6 +35,7 @@ class Controller {
     kUnit,
     kAttack,
     kMove,
+    kPlanetInfo,
     kGame,
   };
 
@@ -54,6 +56,7 @@ class Controller {
   static UnitMenu* GetUnitMenu();
   static AttackMenu* GetAttackMenu();
   static MoveMenu* GetMoveMenu();
+  static PlanetInfoMenu* GetPlanetInfoMenu();
   static PauseMenu* GetPauseMenu();
   static PlanetMenu* GetPlanetMenu();
   static GameMenu* GetGameMenu();
@@ -62,6 +65,7 @@ class Controller {
   static void SetUnitMenu(UnitMenu* menu);
   static void SetAttackMenu(AttackMenu* menu);
   static void SetMoveMenu(MoveMenu* menu);
+  static void SetPlanetInfoMenu(PlanetInfoMenu* menu);
   static void SetPauseMenu(PauseMenu* menu);
   static void SetPlanetMenu(PlanetMenu* menu);
   static void SetGameMenu(GameMenu* menu);
@@ -79,6 +83,7 @@ class Controller {
   static UnitMenu* unit_menu_;
   static AttackMenu* attack_menu_;
   static MoveMenu* move_menu_;
+  static PlanetInfoMenu* planet_info_menu_;
   static PauseMenu* pause_menu_;
   static PlanetMenu* planet_menu_;
   static GameMenu* game_menu_;

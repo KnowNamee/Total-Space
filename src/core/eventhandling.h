@@ -31,8 +31,8 @@ class View : public QObject {
   QGraphicsItem* target_ = nullptr;
   GameView* view_;
   QTimer* timer_;
-  const double kMaxScale = 1;
-  const double kMinScale = 1. / 3;
+  const double kMaxScale = 0.95;
+  const double kMinScale = 0.3;
   double goal_scale_;
   MotionType current_motion_ = MotionType::kNoMotion;
   int8_t scale_direction_ = 0;

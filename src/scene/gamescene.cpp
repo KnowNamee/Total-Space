@@ -5,25 +5,26 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
+#include <thread>
 
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "data/objectsstorage.h"
 #include "graphics/buttonitem.h"
 #include "graphics/drawer.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
 #include "objects/player.h"
 #include "scene/gameview.h"
+#include "scene/loadscreen.h"
 
 GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
   drawer_ = std::make_shared<Drawer>(this);
 }
 
 void GameScene::Destroy() {
-  clear();
-  // TODO
-  // reset указатели на ботов
+  clear(); 
   bot1_.reset();
   bot2_.reset();
   player_.reset();
@@ -54,6 +55,9 @@ int32_t GameScene::GetWidth() const { return kWidth; }
 int32_t GameScene::GetHeight() const { return kHeight; }
 
 void GameScene::NewGame() {
+  LoadScreen screen(5);
+
+  screen.LoadNext("Configuring player settings ...");
   const double kWidth = views()[0]->sceneRect().width();
 
   // TODO
@@ -71,19 +75,31 @@ void GameScene::NewGame() {
   player_planet->AddUnit(UnitType::kMarine);
 
   player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
+  player_->SetName("Player");
   player_planet->SetOwner(player_.get());
-
+  screen.StopLoad();
+  screen.LoadNext("Creating scene ...");
   SetSceneSettings();
+  screen.StopLoad();
+  screen.LoadNext("Generating map ...");
   GenerateMap();
+  screen.StopLoad();
 
   // Добавляем ботов
+  screen.LoadNext("Adding bots ...");
   bot1_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#023883");  // blue
   bot1_->GetPlanets()[0]->SetOwner(bot1_.get());
+  // TODO
+  // Придумать имена ботов
+  bot1_->SetName("First Bot");
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
-
+  bot2_->SetName("Second Bot");
+  screen.StopLoad();
   // Перерисовываем рёбра графа
+  screen.LoadNext("Updating map ...");
   UpdatePlanetsGraph();
+  screen.StopLoad();
 }
 
 void GameScene::SetSceneSettings() {
@@ -178,6 +194,26 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
     }
   }
   return nearby_units;
+}
+
+int32_t GameScene::GetNearestPower(PlayerBase* player) {
+  std::map<Planet*, QVector<UnitType>> planets_to_units =
+      GetNearestUnits(player);
+  int32_t power = 0;
+  for (const auto& planet_to_units : planets_to_units) {
+    for (UnitType unit : planet_to_units.second) {
+      power += ObjectsStorage::GetUnitPower(unit);
+    }
+  }
+  return power;
+}
+
+bool GameScene::IsPlanetReachable(PlayerBase* player) {
+  if (Controller::GetActivePlanet() != nullptr &&
+      Controller::GetActivePlanet()->GetOwner() == player) {
+    return true;
+  }
+  return GetNearestUnits(player).size() != 0;
 }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }

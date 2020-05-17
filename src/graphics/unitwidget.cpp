@@ -16,8 +16,6 @@
 UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
                        UnitType unit, int32_t width, int32_t height)
     : ButtonItem(width, height),
-      active_widget_(*Loader::GetButtonImage(ButtonsEnum::kActiveWidget)),
-      unactive_widget_(*Loader::GetButtonImage(ButtonsEnum::kUnactiveWidget)),
       attack_(QString::number(
           ObjectsStorage::GetUnitCharacteristics(unit).GetAttack())),
       armor_(QString::number(
@@ -26,12 +24,14 @@ UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
           ObjectsStorage::GetUnitCharacteristics(unit).GetHealth())),
       stamina_(QString::number(
           ObjectsStorage::GetUnitCharacteristics(unit).GetStamina())),
-      font_(QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf")),
-      unit_icon_(*Loader::GetUnitImage(unit)),
+      cell_unit_(unit),
+      caption_(ObjectsStorage::GetUnitCaption(cell_unit_).toLower()),
       parent_(parent),
       unit_planet_(planet),
-      cell_unit_(unit),
-      caption_(ObjectsStorage::GetUnitCaption(cell_unit_)) {}
+      active_widget_(Loader::GetButtonImage(ButtonsEnum::kActiveWidget)),
+      unactive_widget_(Loader::GetButtonImage(ButtonsEnum::kUnactiveWidget)),
+      unit_icon_(Loader::GetUnitImage(unit)),
+      font_(Loader::GetFont()) {}
 
 QRectF UnitWidget::boundingRect() const {
   return QRectF(pos().x(), pos().y(), width_, height_);
@@ -42,40 +42,39 @@ void UnitWidget::paint(QPainter* painter,
                        QWidget* widget) {
   Q_UNUSED(option);
   Q_UNUSED(widget);
-
   QRect rect = boundingRect().toAlignedRect();
-  painter->drawPixmap(rect, current_widget_);
+  painter->drawPixmap(rect, *current_widget_);
 
   int32_t unit_image_x = static_cast<int32_t>(pos().x() + width_ / 10);
   int32_t unit_image_y = static_cast<int32_t>(pos().y() + height_ / 8);
 
-  if (!unit_icon_.isNull()) {
+  if (unit_icon_ != nullptr) {
     painter->drawPixmap(
-        QRect(unit_image_x, unit_image_y, width_ / 4, width_ / 4), unit_icon_);
+        QRect(unit_image_x, unit_image_y, width_ / 4, width_ / 4), *unit_icon_);
   }
 
-  QFont fabulist_header = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 10);
-  QFont fabulist_general = QFont(
-      QFontDatabase::applicationFontFamilies(font_).first(), height_ / 13);
+  QFont fabulist_header =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 18);
+  QFont fabulist_general =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 15);
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(unit_image_x + width_ / 20,
-                    static_cast<int32_t>(pos().y() + height_ * 0.9), caption_);
+                    static_cast<int32_t>(pos().y() + height_ * 0.8), caption_);
 
   painter->setFont(fabulist_general);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.2),
-                    "Health:\t" + health_);
+                    "health:\t" + health_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.4),
-                    "Attack:\t" + attack_);
+                    "attack:\t" + attack_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.6),
-                    "Armor:\t" + armor_);
+                    "armor:\t" + armor_);
   painter->drawText(static_cast<int32_t>(pos().x() + width_ / 2),
                     static_cast<int32_t>(pos().y() + height_ * 0.8),
-                    "Stamina:\t" + stamina_);
+                    "stamina:\t" + stamina_);
 }
 
 void UnitWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {

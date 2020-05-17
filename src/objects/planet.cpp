@@ -4,8 +4,11 @@
 #include <QRandomGenerator>
 #include <memory>
 
+#include "core/statemachine.h"
+#include "data/loader.h"
 #include "data/objectsstorage.h"
-#include "objects/playerbase.h"
+#include "objects/player.h"
+#include "scene/gamescene.h"
 
 Planet::Planet(QPointF coordinates, double radius)
     : radius_(radius), coordinates_(coordinates) {}
@@ -13,6 +16,11 @@ Planet::Planet(QPointF coordinates, double radius)
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
 const Resources& Planet::GetIncome() const { return income_; }
+
+Resources Planet::GetUpgradeCost() const {
+  return Resources((level_ + 1) * (level_ + 1) * 1000,
+                   (level_ + 1) * (level_ + 1) * 1000);
+}
 
 void Planet::AddBuilding(BuildingType building) {
   buildings_.push_back(building);
@@ -58,6 +66,17 @@ void Planet::Next() {
 int32_t Planet::GetToolsIncome() const { return income_.GetTools(); }
 int32_t Planet::GetBatteriesIncome() const { return income_.GetBatteries(); }
 QPointF Planet::GetCoordinates() const { return coordinates_; }
+
+int32_t Planet::GetPower() const {
+  int32_t power = 0;
+  for (UnitType unit : units_on_planet_) {
+    power += ObjectsStorage::GetUnitPower(unit);
+  }
+  for (UnitType unit : tired_units_) {
+    power += ObjectsStorage::GetUnitPower(unit);
+  }
+  return power;
+}
 double Planet::GetRadius() const { return radius_; }
 
 int32_t Planet::GetLevel() const { return level_; }
@@ -65,6 +84,28 @@ const QVector<BuildingType>& Planet::GetBuildings() const { return buildings_; }
 const QVector<UnitType>& Planet::GetUnits() const { return units_on_planet_; }
 
 const QVector<UnitType>& Planet::GetTiredUnits() const { return tired_units_; }
+
+std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
+  std::map<UnitType, UnitData> units_to_data;
+  QVector<UnitType> units = GetUnits();
+  units.append(GetTiredUnits());
+  bool is_reachable =
+      Controller::scene->IsPlanetReachable(Controller::scene->GetPlayer());
+  for (UnitType unit : units) {
+    if (units_to_data[unit].quantity == 0) {
+      if (is_reachable) {
+        units_to_data[unit].unit_image = Loader::GetUnitImage(unit);
+        units_to_data[unit].caption = ObjectsStorage::GetUnitCaption(unit);
+      } else {
+        units_to_data[unit].unit_image =
+            Loader::GetButtonImage(ButtonsEnum::kNoNameUnit);
+        units_to_data[unit].caption = "no name";
+      }
+    }
+    units_to_data[unit].quantity++;
+  }
+  return units_to_data;
+}
 
 PlayerBase* Planet::GetOwner() const { return owner_; }
 
@@ -94,6 +135,22 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
 }
 
 bool Planet::TakeAttack(
+    const std::map<Planet*, QVector<UnitType>>& enemy_units) {
+  AttackResult result = CalculateAttack(enemy_units);
+  switch (result) {
+    case AttackResult::kDraw: {
+      return Draw(enemy_units, attack_points_);
+    }
+    case AttackResult::kLose: {
+      return Lose(enemy_units);
+    }
+    default: {
+      return Win(enemy_units, attack_points_);
+    }
+  }
+}
+
+Planet::AttackResult Planet::CalculateAttack(
     const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   UnitCharacteristics enemy_characteristics;
   int32_t enemy_meele_count = 0;
@@ -174,20 +231,18 @@ bool Planet::TakeAttack(
 
   std::pair<int32_t, int32_t> points =
       CountPoints(self_characteristics, enemy_characteristics);
+  attack_points_ = points;
   int32_t self_points = points.first;
   int32_t enemy_points = points.second;
 
   const int32_t kDrawDifference = 2;
   if (abs(self_points - enemy_points) < kDrawDifference) {
-    return Draw(enemy_units, points);
+    return AttackResult::kDraw;
   }
   if (self_points > enemy_points) {
-    return Lose(enemy_units);
+    return AttackResult::kLose;
   }
-  if (owner_ != nullptr) {
-    owner_->IncreasePower(-self_power);
-  }
-  return Win(enemy_units, points);
+  return AttackResult::kWin;
 }
 
 std::pair<int32_t, int32_t> Planet::CountPoints(
@@ -332,7 +387,9 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
   }
 
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
-  RemoveUnits(units_on_planet_);
+  for (UnitType unit : units_on_planet_) {
+    RemoveUnit(unit);
+  }
   MoveUnits(enemy_units_copy);
   if (owner_ != nullptr) {
     owner_->RemovePlanet(this);
