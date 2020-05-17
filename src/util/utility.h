@@ -44,6 +44,7 @@ class Resources {
   bool operator<=(const Resources& rhs) const {
     return batteries_ <= rhs.batteries_ && tools_ <= rhs.tools_;
   }
+
   bool operator<(const Resources& rhs) const {
     return batteries_ < rhs.batteries_ && tools_ < rhs.tools_;
   }

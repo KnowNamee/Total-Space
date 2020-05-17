@@ -20,11 +20,13 @@ const QString& PlayerBase::GetName() const { return name_; }
 void PlayerBase::SetName(const QString& name) { name_ = name; }
 
 void PlayerBase::AddResources(const Resources& resources) {
-    resources_ += resources;
+  resources_ += resources;
 }
+
 void PlayerBase::SubResources(const Resources& resources) {
-    resources_ -= resources;
+  resources_ -= resources;
 }
+
 void PlayerBase::UpdateResources() {
   for (const auto& planet : GetPlanets()) {
     resources_ += planet->GetIncome();
