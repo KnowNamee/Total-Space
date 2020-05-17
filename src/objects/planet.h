@@ -30,6 +30,7 @@ class Planet : public QObject {
 
   void AddBuilding(BuildingType building);
   void AddUnit(UnitType unit);
+  void BuyBuildinng(BuildingType building);
   void BuyUnit(UnitType unit);
   void BuyUnits(QVector<UnitType> units);
   void AddUnits(const QVector<UnitType>& units);
@@ -63,7 +64,11 @@ class Planet : public QObject {
   std::map<Planet*, QVector<UnitType>> GetNearestNonBorderUnits() const;
   QVector<UnitType> GetMostProfitableUnits(const QVector<UnitType>& units,
                                            Resources resources) const;
+  BuildingType GetMostProfitableBuilding(const Resources& available_resources,
+                                         double upgrade_coefficient) const;
   std::set<UnitType> GetAffordableUnits(const Resources& resources) const;
+  std::set<BuildingType> GetAffordableBuildings(
+      const Resources& resources) const;
   std::map<PlayerBase*, QVector<Planet*>> GetNearestEnemies() const;
   bool IsAbleToDefend(const QVector<UnitType>& current_units,
                       Planet* retired_planet = nullptr);
@@ -87,6 +92,9 @@ class Planet : public QObject {
   std::pair<UnitType, UnitType> GetMaxAndMin(
       const std::map<UnitType, int32_t>& units_to_quantity,
       const std::set<UnitType>& types) const;
+  std::pair<BuildingType, BuildingType> GetMaxAndMin(
+      const std::map<BuildingType, int32_t>& buildings_to_quantity,
+      const std::set<BuildingType>& types) const;
 
   int32_t level_ = 1;
   const double radius_;

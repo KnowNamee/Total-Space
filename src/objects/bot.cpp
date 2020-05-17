@@ -1,9 +1,12 @@
 #include "bot.h"
 
+#include <QDebug>
 #include <QRandomGenerator>
 #include <cmath>
 
+#include "core/statemachine.h"
 #include "data/objectsstorage.h"
+#include "scene/gamescene.h"
 
 Bot::Bot(Planet* planet, const QString& color)
     : PlayerBase(planet, PlayerBase::Type::kBot, color) {
@@ -22,6 +25,9 @@ void Bot::Next() {
 void Bot::ApplyAttackStrategy() {
   Resources attack_resources = GetResources() * kAttackResources;
   for (Planet* planet : GetPlanets()) {
+    if (!Controller::scene->IsPlanetOnScene(planet)) {
+      continue;
+    }
     if (!planet->IsBorder()) {
       continue;
     }
@@ -115,19 +121,34 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
   if (planet_to_attack == nullptr) {
     return;
   }
-  for (UnitType unit : units_on_planet) {
-    units_to_attack.push_back(unit);
+  for (int32_t i = 0; i < units_on_planet.size(); i++) {
+    units_to_attack.push_back(units_on_planet[i]);
     if (planet_to_attack->TryTakeAttack(units_to_attack, planet)) {
+      QVector<UnitType> defending_units = units_on_planet;
       for (UnitType unit_to_attack : units_to_attack) {
-        units_on_planet.removeOne(unit_to_attack);
+        defending_units.removeOne(unit_to_attack);
       }
-      units_on_planet.append(planet->GetTiredUnits());
-      if (planet->IsAbleToDefend(units_on_planet, planet_to_attack)) {
+      defending_units.append(planet->GetTiredUnits());
+
+      std::function<bool(Planet*, QVector<UnitType>, Planet*)> predicate =
+          &Planet::IsAbleToDefend;
+      Resources necessary_resources =
+          BinarySearchResources(predicate, defending_units, planet,
+                                *available_resources, planet_to_attack);
+      QVector<UnitType> units_to_buy =
+          planet->GetMostProfitableUnits(defending_units, necessary_resources);
+      defending_units.append(units_to_buy);
+
+      if (planet->IsAbleToDefend(defending_units, planet_to_attack)) {
         std::map<Planet*, QVector<UnitType>> attacking_units = {
             std::make_pair(planet, units_to_attack)};
         planet_to_attack->TakeAttack(attacking_units);
+
+        planet->BuyUnits(units_to_buy);
+        *available_resources -= necessary_resources;
         return;
       }
+      break;
     }
   }
   std::function<bool(Planet*, QVector<UnitType>, Planet*)> predicate =
@@ -183,10 +204,23 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
       }
     }
   }
-  TryWarBuild(available_resources);
+  TryWarBuild(planet, available_resources);
 }
 
-void Bot::TryWarBuild(Resources* available_resources) {}
+void Bot::TryWarBuild(Planet* planet, Resources* available_resources) {
+  BuildingType building_to_buy = planet->GetMostProfitableBuilding(
+      *available_resources, kUpgradeCoefficient);
+  if (building_to_buy == BuildingType::kUpgrade) {
+    Resources before = GetResources();
+    planet->Upgrade();
+    *available_resources -= (before - GetResources());
+    return;
+  }
+  if (building_to_buy != BuildingType::kNoBuilding) {
+    planet->BuyBuildinng(building_to_buy);
+    *available_resources -= ObjectsStorage::GetBuildingCost(building_to_buy);
+  }
+}
 
 void Bot::RunFromPlanet(Planet* planet, std::set<Planet*> planets_to_run) {
   QVector<UnitType> real_units = planet->GetUnits();

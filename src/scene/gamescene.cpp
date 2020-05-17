@@ -94,11 +94,9 @@ void GameScene::NewGame() {
   bot1_->SetName("First Bot");
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
-  bot2_->GetPlanets()[0]->Upgrade();
   bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kRobotsLine);
   bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kBatteryFactory);
   bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kWorkshop);
-  bot1_->GetPlanets()[0]->Upgrade();
   bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kRobotsLine);
   bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kBatteryFactory);
   bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kWorkshop);
@@ -219,7 +217,21 @@ bool GameScene::IsPlanetReachable(PlayerBase* player) {
       Controller::GetActivePlanet()->GetOwner() == player) {
     return true;
   }
-  return GetNearestUnits(player).size() != 0;
+  for (Planet* planet : Controller::GetActivePlanet()->GetNearestPlanets()) {
+    if (planet->GetOwner() == player) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool GameScene::IsPlanetOnScene(Planet* planet) {
+  for (const auto& scene_planet : planets_) {
+    if (planet == scene_planet.get()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 PlanetsGraph* GameScene::GetGraph() const { return graph_.get(); }
@@ -227,11 +239,11 @@ PlanetsGraph* GameScene::GetGraph() const { return graph_.get(); }
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
 
 void GameScene::Next() {
+  for (const std::shared_ptr<Planet>& planet : planets_) {
+    planet->Next();  // обновляем флаги планеты
+  }
   bot1_->Next();  // тут определена логика бота на ход
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
 
-  for (const std::shared_ptr<Planet>& planet : planets_) {
-    planet->Next();  // обновляем флаги планеты
-  }
 }

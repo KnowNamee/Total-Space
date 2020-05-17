@@ -102,6 +102,8 @@ struct UnitData {
 };
 
 enum class BuildingType {
+  kUpgrade,
+  kNoBuilding,
   kBatteryFactory,
   kForge,
   kWorkshop,

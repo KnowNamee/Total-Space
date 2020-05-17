@@ -1,6 +1,7 @@
 #include "data/objectsstorage.h"
 
 #include <QString>
+#include <QDebug>
 
 #include "objects/building.h"
 #include "objects/unit.h"
@@ -52,6 +53,10 @@ BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
   return building_caption_to_type_.at(caption);
 }
 
+const Resources& ObjectsStorage::GetBuildingCost(BuildingType building) {
+  return type_to_building_.at(building)->GetCost();
+}
+
 UnitRole ObjectsStorage::GetUnitRole(const QString& role) {
   return role_caption_to_role_.at(role);
 }
@@ -73,7 +78,7 @@ UnitRole ObjectsStorage::GetUnitRole(UnitType unit) {
   return type_to_unit_[unit]->GetUnitRole();
 }
 
-UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {
+UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {  
   return type_to_unit_[unit]->GetUnitEnemy();
 }
 

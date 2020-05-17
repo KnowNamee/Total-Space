@@ -20,6 +20,7 @@ class ObjectsStorage {
 
   static const Resources& GetIncome(BuildingType building);
   static BuildingType GetBuildingType(const QString& caption);
+  static const Resources& GetBuildingCost(BuildingType building);
 
   static UnitType GetUnitType(const QString& caption);
   static UnitRole GetUnitRole(const QString& role);

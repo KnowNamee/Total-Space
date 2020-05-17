@@ -15,6 +15,7 @@
 Planet::Planet(QPointF coordinates, double radius)
     : radius_(radius), coordinates_(coordinates) {}
 
+
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
 const Resources& Planet::GetIncome() const { return income_; }
@@ -36,10 +37,17 @@ void Planet::AddUnit(UnitType unit) {
   }
 }
 
+void Planet::BuyBuildinng(BuildingType building) {
+  if (owner_ != nullptr) {
+    owner_->SubResources(ObjectsStorage::GetBuildingCost(building));
+    AddBuilding(building);
+  }
+}
+
 void Planet::BuyUnit(UnitType unit) {
   if (owner_ != nullptr) {
     owner_->SubResources(ObjectsStorage::GetUnitCost(unit));
-    units_on_planet_.push_back(unit);
+    AddUnit(unit);
   }
 }
 
@@ -77,6 +85,10 @@ void Planet::Upgrade() {
   // TODO
   // Возможно стоит добавить что-то вроде увеличения дохода планеты
   // вопрос баланса
+  income_ += Resources(GetUpgradeCost() / 5);
+  if (owner_ != nullptr) {
+    owner_->SubResources(GetUpgradeCost());
+  }
   level_++;
 }
 
@@ -130,12 +142,16 @@ std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
   return units_to_data;
 }
 
-PlanetGraphics* Planet::GetPlanetGraphics() const {
+PlanetGraphics* Planet::GetPlanetGraphics() const {  
   return dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * GetCoordinates(), QTransform()));
 }
 
 QVector<Planet*> Planet::GetNearestPlanets() const {
+  PlanetGraphics* planet_graphics = GetPlanetGraphics();
+  if (planet_graphics == nullptr) {
+    return {};
+  }
   return Controller::scene->GetGraph()->GetConnectedPlanets(
       GetPlanetGraphics());
 }
@@ -167,7 +183,7 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
   return available_units;
 }
 
-bool Planet::IsBorder() const {
+bool Planet::IsBorder() const { 
   for (Planet* planet : GetNearestPlanets()) {
     if (planet->GetOwner() != GetOwner()) {
       return true;
@@ -226,10 +242,51 @@ QVector<UnitType> Planet::GetMostProfitableUnits(const QVector<UnitType>& units,
   return result;
 }
 
+BuildingType Planet::GetMostProfitableBuilding(
+    const Resources& available_resources, double upgrade_coefficient) const {
+  std::set<BuildingType> types = GetAffordableBuildings(available_resources);
+  std::map<BuildingType, int32_t> buildings_to_quantity;
+  for (BuildingType building : types) {
+    buildings_to_quantity[building] = 0;
+  }
+
+  for (BuildingType building : buildings_) {
+    if (buildings_to_quantity.find(building) != buildings_to_quantity.end()) {
+      buildings_to_quantity[building]++;
+    }
+  }
+  bool is_full = true;
+  for (const auto& building_to_quantity : buildings_to_quantity) {
+    if (building_to_quantity.second == 0) {
+      is_full = false;
+      break;
+    }
+  }
+
+  if (is_full) {
+    if (GetUpgradeCost() <= available_resources * upgrade_coefficient) {
+      return BuildingType::kUpgrade;
+    }
+    return BuildingType::kNoBuilding;
+  }
+
+  std::pair<BuildingType, BuildingType> max_and_min =
+      GetMaxAndMin(buildings_to_quantity, types);
+
+  if (buildings_to_quantity[max_and_min.first] ==
+      buildings_to_quantity[max_and_min.second]) {
+    auto it = types.begin();
+    uint32_t rand_index = QRandomGenerator::global()->generate() % types.size();
+    std::advance(it, rand_index);
+    return *it;
+  }
+  return max_and_min.second;
+}
+
 std::pair<UnitType, UnitType> Planet::GetMaxAndMin(
     const std::map<UnitType, int32_t>& units_to_quantity,
     const std::set<UnitType>& types) const {
-  UnitType max_unit = (*units_to_quantity.begin()).first;
+  UnitType max_unit = units_to_quantity.begin()->first;
   UnitType min_unit = max_unit;
   for (const auto& unit_to_quantity : units_to_quantity) {
     if (types.find(unit_to_quantity.first) == types.end()) {
@@ -245,12 +302,42 @@ std::pair<UnitType, UnitType> Planet::GetMaxAndMin(
   return std::make_pair(max_unit, min_unit);
 }
 
+std::pair<BuildingType, BuildingType> Planet::GetMaxAndMin(
+    const std::map<BuildingType, int32_t>& buildings_to_quantity,
+    const std::set<BuildingType>& types) const {
+  BuildingType max_building = buildings_to_quantity.begin()->first;
+  BuildingType min_building = max_building;
+  for (const auto& building_to_quantity : buildings_to_quantity) {
+    if (types.find(building_to_quantity.first) == types.end()) {
+      continue;
+    }
+    if (building_to_quantity.second > buildings_to_quantity.at(max_building)) {
+      max_building = building_to_quantity.first;
+    }
+    if (building_to_quantity.second < buildings_to_quantity.at(min_building)) {
+      min_building = building_to_quantity.first;
+    }
+  }
+  return std::make_pair(max_building, min_building);
+}
+
 std::set<UnitType> Planet::GetAffordableUnits(
     const Resources& resources) const {
   std::set<UnitType> result;
   for (UnitType unit : GetAvailableUnits()) {
     if (ObjectsStorage::GetUnitCost(unit) <= resources) {
       result.insert(unit);
+    }
+  }
+  return result;
+}
+
+std::set<BuildingType> Planet::GetAffordableBuildings(
+    const Resources& resources) const {
+  std::set<BuildingType> result;
+  for (BuildingType building : GetAvailableBuildings()) {
+    if (ObjectsStorage::GetBuildingCost(building) <= resources) {
+      result.insert(building);
     }
   }
   return result;

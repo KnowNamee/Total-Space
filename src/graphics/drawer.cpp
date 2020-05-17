@@ -1,5 +1,7 @@
 #include "graphics/drawer.h"
 
+#include <QDebug>
+
 #include "core/planetsgraph.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
