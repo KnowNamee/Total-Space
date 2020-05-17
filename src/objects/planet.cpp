@@ -11,7 +11,7 @@
 #include "scene/gamescene.h"
 
 Planet::Planet(QPointF coordinates, double radius)
-    : radius_(radius), coordinates_(coordinates) {}
+  : radius_(radius), coordinates_(coordinates) {}
 
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
@@ -135,6 +135,22 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
 }
 
 bool Planet::TakeAttack(
+    const std::map<Planet*, QVector<UnitType>>& enemy_units) {  
+  AttackResult result = CalculateAttack(enemy_units);
+  switch (result) {
+    case AttackResult::kDraw: {
+      return Draw(enemy_units, attack_points_);
+    }
+    case AttackResult::kLose: {
+      return Lose(enemy_units);
+    }
+    default: {
+      return Win(enemy_units, attack_points_);
+    }
+  }
+}
+
+Planet::AttackResult Planet::CalculateAttack(
     const std::map<Planet*, QVector<UnitType>>& enemy_units) {
   AttackResult result = CalculateAttack(enemy_units);
   switch (result) {

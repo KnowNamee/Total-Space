@@ -24,6 +24,7 @@ class FullPlanetInfo : public QGraphicsItem {
   QString name_;
   QString owner_;
   int font_;
+
   QPixmap* planet_image_;
   int32_t width_;
   int32_t height_;

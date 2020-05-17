@@ -26,6 +26,7 @@ UnitWidget::UnitWidget(UnitsInteractionMenu* parent, Planet* planet,
           ObjectsStorage::GetUnitCharacteristics(unit).GetStamina())),
       cell_unit_(unit),
       caption_(ObjectsStorage::GetUnitCaption(cell_unit_).toLower()),
+
       parent_(parent),
       unit_planet_(planet),
       active_widget_(Loader::GetButtonImage(ButtonsEnum::kActiveWidget)),

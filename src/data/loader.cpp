@@ -3,6 +3,7 @@
 #include <QBrush>
 #include <QFontDatabase>
 #include <QVector>
+#include <QBrush>
 #include <memory>
 
 std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;

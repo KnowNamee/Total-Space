@@ -462,6 +462,7 @@ void UnitsInteractionMenu::Draw() {
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
       kButtonHeight + kButtonHeight / 2);
+  
   interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   interaction_button_->SetEnabled(false);
   cancel_button_->setPos(Controller::view->mapToScene(
@@ -707,6 +708,7 @@ void PlanetInfoMenu::Draw() {
       2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
   background_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background_rect);
+
   Controller::scene->addItem(background_);
 
   const double kLeftTopCornerCoeffient = (1 - kSizeCoefficient) / 2;
