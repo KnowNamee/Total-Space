@@ -19,8 +19,10 @@ class Bot : public PlayerBase {
 
  private:
   void ApplyAttackStrategy();
+  void ApplyEconomicStrategy();
   void TryAttack(Planet* planet, Resources* available_resources);
-  void TryWarBuild(Planet* planet, Resources* available_resources);
+  void TryBuild(Planet* planet, Resources* available_resources,
+                BuildingRole role);
   void RunFromPlanet(Planet* planet, std::set<Planet*> planets_to_run);
   Resources BinarySearchResources(
       std::function<bool(Planet*, QVector<UnitType>, Planet*)>,
@@ -28,7 +30,7 @@ class Bot : public PlayerBase {
       Planet* aim = nullptr);
 
   const double kAttackResources = 0.7;
-  const double kUpgradeCoefficient = 0.5;
+  const double kUpgradeCoefficient = 0.7;
 };
 
 #endif  // BOT_H

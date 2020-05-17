@@ -19,7 +19,9 @@ Bot::~Bot() {}
 
 void Bot::Next() {
   ApplyAttackStrategy();
+  ApplyEconomicStrategy();
   UpdateResources();
+  Controller::scene->UpdatePlanetsGraph();
 }
 
 void Bot::ApplyAttackStrategy() {
@@ -92,6 +94,19 @@ void Bot::ApplyAttackStrategy() {
       RunFromPlanet(planet, nearest_border_planets);
       continue;
     }
+  }
+}
+
+void Bot::ApplyEconomicStrategy() {
+  Resources available_resources = GetResources();
+  for (Planet* planet : GetPlanets()) {
+    if (!Controller::scene->IsPlanetOnScene(planet)) {
+      continue;
+    }
+    if (!planet->IsSafe()) {
+      continue;
+    }
+    TryBuild(planet, &available_resources, BuildingRole::kEconomic);
   }
 }
 
@@ -204,12 +219,13 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
       }
     }
   }
-  TryWarBuild(planet, available_resources);
+  TryBuild(planet, available_resources, BuildingRole::kWar);
 }
 
-void Bot::TryWarBuild(Planet* planet, Resources* available_resources) {
+void Bot::TryBuild(Planet* planet, Resources* available_resources,
+                   BuildingRole role) {
   BuildingType building_to_buy = planet->GetMostProfitableBuilding(
-      *available_resources, kUpgradeCoefficient);
+      *available_resources, kUpgradeCoefficient, role);
   if (building_to_buy == BuildingType::kUpgrade) {
     Resources before = GetResources();
     planet->Upgrade();

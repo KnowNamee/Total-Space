@@ -24,10 +24,12 @@ class ObjectsStorage {
 
   static UnitType GetUnitType(const QString& caption);
   static UnitRole GetUnitRole(const QString& role);
+  static BuildingRole GetBuildingRole(const QString& role);
   static int32_t GetUnitPower(UnitType unit);
   static const UnitCharacteristics& GetUnitCharacteristics(UnitType unit);
   static const Resources& GetUnitCost(UnitType unit);
   static UnitRole GetUnitRole(UnitType unit);
+  static BuildingRole GetBuildingRole(BuildingType building);
   static UnitType GetUnitEnemy(UnitType unit);
   static const QString& GetUnitCaption(UnitType unit);
 
@@ -39,6 +41,7 @@ class ObjectsStorage {
   static const std::map<QString, BuildingType> building_caption_to_type_;
   static const std::map<QString, UnitType> unit_caption_to_type_;
   static const std::map<QString, UnitRole> role_caption_to_role_;
+  static const std::map<QString, BuildingRole> role_caption_to_building_role_;
 
   static std::map<BuildingType, const Building*> type_to_building_;
   static std::map<UnitType, const Unit*> type_to_unit_;

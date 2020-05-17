@@ -41,7 +41,7 @@
             "level": 1,
             "batteries_cost": 150,
             "tools_cost": 1000,
-            "batteries_income": 200,
+            "batteries_income": 100,
             "tools_income": -10
           },
         "robots line": {

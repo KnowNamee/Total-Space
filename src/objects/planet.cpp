@@ -15,14 +15,14 @@
 Planet::Planet(QPointF coordinates, double radius)
     : radius_(radius), coordinates_(coordinates) {}
 
-
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
 const Resources& Planet::GetIncome() const { return income_; }
 
 Resources Planet::GetUpgradeCost() const {
   return Resources((level_ + 1) * (level_ + 1) * 1000,
-                   (level_ + 1) * (level_ + 1) * 1000);
+                   (level_ + 1) * (level_ + 1) * 1000) /
+         6;
 }
 
 void Planet::AddBuilding(BuildingType building) {
@@ -142,7 +142,7 @@ std::map<UnitType, UnitData> Planet::GetUnitsToData() const {
   return units_to_data;
 }
 
-PlanetGraphics* Planet::GetPlanetGraphics() const {  
+PlanetGraphics* Planet::GetPlanetGraphics() const {
   return dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * GetCoordinates(), QTransform()));
 }
@@ -183,13 +183,22 @@ std::set<UnitType> Planet::GetAvailableUnits() const {
   return available_units;
 }
 
-bool Planet::IsBorder() const { 
+bool Planet::IsBorder() const {
   for (Planet* planet : GetNearestPlanets()) {
     if (planet->GetOwner() != GetOwner()) {
       return true;
     }
   }
   return false;
+}
+
+bool Planet::IsSafe() const {
+  for (Planet* planet : GetNearestPlanets()) {
+    if (planet->GetOwner() != nullptr && planet->GetOwner() != GetOwner()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 std::map<Planet*, QVector<UnitType>> Planet::GetNearestNonBorderUnits() const {
@@ -243,38 +252,65 @@ QVector<UnitType> Planet::GetMostProfitableUnits(const QVector<UnitType>& units,
 }
 
 BuildingType Planet::GetMostProfitableBuilding(
-    const Resources& available_resources, double upgrade_coefficient) const {
+    const Resources& available_resources, double upgrade_coefficient,
+    BuildingRole role) const {
+  if (GetUpgradeCost() <= available_resources * upgrade_coefficient) {
+    return BuildingType::kUpgrade;
+  }
   std::set<BuildingType> types = GetAffordableBuildings(available_resources);
   std::map<BuildingType, int32_t> buildings_to_quantity;
+  int32_t war_count = 0;
   for (BuildingType building : types) {
-    buildings_to_quantity[building] = 0;
+    BuildingRole building_role = ObjectsStorage::GetBuildingRole(building);
+    if (building_role != BuildingRole::kWar || role == BuildingRole::kWar) {
+      buildings_to_quantity[building] = 0;
+    }
   }
-
   for (BuildingType building : buildings_) {
     if (buildings_to_quantity.find(building) != buildings_to_quantity.end()) {
       buildings_to_quantity[building]++;
+      if (ObjectsStorage::GetBuildingRole(building) == BuildingRole::kWar) {
+        war_count++;
+      }
     }
   }
-  bool is_full = true;
-  for (const auto& building_to_quantity : buildings_to_quantity) {
-    if (building_to_quantity.second == 0) {
-      is_full = false;
-      break;
+  bool is_war_priority = war_count == 0;
+  std::map<BuildingType, int32_t> available_buildings;
+  if (is_war_priority && role == BuildingRole::kWar) {
+    for (const auto& building_to_quantity : buildings_to_quantity) {
+      if (ObjectsStorage::GetBuildingRole(building_to_quantity.first) ==
+          BuildingRole::kWar) {
+        available_buildings[building_to_quantity.first] =
+            building_to_quantity.second;
+      }
+    }
+  }
+  if (available_buildings.empty()) {
+    for (const auto& building_to_quantity : buildings_to_quantity) {
+      bool is_war = (ObjectsStorage::GetBuildingRole(
+                         building_to_quantity.first) == BuildingRole::kWar &&
+                     building_to_quantity.second == 0);
+      bool is_economic =
+          (ObjectsStorage::GetBuildingRole(building_to_quantity.first) !=
+               BuildingRole::kWar &&
+           building_to_quantity.second <= kMaximalNumberOfBuildings);
+
+      if (is_war || is_economic) {
+        available_buildings[building_to_quantity.first] =
+            building_to_quantity.second;
+      }
     }
   }
 
-  if (is_full) {
-    if (GetUpgradeCost() <= available_resources * upgrade_coefficient) {
-      return BuildingType::kUpgrade;
-    }
+  if (available_buildings.empty()) {
     return BuildingType::kNoBuilding;
   }
 
   std::pair<BuildingType, BuildingType> max_and_min =
-      GetMaxAndMin(buildings_to_quantity, types);
+      GetMaxAndMin(available_buildings, types);
 
-  if (buildings_to_quantity[max_and_min.first] ==
-      buildings_to_quantity[max_and_min.second]) {
+  if (available_buildings[max_and_min.first] ==
+      available_buildings[max_and_min.second]) {
     auto it = types.begin();
     uint32_t rand_index = QRandomGenerator::global()->generate() % types.size();
     std::advance(it, rand_index);

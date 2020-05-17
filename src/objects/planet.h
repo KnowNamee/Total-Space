@@ -61,11 +61,13 @@ class Planet : public QObject {
   std::set<UnitType> GetAvailableUnits() const;
 
   bool IsBorder() const;
+  bool IsSafe() const;
   std::map<Planet*, QVector<UnitType>> GetNearestNonBorderUnits() const;
   QVector<UnitType> GetMostProfitableUnits(const QVector<UnitType>& units,
                                            Resources resources) const;
   BuildingType GetMostProfitableBuilding(const Resources& available_resources,
-                                         double upgrade_coefficient) const;
+                                         double upgrade_coefficient,
+                                         BuildingRole role) const;
   std::set<UnitType> GetAffordableUnits(const Resources& resources) const;
   std::set<BuildingType> GetAffordableBuildings(
       const Resources& resources) const;
@@ -99,8 +101,9 @@ class Planet : public QObject {
   int32_t level_ = 1;
   const double radius_;
   const QPointF coordinates_;
+  const int32_t kMaximalNumberOfBuildings = 1;
   PlayerBase* owner_ = nullptr;
-  Resources income_;
+  Resources income_ = Resources(100, 100);
   std::pair<int32_t, int32_t> attack_points_;
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;

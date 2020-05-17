@@ -127,4 +127,11 @@ enum class UnitRole {
   kHealer,
 };
 
+enum class BuildingRole {
+  kWar,
+  kEconomic,
+  kBatteries,
+  kTools,
+};
+
 #endif  // UTILITY_H

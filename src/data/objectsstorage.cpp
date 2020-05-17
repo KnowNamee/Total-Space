@@ -1,7 +1,7 @@
 #include "data/objectsstorage.h"
 
-#include <QString>
 #include <QDebug>
+#include <QString>
 
 #include "objects/building.h"
 #include "objects/unit.h"
@@ -27,6 +27,12 @@ const std::map<QString, UnitRole> ObjectsStorage::role_caption_to_role_ = {
     std::make_pair("Melee", UnitRole::kMelee),
     std::make_pair("Range", UnitRole::kRange),
     std::make_pair("Healer", UnitRole::kHealer)};
+
+const std::map<QString, BuildingRole>
+    ObjectsStorage::role_caption_to_building_role_ = {
+        std::make_pair("batteries", BuildingRole::kBatteries),
+        std::make_pair("tools", BuildingRole::kTools),
+        std::make_pair("war", BuildingRole::kWar)};
 
 std::map<BuildingType, const Building*> ObjectsStorage::type_to_building_;
 std::map<UnitType, const Unit*> ObjectsStorage::type_to_unit_;
@@ -61,6 +67,10 @@ UnitRole ObjectsStorage::GetUnitRole(const QString& role) {
   return role_caption_to_role_.at(role);
 }
 
+BuildingRole ObjectsStorage::GetBuildingRole(const QString& role) {
+  return role_caption_to_building_role_.at(role);
+}
+
 int32_t ObjectsStorage::GetUnitPower(UnitType unit) {
   return type_to_unit_[unit]->GetPower();
 }
@@ -78,7 +88,11 @@ UnitRole ObjectsStorage::GetUnitRole(UnitType unit) {
   return type_to_unit_[unit]->GetUnitRole();
 }
 
-UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {  
+BuildingRole ObjectsStorage::GetBuildingRole(BuildingType building) {
+  return type_to_building_[building]->GetBuildingRole();
+}
+
+UnitType ObjectsStorage::GetUnitEnemy(UnitType unit) {
   return type_to_unit_[unit]->GetUnitEnemy();
 }
 
