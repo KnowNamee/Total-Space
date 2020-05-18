@@ -14,12 +14,19 @@ class GameView : public QGraphicsView {
  public:
   GameView(GameScene* scene, QWidget* parent);
   GameScene* GetScene() const;
-  void SetNewGameSettings();  
+
+  void SetNewGameSettings();
+  void EnableKeyReleaseListener();
+  bool IsKeyListenerEnabled();
+  bool IsInMotion();
+
   void ShowBotsAttack(QVector<std::pair<Planet*, Planet*>> planet_to_show);
 
   std::shared_ptr<EventHandler::View> EventHandler();
 
  private:
+  friend class ScrollingView;
+
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
@@ -27,13 +34,19 @@ class GameView : public QGraphicsView {
   void keyReleaseEvent(QKeyEvent* event) override;
 
   const double kScaleCoefficient = 0.5;
+  bool is_key_listener_enabled_ = false;
   std::shared_ptr<EventHandler::View> event_handler_;
 };
 
 class ScrollingView : public QGraphicsView {
   Q_OBJECT
+
  public:
   ScrollingView(QGraphicsScene* scene, QWidget* parent = nullptr);
+  ~ScrollingView() override;
+
+ private:
+  void keyReleaseEvent(QKeyEvent* event) override;
 };
 
 #endif  // GAMEVIEW_H

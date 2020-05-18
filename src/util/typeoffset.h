@@ -22,10 +22,12 @@ enum {
   kMainMenu = 3,
   kInteractionMenu = 4,
   kPlanetInfo = 4,
+  kShopMenu = 4,
   kLoadScreen = 5,
   kLoadScreenStage = 6,
   kLoadScreenBar = 6,
-  kShopMenu = 4,
+  kSettingsMenuDown = 7,
+  kSettingsMenuUp = 8,
 };
 
 }  // namespace ZValues

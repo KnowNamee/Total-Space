@@ -3,12 +3,16 @@
 
 #include <QApplication>
 #include <QGraphicsItem>
+#include <QLineEdit>
 #include <QScreen>
+#include <QShortcut>
 #include <QWidget>
 
 #include "core/eventhandling.h"
+#include "core/keyhandler.h"
 #include "core/statemachine.h"
 #include "data/objectsstorage.h"
+#include "graphics/keyfield.h"
 #include "scene/gameview.h"
 #include "util/utility.h"
 
@@ -23,6 +27,7 @@ class StatusBar;
 class PlanetInfoGraphics;
 class FullPlanetInfo;
 class AttackResultWindow;
+class SettingsMenu;
 
 class Menu : public QObject {
   Q_OBJECT
@@ -37,10 +42,14 @@ class Menu : public QObject {
   const int32_t kGeneralButtonHeight = kHeight / 13;
   const int32_t kGeneralButtonWidth = kWidth / 5;
 
+  std::map<int, std::shared_ptr<QShortcut>> shortcuts_;
+
  public:
   virtual void SetZValue() = 0;
   virtual void Draw() = 0;
   virtual void SwitchTo(Controller::MenuType menu) = 0;
+
+  QShortcut* GetShortcut(int key);
 };
 
 class MainMenu : public Menu {
@@ -54,8 +63,12 @@ class MainMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnNewGameClicked();
+  void btnSettingsClicked();
 
  private:
   friend class EventHandler::View;
@@ -63,6 +76,7 @@ class MainMenu : public Menu {
   ImageItem* txt_total_space_;
   ButtonItem* btn_new_game_;
   ButtonItem* btn_exit_;
+  ButtonItem* btn_settings_;
 };
 
 class PauseMenu : public Menu {
@@ -76,15 +90,21 @@ class PauseMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnBackClicked();
   void btnExitClicked();
+  void btnSettingsClicked();
+  void keyEscapeReleased();
 
  private:
   friend class EventHandler::View;
 
   ButtonItem* btn_exit_;
   ButtonItem* btn_back_;
+  ButtonItem* btn_settings_;
   QGraphicsRectItem* background_rect_;
 };
 
@@ -98,8 +118,6 @@ class PlanetMenu : public Menu {
   void SetZValue() override;
   void Draw() override;
 
-  Controller::MenuType GetNextMenu(ButtonItem* btn) const;
-
   void SwitchTo(Controller::MenuType menu) override;
 
  public slots:
@@ -109,6 +127,12 @@ class PlanetMenu : public Menu {
   void btnMoveClicked();
   void btnShopClicked();
 
+  void keyEscapeReleased();
+  void keyInfoReleased();
+  void keyAttackReleased();
+  void keyMoveReleased();
+  void keyShopReleased();
+
  private:
   friend class EventHandler::View;
   const int32_t kPlanetMenuButtonWidth = kWidth / 12;
@@ -117,8 +141,6 @@ class PlanetMenu : public Menu {
   ButtonItem* btn1_;
   ButtonItem* btn2_;
   ButtonItem* btn3_;
-  // TODO удалить button_to_menu_
-  std::map<ButtonItem*, Controller::MenuType> button_to_menu_;
   double radius_;
 };
 
@@ -207,6 +229,9 @@ class AttackMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class MoveMenu : public UnitsInteractionMenu {
@@ -217,6 +242,9 @@ class MoveMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class PlanetInfoMenu : public Menu {
@@ -230,8 +258,8 @@ class PlanetInfoMenu : public Menu {
 
  private:
   void Destroy();
-
   ImageItem* background_ = nullptr;
+
   ButtonItem* upgrade_button_ = nullptr;
   ButtonItem* exit_button_ = nullptr;
   FullPlanetInfo* planet_info_ = nullptr;
@@ -239,6 +267,8 @@ class PlanetInfoMenu : public Menu {
  private slots:
   void Upgrade();
   void Exit();
+
+  void keyEscapePressed();
 };
 
 class GameMenu : public Menu {
@@ -256,10 +286,13 @@ class GameMenu : public Menu {
 
   void Hide();
   void Show();
-
   void UpdateStatusBar();
 
-private:
+ private slots:
+  void keyEscapeReleased();
+  void keyNextReleased();
+
+ private:
   friend class EventHandler::View;
 
   ButtonItem* btn_next_;
@@ -267,6 +300,70 @@ private:
 
   const int32_t kStatusWidthCoef = 4;
   const int32_t kStatusHeightCoef = 10;
+};
+
+class Section : public QObject {
+  Q_OBJECT
+
+ public:
+  Section();
+  Section(const QString& name, int x, int y);
+  ~Section();
+
+  void AddData(const KeyHandler::Key& data, Controller::MenuType type);
+  int GetY();
+
+ private:
+  QGraphicsTextItem* name_;
+  int cur_x_;
+  int cur_y_;
+
+  std::vector<QGraphicsTextItem*> actions_;
+  std::vector<KeyField*> actions_keys_;
+
+ private slots:
+  void btnChangeKeyClicked();
+};
+
+class SettingsMenu : public Menu {
+  Q_OBJECT
+
+ public:
+  SettingsMenu();
+  ~SettingsMenu() override;
+
+  void SwitchTo(Controller::MenuType menu) override;
+  void Draw() override;
+  void SetZValue() override;
+
+  void SetActiveKeyField(KeyField* field);
+  KeyField* GetActiveKeyField();
+
+  Controller::MenuType GetPrevMenu();
+  void SetPrevMenu(Controller::MenuType menu);
+
+ private slots:
+  void keyEscapeReleased();
+  void btnBackClicked();
+
+ private:
+  QGraphicsRectItem* background_rect_;
+  QGraphicsTextItem* settings_;
+  QGraphicsTextItem* keypad_;
+  ButtonItem* btn_back_;
+  std::vector<std::shared_ptr<Section>> sections_;
+  Controller::MenuType prev_menu_;
+
+  int cur_x;
+  int cur_y;
+  int text_field_x;
+  int text_field_y;
+  KeyField* active_field_ = nullptr;
+  const QString kStrNoSection = "~";
+
+  bool AddSection(const QString& name, int x, int y);
+  void DrawData();
+  QString GetSectionName(Controller::MenuType type);
 };
 
 class ShopMenu : public Menu {
@@ -293,6 +390,8 @@ class ShopMenu : public Menu {
   void ChangeShop();
   void Show();
   void Close();
+
+  void keyEscapeReleased();
 
  private:
   friend class EventHandler::View;
