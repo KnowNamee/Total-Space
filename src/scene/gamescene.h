@@ -43,6 +43,8 @@ class GameScene : public QGraphicsScene {
  public slots:
   void Next();
   void NewGame();
+  void ShowLoseMessage();
+  void ShowWinMessage();
 
  private:
   void SetSceneSettings();

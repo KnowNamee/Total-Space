@@ -93,7 +93,6 @@ void Controller::LoadMenuGraph() {
                                                         MenuType::kMain};
 
   connections[static_cast<int>(MenuType::kShop)] = {MenuType::kPlanet};
-
   menu_graph_ = std::make_unique<MenuGraph>(kMenuCount, connections);
 }
 

@@ -48,7 +48,7 @@ class Controller {
   static void HideGame();
   static void ShowGame();
   static void SwitchMenu(MenuType menu);
-  static void SetMenuType(MenuType type);
+  static void SetMenuType(MenuType type);  
   static MenuType GetMenuType();
   static void Destroy();
 
