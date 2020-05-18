@@ -33,6 +33,7 @@ class GameScene : public QGraphicsScene {
   int32_t GetHeight() const;
   std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
   int32_t GetNearestPower(PlayerBase* player);  
+  int32_t GetFontSize(int32_t size) const;
   bool IsPlanetReachable(PlayerBase* player);
   bool IsPlanetOnScene(Planet* planet);
   PlanetsGraph* GetGraph() const;

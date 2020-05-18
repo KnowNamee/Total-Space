@@ -221,6 +221,15 @@ int32_t GameScene::GetNearestPower(PlayerBase* player) {
   return power;
 }
 
+int32_t GameScene::GetFontSize(int32_t size) const {
+  if (GetWidth() > 2000) {
+    if (size >= 20) {
+      return size - 5;
+    }
+  }
+  return size;
+}
+
 bool GameScene::IsPlanetReachable(PlayerBase* player) {
   if (Controller::GetActivePlanet() != nullptr &&
       Controller::GetActivePlanet()->GetOwner() == player) {

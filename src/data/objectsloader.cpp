@@ -58,13 +58,14 @@ void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
   }
 
   int32_t level = building.value("level").toInt();
+  int32_t time = building.value("time").toInt();
   Resources cost(building.value("batteries_cost").toInt(),
                  building.value("tools_cost").toInt());
   Resources income(building.value("batteries_income").toInt(),
                    building.value("tools_income").toInt());
 
   Building* building_ptr =
-      new Building(caption, role, upgrades_vector, level,
+      new Building(caption, role, upgrades_vector, level, time,
                    ObjectsStorage::GetUnitType(unit_caption), cost, income);
 
   ObjectsStorage::AddBuilding(building_ptr);

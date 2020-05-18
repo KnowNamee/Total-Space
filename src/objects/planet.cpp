@@ -17,6 +17,18 @@ Planet::Planet(QPointF coordinates, double radius)
 
 void Planet::SetOwner(PlayerBase* owner) { owner_ = owner; }
 
+bool Planet::CanBuyBuilding(BuildingType building) {
+  if (ObjectsStorage::GetBuildingCost(building) <= owner_->GetResources() &&
+      current_building_.first == BuildingType::kNoBuilding) {
+    return true;
+  }
+  return false;
+}
+
+bool Planet::CanBuyUnit(UnitType unit) {
+  return ObjectsStorage::GetUnitCost(unit) <= owner_->GetResources();
+}
+
 const Resources& Planet::GetIncome() const { return income_; }
 
 Resources Planet::GetUpgradeCost() const {
@@ -26,8 +38,8 @@ Resources Planet::GetUpgradeCost() const {
 }
 
 void Planet::AddBuilding(BuildingType building) {
-  buildings_.push_back(building);
-  income_ += ObjectsStorage::GetIncome(building);
+  current_building_ =
+      std::make_pair(building, ObjectsStorage::GetBuildingTime(building));
 }
 
 void Planet::AddUnit(UnitType unit) {
@@ -37,9 +49,10 @@ void Planet::AddUnit(UnitType unit) {
   }
 }
 
-void Planet::BuyBuildinng(BuildingType building) {
+void Planet::BuyBuilding(BuildingType building) {
   if (owner_ != nullptr &&
-      owner_->GetResources() >= ObjectsStorage::GetBuildingCost(building)) {
+      owner_->GetResources() >= ObjectsStorage::GetBuildingCost(building) &&
+      current_building_.first == BuildingType::kNoBuilding) {
     owner_->SubResources(ObjectsStorage::GetBuildingCost(building));
     AddBuilding(building);
   }
@@ -83,6 +96,21 @@ void Planet::RemoveUnits(const QVector<UnitType>& units) {
   }
 }
 
+int32_t Planet::GetCurrentBuildingTime() const {
+  return current_building_.second;
+}
+
+QString Planet::GetCurrentBuildingCaption() const {
+  if (current_building_.first == BuildingType::kNoBuilding) {
+    return "no building";
+  }
+  return ObjectsStorage::GetBuildingCaption(current_building_.first).toLower();
+}
+
+BuildingType Planet::GetCurrentBuilding() const {
+  return current_building_.first;
+}
+
 void Planet::Upgrade() {
   // TODO
   // Возможно стоит добавить что-то вроде увеличения дохода планеты
@@ -95,6 +123,14 @@ void Planet::Upgrade() {
 }
 
 void Planet::Next() {
+  if (current_building_.first != BuildingType::kNoBuilding) {
+    current_building_.second--;
+    if (current_building_.second == 0) {
+      buildings_.push_back(current_building_.first);
+      income_ += ObjectsStorage::GetIncome(current_building_.first);
+      current_building_.first = BuildingType::kNoBuilding;
+    }
+  }
   units_on_planet_.append(tired_units_);
   tired_units_.clear();
 }
@@ -167,7 +203,9 @@ std::set<BuildingType> Planet::GetAvailableBuildings() const {
 
   for (BuildingType building : buildings_) {
     std::set<BuildingType> upgrades = ObjectsStorage::GetUpgrades(building);
-    available_buildings.insert(upgrades.begin(), upgrades.end());
+    if (level_ > ObjectsStorage::GetBuildingLevel(building)) {
+      available_buildings.insert(upgrades.begin(), upgrades.end());
+    }
   }
   return available_buildings;
 }
@@ -257,6 +295,9 @@ BuildingType Planet::GetMostProfitableBuilding(
     BuildingRole role) const {
   if (GetUpgradeCost() <= available_resources * upgrade_coefficient / level_) {
     return BuildingType::kUpgrade;
+  }
+  if (current_building_.first != BuildingType::kNoBuilding) {
+    return BuildingType::kNoBuilding;
   }
   std::set<BuildingType> types = GetAffordableBuildings(available_resources);
   std::map<BuildingType, int32_t> buildings_to_quantity;

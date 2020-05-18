@@ -32,13 +32,13 @@ ShopWidget::ShopWidget(int32_t width, int32_t height, ShopItemType type,
 
   buy_btn_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kBuyButton));
   if (type == ShopItemType::kBuilding) {
-    unit_image_ =
-        Loader::GetBuildingImage(ObjectsStorage::GetBuildingType(name));
+    BuildingType building = ObjectsStorage::GetBuildingType(name);
+    unit_image_ = Loader::GetBuildingImage(building);
   }
   if (type == ShopItemType::kUnit) {
     unit_image_ = Loader::GetUnitImage(ObjectsStorage::GetUnitType(name));
   }
-
+  CheckEnabled();
   connect(buy_btn_, SIGNAL(clicked()), object_info_, SLOT(IncQuant()));
   connect(buy_btn_, SIGNAL(clicked()), this, SLOT(Purchase()));
 }
@@ -55,7 +55,7 @@ void ShopWidget::paint(QPainter *painter,
 
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(20));
+            static_cast<int32_t>(Controller::scene->GetFontSize(20)));
   // TODO kscale for font
   painter->setFont(fabulist_general);
   painter->setPen(QColor(Qt::white));
@@ -113,6 +113,22 @@ const Resources &ShopWidget::GetCost() const { return cost_; }
 
 ShopItemType ShopWidget::GetType() const { return type_; }
 
+void ShopWidget::CheckEnabled() const {
+  if (type_ == ShopItemType::kBuilding) {
+    BuildingType building = ObjectsStorage::GetBuildingType(object_name_);
+    if (!Controller::GetActivePlanet()->CanBuyBuilding(building)) {
+      buy_btn_->setEnabled(false);
+    }
+  }
+  if (type_ == ShopItemType::kUnit) {
+    if (!Controller::GetActivePlanet()->CanBuyUnit(
+            ObjectsStorage::GetUnitType(object_name_))) {
+      buy_btn_->SetEnabled(false);
+    }
+  }
+}
+
 void ShopWidget::Purchase() {
-  Controller::GetShopMenu()->MakePurchase(type_, cost_, object_name_);
+  Controller::GetShopMenu()->MakePurchase(type_, object_name_);
+  CheckEnabled();
 }

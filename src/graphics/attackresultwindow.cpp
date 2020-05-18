@@ -4,6 +4,7 @@
 #include <QPainter>
 
 #include "core/statemachine.h"
+#include "scene/gamescene.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
 #include "scene/gameview.h"
@@ -30,7 +31,7 @@ void AttackResultWindow::paint(QPainter* painter,
   const double kScale = Controller::view->matrix().m11();
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(37 / kScale));
+            static_cast<int32_t>(Controller::scene->GetFontSize(37) / kScale));
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
             static_cast<int32_t>(23 / kScale));

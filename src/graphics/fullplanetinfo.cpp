@@ -42,6 +42,13 @@ FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
     batteries_income_ = income.GetBatteries();
   }
   units_to_data_ = Controller::GetActivePlanet()->GetUnitsToData();
+  int32_t time_to_build =
+      Controller::GetActivePlanet()->GetCurrentBuildingTime();
+  current_building_ =
+      Controller::GetActivePlanet()->GetCurrentBuildingCaption();
+  if (time_to_build > 0) {
+    current_building_ += "\t" + QString::number(time_to_build);
+  }
 }
 
 void FullPlanetInfo::SetLevel(int32_t level) {
@@ -64,13 +71,14 @@ void FullPlanetInfo::paint(QPainter* painter,
   // Planet
   painter->setPen(QColor(Qt::white));
   const double kScale = Controller::view->matrix().m11();
+  double font_size = Controller::scene->GetFontSize(32);
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(32 / kScale));
+            static_cast<int32_t>(font_size / kScale));
   painter->setFont(fabulist_header);
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(20 / kScale));
+            static_cast<int32_t>(Controller::scene->GetFontSize(20) / kScale));
   painter->drawPixmap(
       QRect(static_cast<int32_t>(-boundingRect().width() / 2),
             static_cast<int32_t>(-boundingRect().width() / 6),
@@ -158,6 +166,12 @@ void FullPlanetInfo::paint(QPainter* painter,
               static_cast<int32_t>(boundingRect().width() / 3),
               static_cast<int32_t>(boundingRect().height() / 8)),
         "tools income: " + QString::number(tools_income_));
+    painter->drawText(
+        QRect(static_cast<int32_t>(-boundingRect().width() / 6),
+              static_cast<int32_t>(boundingRect().height() * 5 / 16),
+              static_cast<int32_t>(boundingRect().width() / 3),
+              static_cast<int32_t>(boundingRect().height() / 8)),
+        "on construction: " + current_building_);
   }
 
   // Units

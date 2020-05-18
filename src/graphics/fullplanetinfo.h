@@ -26,13 +26,14 @@ class FullPlanetInfo : public QGraphicsItem {
   int font_;
 
   QPixmap* planet_image_;
+  QString current_building_;
   int32_t width_;
   int32_t height_;
   int32_t level_;
   int32_t tools_cost_;
   int32_t batteries_cost_;
   int32_t tools_income_;
-  int32_t batteries_income_;
+  int32_t batteries_income_;  ;
   Planet::AttackResult result_;
   bool is_players_;
 };

@@ -353,6 +353,10 @@ ShopMenu::ShopMenu() {
        Controller::GetActivePlanet()->GetBuildings()) {
     ++buildings_number[building];
   }
+  BuildingType building = Controller::GetActivePlanet()->GetCurrentBuilding();
+  if (building != BuildingType::kNoBuilding) {
+    ++buildings_number[building];
+  }
   for (const auto& building : buildings_number) {
     ShopPlanetInfo* building_info = new ShopPlanetInfo(
         kInfoWidth, kInfoHeight,
@@ -621,7 +625,6 @@ void ShopMenu::Show() {
   Controller::scene->addItem(exit_bnt_);
   Controller::scene->addItem(units_btn_);
   Controller::scene->addItem(buildings_btn_);
-  Controller::scene->addItem(buildings_btn_);
 }
 
 void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
@@ -715,14 +718,12 @@ void ShopMenu::SetZValue() {
 
 void ShopMenu::SwitchState(ShopState state) { current_state_ = state; }
 
-void ShopMenu::MakePurchase(ShopItemType type, Resources cost,
-                            QString item_name) {
-  Controller::GetActivePlanet()->GetOwner()->SubResources(cost);
+void ShopMenu::MakePurchase(ShopItemType type, QString item_name) {
   if (type == ShopItemType::kUnit) {
-    Controller::GetActivePlanet()->AddUnit(
+    Controller::GetActivePlanet()->BuyUnit(
         ObjectsStorage::GetUnitType(item_name));
   } else {
-    Controller::GetActivePlanet()->AddBuilding(
+    Controller::GetActivePlanet()->BuyBuilding(
         ObjectsStorage::GetBuildingType(item_name));
   }
   UpdateInfo();

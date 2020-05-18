@@ -4,6 +4,7 @@
 #include <QPainter>
 
 #include "core/statemachine.h"
+#include "scene/gamescene.h"
 #include "data/loader.h"
 
 ShopPlanetInfo::ShopPlanetInfo(int32_t width, int32_t height, QString caption,
@@ -35,7 +36,7 @@ void ShopPlanetInfo::paint(QPainter *painter,
                            QWidget *widget) {
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(25));
+            static_cast<int32_t>(Controller::scene->GetFontSize(25)));
   // TODO kscale for font
   painter->setFont(fabulist_general);
   painter->setPen(QColor(Qt::white));

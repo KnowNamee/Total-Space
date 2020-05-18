@@ -287,7 +287,7 @@ class ShopMenu : public Menu {
   void SwitchTo(Controller::MenuType menu) override;
 
   void SwitchState(ShopState state);
-  void MakePurchase(ShopItemType type, Resources cost, QString item_name);
+  void MakePurchase(ShopItemType type, QString item_name);
   void UpdateInfo();
 
  private slots:

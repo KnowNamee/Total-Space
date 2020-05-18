@@ -55,9 +55,11 @@ void UnitWidget::paint(QPainter* painter,
   }
 
   QFont fabulist_header =
-      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 18);
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            Controller::scene->GetFontSize(18));
   QFont fabulist_general =
-      QFont(QFontDatabase::applicationFontFamilies(font_).first(), 15);
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            Controller::scene->GetFontSize(15));
   painter->setFont(fabulist_header);
   painter->setPen(QColor(Qt::white));
   painter->drawText(unit_image_x + width_ / 20,
