@@ -428,12 +428,16 @@ ShopMenu::ShopMenu() {
   // создание всего прочего
   border_line_ = new QGraphicsLineItem();
   text_ = new QGraphicsSimpleTextItem();
-  exit_bnt_ = new ButtonItem(kExitBtnSize / scale, kExitBtnSize / scale, false);
+  exit_bnt_ = new ButtonItem(static_cast<int32_t>(kExitBtnSize / scale),
+                             static_cast<int32_t>(kExitBtnSize / scale), false);
   exit_bnt_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kEscapeButton));
 
-  units_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+  units_btn_ = new ButtonItem(static_cast<int32_t>(kBtnWidth / scale),
+                              static_cast<int32_t>(kBtnHeight / scale), false);
   units_btn_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kUnitsButton));
-  buildings_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+
+  buildings_btn_ = new ButtonItem(static_cast<int32_t>(kBtnWidth / scale),
+                                  static_cast<int32_t>(kBtnHeight / scale), false);
   buildings_btn_->SetPixmap(
       Loader::GetButtonImage(ButtonsEnum::kBuildingsButton));
 
@@ -479,24 +483,27 @@ ShopMenu::~ShopMenu() {
 }
 
 void ShopMenu::Draw() {
-  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
-  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
   double scale = Controller::view->matrix().m11();
 
+  QSizeF scale_size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+  scale_size *= kShopSizeCoefficient / scale;
+  QSizeF real_size(kWidth, kHeight);
+  real_size *= kShopSizeCoefficient;
+
   QPointF top_left_cor(Controller::GetActivePlanet()->GetCoordinates() -
-                       QPointF(size.width() / 2, size.height() / 2));
-  QPointF top_right_cor(Controller::GetActivePlanet()->GetCoordinates() +
-                        QPointF(size.width() / 2, -size.height() / 2));
-  QRectF background(top_left_cor, size);
+                       QPointF(scale_size.width() / 2, scale_size.height() / 2));
+  QPointF top_right_cor = top_left_cor + QPointF(scale_size.width(), 0);
+
+  QRectF background(top_left_cor, scale_size);
 
   background_image_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background);
 
   border_line_->setPen(QPen(Qt::green));
-  border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient,
+  border_line_->setLine(top_left_cor.x() + scale_size.width() * kBorderCoefficient,
                         top_left_cor.y(),
-                        top_left_cor.x() + size.width() * kBorderCoefficient,
-                        top_left_cor.y() + size.height());
+                        top_left_cor.x() + scale_size.width() * kBorderCoefficient,
+                        top_left_cor.y() + scale_size.height());
 
   // создание и размещения магазина
   // то окно, в котором можно купить
@@ -509,32 +516,26 @@ void ShopMenu::Draw() {
   shop_scrolling_view_->setStyleSheet("border: 0px");
 
   int32_t x_offset = static_cast<int32_t>(
-      size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+      real_size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
-      static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
-  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
-                   size.height() - 2 * y_offset);
-  //  QSizeF shop_size(
-  //      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset /
-  //      10, size.height() - 2 * y_offset);
-  //   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
-  //                        (kWidth / scale - size.width()) / 2 + size.width() *
-  //                        kBorderCoefficient, (kHeight / scale -
-  //                        size.height()) / 2));
-  //  QPointF shop_pos = top_left_cor;
-  //  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
-  //  shop_pos += QPointF(x_offset, y_offset);
-  QPointF shop_pos(kWidth / scale * (1 - kShopSizeCoefficient) / 2 +
-                       size.width() * kBorderCoefficient,
-                   kHeight / scale * (1 - kShopSizeCoefficient) / 2);
+      static_cast<int32_t>(real_size.height() * pow(kWidgetHeightCoef, 2));
+
+  QSizeF shop_size(real_size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                     real_size.height() - 2 * y_offset);
+  QPointF shop_pos(
+      kWidth * (1 - kShopSizeCoefficient) / 2 + real_size.width() * kBorderCoefficient,
+      kHeight * (1 - kShopSizeCoefficient) / 2);
+
   shop_pos += QPointF(x_offset, y_offset);
+
   shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
                                     static_cast<int32_t>(shop_pos.y()),
                                     static_cast<int32_t>(shop_size.width()),
                                     static_cast<int32_t>(shop_size.height()));
-  shop_scrolling_view_->setSceneRect(
-      0, 0, shop_size.width(),
-      (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) -
+  int32_t lines = shop_buildings_.size() / kWidthCount;
+  lines += shop_buildings_.size() % kWidthCount == 0 ? 1 : 2;
+  shop_scrolling_view_->setSceneRect(0, 0, shop_size.width(),
+      lines * (kWidgetHeight + y_offset) -
           y_offset);
 
   // добавление тайлов в магазин
@@ -564,14 +565,15 @@ void ShopMenu::Draw() {
 
   QPointF info_pos(kWidth * (1 - kShopSizeCoefficient) / 2,
                    kHeight * (1 - kShopSizeCoefficient) / 2);
-  info_pos += QPointF(
-      size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
-      size.height() * (1 - kShopSizeCoefficient) / 2);
+  info_pos +=
+      QPointF(real_size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
+              real_size.height() * (1 - kShopSizeCoefficient) / 2);
+
   info_scrolling_view_->setGeometry(
       static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
-      static_cast<int32_t>(size.width() * kBorderCoefficient *
+      static_cast<int32_t>(real_size.width() * kBorderCoefficient *
                            kShopSizeCoefficient),
-      static_cast<int32_t>(size.height() * kShopSizeCoefficient));
+      static_cast<int32_t>(real_size.height() * kShopSizeCoefficient));
   int32_t visible_widgets = 0;
 
   // добавление виджетов в меню инфы
@@ -587,21 +589,20 @@ void ShopMenu::Draw() {
     info_scene_scroll_->addItem(info_units_[i]);
     info_units_[i]->hide();
   }
-
+  visible_widgets = std::max(kInfoCount, visible_widgets);
   info_scrolling_view_->setSceneRect(
-      0, 0, size.width() * kBorderCoefficient * kShopSizeCoefficient,
-      std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-               static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+      0, 0, real_size.width() * kBorderCoefficient * kShopSizeCoefficient,
+      visible_widgets * kInfoHeight);
 
   text_->setText("Player info");
   text_->setBrush(Qt::green);
   text_->setPos(top_left_cor);
 
-  exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / 2);
-  units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / 2);
+  exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / scale / 2);
+  units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / scale / 2);
   // + 20 для небольшого отступа между вкладками
   buildings_btn_->setPos(top_left_cor +
-                         QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / 2);
+                         QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / scale / 2);
 
   QTimer::singleShot(1, this, SLOT(Show()));
 }
@@ -638,8 +639,8 @@ void ShopMenu::ChangeShop() {
 
   // Это просто копи-паст из Draw(). Не вижу смысла ещё такое большое кол-во
   // констант выносить
-  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
-  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
+  QSizeF size(kWidth, kHeight);
+  size *= kShopSizeCoefficient;
   int32_t x_offset = static_cast<int32_t>(
       size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
@@ -655,9 +656,9 @@ void ShopMenu::ChangeShop() {
     for (const auto& build_widget : shop_buildings_) {
       build_widget->WidgetShow();
     }
+
     int32_t lines = shop_buildings_.size() / kWidthCount;
-    lines += shop_buildings_.size() % kWidthCount != 0 ? 1 : 0;
-    qDebug() << lines;
+    lines += shop_buildings_.size() % kWidthCount == 0 ? 1 : 2;
     shop_scrolling_view_->setSceneRect(
         0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
 
@@ -672,10 +673,9 @@ void ShopMenu::ChangeShop() {
       ++visible_widgets;
       building_info->show();
     }
+    visible_widgets = std::max(kInfoCount, visible_widgets);
     info_scrolling_view_->setSceneRect(
-        0, 0, kInfoWidth,
-        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+        0, 0, kInfoWidth, visible_widgets * kInfoHeight);
   } else {
     SwitchState(kUnits);
     for (const auto& build_widget : shop_buildings_) {
@@ -684,8 +684,9 @@ void ShopMenu::ChangeShop() {
     for (const auto& unit_widget : shop_units_) {
       unit_widget->WidgetShow();
     }
+
     int32_t lines = shop_units_.size() / kWidthCount;
-    lines += shop_units_.size() % kWidthCount != 0 ? 1 : 0;
+    lines += shop_units_.size() % kWidthCount == 0 ? 1 : 2;
     shop_scrolling_view_->setSceneRect(
         0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
 
@@ -700,10 +701,9 @@ void ShopMenu::ChangeShop() {
       ++visible_widgets;
       unit_info->show();
     }
+    visible_widgets = std::max(kInfoCount, visible_widgets);
     info_scrolling_view_->setSceneRect(
-        0, 0, kInfoWidth,
-        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+         0, 0, kInfoWidth, visible_widgets * kInfoHeight);
   }
 }
 
@@ -730,6 +730,7 @@ void ShopMenu::MakePurchase(ShopItemType type, QString item_name) {
 }
 
 void ShopMenu::UpdateInfo() {
+  int32_t visible_widgets = 1;
   if (current_state_ == ShopState::kBuildings) {
     std::sort(info_buildings_.begin(), info_buildings_.end(),
               [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
@@ -739,7 +740,11 @@ void ShopMenu::UpdateInfo() {
       info_buildings_[i]->setPos(
           QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
       info_buildings_[i]->update();
+      if (info_buildings_[i]->GetQuant() != 0) { ++visible_widgets;}
     }
+    visible_widgets = std::max(kInfoCount, visible_widgets);
+    info_scrolling_view_->setSceneRect(
+        0, 0, kInfoWidth, visible_widgets * kInfoHeight);
     return;
   }
 
@@ -751,7 +756,11 @@ void ShopMenu::UpdateInfo() {
     info_units_[i]->setPos(
         QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
     info_units_[i]->update();
+    if (info_units_[i]->GetQuant() != 0) { ++visible_widgets;}
   }
+  visible_widgets = std::max(kInfoCount, visible_widgets);
+  info_scrolling_view_->setSceneRect(
+      0, 0, kInfoWidth, visible_widgets * kInfoHeight);
 }
 // ----------------------------- Game Menu -------------------------------
 GameMenu::GameMenu() {
@@ -851,9 +860,17 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   }
 
   interaction_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
-  interaction_button_->SetPixmap(
-      Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  if (Controller::GetActivePlanet()->GetOwner() ==
+      Controller::scene->GetPlayer()) {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulMoveButton));
+  } else {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  }
+
   cancel_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+
   cancel_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
 
   std::map<Planet*, QVector<UnitType>> nearest_units =
