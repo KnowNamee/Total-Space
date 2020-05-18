@@ -31,7 +31,7 @@ enum class ButtonsEnum {
   kUnitsButton,
   kBuildingsButton,
   kBuyButton,
-  kBeautifulMoveButton
+  kBeautifulMoveButton,
   kBatteriesIcon,
   kToolsIcon,
   kArmyPowerIcon
