@@ -7,7 +7,7 @@
             "upgrades": ["Workshop", "Barracks"],
             "level": 1,
             "time": 1,
-            "batteries_cost": 1000,
+            "batteries_cost": 500,
             "tools_cost": 150,
             "batteries_income": -20,
             "tools_income": 250
@@ -19,7 +19,7 @@
             "upgrades": ["Training Base"],
             "level": 2,
             "time": 2,
-            "batteries_cost": 2000,
+            "batteries_cost": 1200,
             "tools_cost": 300,
             "batteries_income": -20,
             "tools_income": -40
@@ -31,7 +31,7 @@
             "upgrades": [],
             "level": 2,
             "time": 2,
-            "batteries_cost": 2300,
+            "batteries_cost": 1800,
             "tools_cost": 300,
             "batteries_income": -30,
             "tools_income": 600
@@ -43,7 +43,7 @@
             "upgrades": ["Robots Line", "Spaceport"],
             "level": 2,
             "time": 2,
-            "batteries_cost": 2000,
+            "batteries_cost": 1200,
             "tools_cost": 300,
             "batteries_income": -20,
             "tools_income": -40
@@ -56,7 +56,7 @@
             "level": 1,
             "time": 1,
             "batteries_cost": 150,
-            "tools_cost": 1000,
+            "tools_cost": 500,
             "batteries_income": 250,
             "tools_income": -20
           },
@@ -68,7 +68,7 @@
             "level": 3,
             "time": 3,
             "batteries_cost": 700,
-            "tools_cost": 3500,
+            "tools_cost": 3000,
             "batteries_income": -100,
             "tools_income": -150
           },
@@ -80,7 +80,7 @@
             "level": 3,
             "time": 3,
             "batteries_cost": 800,
-            "tools_cost": 3400,
+            "tools_cost": 3000,
             "batteries_income": -100,
             "tools_income": -150
           },
@@ -104,7 +104,7 @@
             "level": 2,
             "time": 2,
             "batteries_cost": 300,
-            "tools_cost": 2300,
+            "tools_cost": 1800,
             "batteries_income": 600,
             "tools_income": -15
         }

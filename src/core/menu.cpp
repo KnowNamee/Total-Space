@@ -1025,10 +1025,14 @@ void GameMenu::StartGame() {
   Controller::scene->NewGame();
 }
 
-void GameMenu::Hide() { btn_next_->hide(); }
+void GameMenu::Hide() {
+  btn_next_->hide();
+  status_bar_->hide();
+}
 
-void GameMenu::Show() {
+void GameMenu::Show() {  
   btn_next_->show();
+  status_bar_->show();
   ReDraw();
 }
 
