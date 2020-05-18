@@ -10,7 +10,7 @@
 
 #include "graphics/planetgraphics.h"
 
-class PlanetsGraph {
+class   PlanetsGraph {
  private:
   class Edge;
 
@@ -67,6 +67,7 @@ class PlanetsGraph {
 
   void Draw();
   void Update();
+  void UpdatePlanet(PlanetGraphics* planet);
   Planet* GetBotPlanet();
   QVector<Planet*> GetConnectedPlanets(PlanetGraphics* planet_grapics) const;
 

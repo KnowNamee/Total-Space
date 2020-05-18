@@ -1,25 +1,27 @@
 #include "fullplanetinfo.h"
 
+#include <QFontDatabase>
 #include <QPixmap>
 
 #include "core/statemachine.h"
+#include "data/loader.h"
 #include "graphics/planetgraphics.h"
 #include "objects/planet.h"
 #include "objects/player.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 
-FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet *planet)
-    : width_(width), height_(height) {
+FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
+    : font_(Loader::GetFont()), width_(width), height_(height) {
   PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform()));
   planet_image_ = planet_graphics->GetImage();
   // TODO
   // Planet Name
   if (planet->GetOwner() != nullptr) {
-    name_ = planet->GetOwner()->GetName();
+    name_ = planet->GetOwner()->GetName().toLower();
   } else {
-    name_ = "No Owner";
+    name_ = "no owner";
   }
   level_ = planet->GetLevel();
   Resources res = planet->GetUpgradeCost();
@@ -27,9 +29,13 @@ FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet *planet)
   batteries_cost_ = res.GetBatteries();
   is_players_ = Controller::GetActivePlanet()->GetOwner() ==
                 dynamic_cast<PlayerBase*>(Controller::scene->GetPlayer());
-  nearest_power_ =
-      Controller::scene->GetNearestPower(Controller::scene->GetPlayer());
-  power_ = planet->GetPower();
+  if (!is_players_) {
+    PlayerBase* player = Controller::scene->GetPlayer();
+    QVector<UnitType> defending_units = planet->GetUnits();
+    defending_units.append(planet->GetTiredUnits());
+    result_ = planet->CalculateAttack(planet->GetNearestEnemies(player),
+                                      defending_units);
+  }
   if (is_players_) {
     Resources income = Controller::GetActivePlanet()->GetIncome();
     tools_income_ = income.GetTools();
@@ -56,62 +62,76 @@ void FullPlanetInfo::paint(QPainter* painter,
                            const QStyleOptionGraphicsItem* option,
                            QWidget* widget) {
   // Planet
-  painter->drawPixmap(QRect(static_cast<int32_t>(-boundingRect().width() / 2),
-                            static_cast<int32_t>(-boundingRect().width() / 6),
-                            static_cast<int32_t>(boundingRect().width() / 3),
-                            static_cast<int32_t>(boundingRect().width() / 3)),
-                      *planet_image_);
+  painter->setPen(QColor(Qt::white));
+  const double kScale = Controller::view->matrix().m11();
+  QFont fabulist_header =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            static_cast<int32_t>(32 / kScale));
+  painter->setFont(fabulist_header);
+  QFont fabulist_general =
+      QFont(QFontDatabase::applicationFontFamilies(font_).first(),
+            static_cast<int32_t>(20 / kScale));
+  painter->drawPixmap(
+      QRect(static_cast<int32_t>(-boundingRect().width() / 2),
+            static_cast<int32_t>(-boundingRect().width() / 6),
+            static_cast<int32_t>(boundingRect().width() * 2 / 7),
+            static_cast<int32_t>(boundingRect().width() * 2 / 7)),
+      *planet_image_);
   painter->setBrush(QColor(Qt::white));
   painter->setPen(QColor(Qt::white));
-  painter->drawText(static_cast<int32_t>(-boundingRect().width() / 3),
-                    static_cast<int32_t>(-boundingRect().height() * 7 / 16),
-                    "Level " + QString::number(level_));
+  painter->drawText(static_cast<int32_t>(-boundingRect().width() / 3 -
+                                         boundingRect().width() / 20),
+                    static_cast<int32_t>(-boundingRect().height() * 6 / 16),
+                    "level " + QString::number(level_));
   if (is_players_) {
-    painter->drawText(static_cast<int32_t>(-boundingRect().width() / 2),
+    painter->drawText(static_cast<int32_t>(-boundingRect().width() / 2 +
+                                           boundingRect().width() / 20),
                       static_cast<int32_t>(boundingRect().height() / 2),
-                      "Tools cost " + QString::number(tools_cost_));
+                      "tools cost " + QString::number(tools_cost_));
     painter->drawText(static_cast<int32_t>(-boundingRect().width() / 4),
                       static_cast<int32_t>(boundingRect().height() / 2),
-                      "Batteries cost " + QString::number(batteries_cost_));
+                      "batteries cost " + QString::number(batteries_cost_));
   }
 
   // TODO
   // Место для лора
+  painter->setFont(fabulist_general);
   painter->drawText(
       QRect(static_cast<int32_t>(-boundingRect().width() / 6),
             static_cast<int32_t>(-boundingRect().height() * 7 / 16),
             static_cast<int32_t>(boundingRect().width() / 3),
             static_cast<int32_t>(boundingRect().height() / 4)),
-      "It is a dark time for the "
-      "Rebellion. Although the Death "
-      "Star has been destroyed, "
-      "Imperial troops have driven the "
-      "Rebel forces from their hidden "
+      "it is a dark time for the "
+      "rebellion. although the death "
+      "star has been destroyed, "
+      "imperial troops have driven the "
+      "rebel forces from their hidden "
       "base and pursued them across "
       "the galaxy.");
 
   // Owner
+  painter->setFont(fabulist_header);
   painter->drawText(
       QRect(static_cast<int32_t>(-boundingRect().width() / 6),
             static_cast<int32_t>(-boundingRect().height() * 3 / 16),
             static_cast<int32_t>(boundingRect().width() / 3),
             static_cast<int32_t>(boundingRect().height() / 8)),
-      "Owner: " + name_);
+      "owner: " + name_);
 
   // Status
   QString status;
   QColor color;
   if (is_players_) {
-    status = "Belongs to you";
+    status = "belongs to you";
     color = Qt::white;
-  } else if (abs(power_ - nearest_power_) < 400) {
-    status = "Attackable";
+  } else if (result_ == Planet::AttackResult::kDraw) {
+    status = "attackable";
     color = Qt::yellow;
-  } else if (nearest_power_ > power_) {
-    status = "Approachable";
+  } else if (result_ == Planet::AttackResult::kWin) {
+    status = "approachable";
     color = Qt::green;
   } else {
-    status = "Inaccessible";
+    status = "inaccessible";
     color = Qt::red;
   }
   painter->setPen(color);
@@ -120,7 +140,7 @@ void FullPlanetInfo::paint(QPainter* painter,
             static_cast<int32_t>(-boundingRect().height() * 1 / 16),
             static_cast<int32_t>(boundingRect().width() / 3),
             static_cast<int32_t>(boundingRect().height() / 8)),
-      "Status: " + status);
+      "status: " + status);
 
   painter->setPen(QColor(Qt::white));
 
@@ -131,13 +151,13 @@ void FullPlanetInfo::paint(QPainter* painter,
               static_cast<int32_t>(boundingRect().height() * 1 / 16),
               static_cast<int32_t>(boundingRect().width() / 3),
               static_cast<int32_t>(boundingRect().height() / 8)),
-        "Batteries Income: " + QString::number(batteries_income_));
+        "batteries income: " + QString::number(batteries_income_));
     painter->drawText(
         QRect(static_cast<int32_t>(-boundingRect().width() / 6),
-              static_cast<int32_t>(boundingRect().height() * 2 / 16),
+              static_cast<int32_t>(boundingRect().height() * 3 / 16),
               static_cast<int32_t>(boundingRect().width() / 3),
               static_cast<int32_t>(boundingRect().height() / 8)),
-        "Tools Income: " + QString::number(tools_income_));
+        "tools income: " + QString::number(tools_income_));
   }
 
   // Units
@@ -146,18 +166,21 @@ void FullPlanetInfo::paint(QPainter* painter,
             static_cast<int32_t>(-boundingRect().height() * 7 / 16),
             static_cast<int32_t>(boundingRect().width() / 3),
             static_cast<int32_t>(boundingRect().height() / 8)),
-            "Units");
+      "units");
   int32_t units_x = static_cast<int32_t>(boundingRect().width() / 4);
   int32_t unit_y = static_cast<int32_t>(-boundingRect().height() / 4);
-  for (const auto &unit_to_data : units_to_data_) {
-    //   TODO
-    //   отрисовка картинки юнита подобрать размеры
-    painter->drawText(units_x - width_ / 15, unit_y,
-                      unit_to_data.second.caption);
-    painter->drawText(units_x + width_ / 15, unit_y,
-                      QString::number(unit_to_data.second.quantity));
-    // TODO
-    // Расстояние между юнитами
+  for (const auto& unit_to_data : units_to_data_) {
+    painter->drawText(units_x - units_x / 4, unit_y,
+                      unit_to_data.second.caption.toLower());
+    painter->drawText(units_x + units_x / 4, unit_y,
+                      QString::number(unit_to_data.second.quantity).toLower());
+    if (unit_to_data.second.unit_image != nullptr) {
+      painter->drawPixmap(
+          QRect(units_x + units_x / 2, unit_y - units_x / 8,
+                static_cast<int32_t>(boundingRect().width() / 20),
+                static_cast<int32_t>(boundingRect().width() / 20)),
+          *unit_to_data.second.unit_image);
+    }
     unit_y += static_cast<int32_t>(boundingRect().height() / 8);
   }
 

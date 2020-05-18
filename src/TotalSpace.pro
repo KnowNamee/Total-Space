@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -40,6 +40,8 @@ SOURCES += \
         graphics/keyfield.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
+        graphics/shopplanetinfo.cpp \
+        graphics/shopwidget.cpp \
         graphics/unitwidget.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -71,6 +73,8 @@ HEADERS += \
   graphics/keyfield.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
+    graphics/shopplanetinfo.h \
+    graphics/shopwidget.h \
     graphics/unitwidget.h \
         mainwindow.h \
         core/menu.h \

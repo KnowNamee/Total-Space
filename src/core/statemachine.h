@@ -14,6 +14,7 @@ class Planet;
 class PlanetMenu;
 class MainMenu;
 class PauseMenu;
+class ShopMenu;
 class UnitMenu;
 class GameMenu;
 class SettingsMenu;
@@ -35,6 +36,7 @@ class Controller {
     kPause,
     kPlanet,
     kUnit,
+    kShop,
     kAttack,
     kMove,
     kPlanetInfo,
@@ -65,8 +67,10 @@ class Controller {
   static PlanetMenu* GetPlanetMenu();
   static GameMenu* GetGameMenu();
   static SettingsMenu* GetSettingsMenu();
+  static ShopMenu* GetShopMenu();
 
   static void SetMainMenu(MainMenu* menu);
+  static void SetShopMenu(ShopMenu* menu);
   static void SetUnitMenu(UnitMenu* menu);
   static void SetAttackMenu(AttackMenu* menu);
   static void SetMoveMenu(MoveMenu* menu);
@@ -74,6 +78,7 @@ class Controller {
   static void SetPauseMenu(PauseMenu* menu);
   static void SetPlanetMenu(PlanetMenu* menu);
   static void SetGameMenu(GameMenu* menu);
+
   static void SetSettingsMenu(SettingsMenu* menu);
 
   static KeyHandler* GetKeyHandler();
@@ -97,6 +102,7 @@ class Controller {
   static PlanetMenu* planet_menu_;
   static GameMenu* game_menu_;
   static SettingsMenu* settings_menu_;
+  static ShopMenu* shop_menu_;
 
   static std::shared_ptr<KeyHandler> key_handler_;
 

@@ -11,6 +11,7 @@
 #include "core/eventhandling.h"
 #include "core/keyhandler.h"
 #include "core/statemachine.h"
+#include "data/objectsstorage.h"
 #include "graphics/keyfield.h"
 #include "scene/gameview.h"
 #include "util/utility.h"
@@ -20,6 +21,8 @@ class GameScene;
 class MainWindow;
 class UnitWidget;
 class ButtonItem;
+class ShopWidget;
+class ShopPlanetInfo;
 class PlanetInfoGraphics;
 class FullPlanetInfo;
 class AttackResultWindow;
@@ -123,11 +126,13 @@ class PlanetMenu : public Menu {
   void btnDefaultClicked();
   void btnAttackClicked();
   void btnMoveClicked();
+  void btnShopClicked();
 
   void keyEscapeReleased();
   void keyInfoReleased();
   void keyAttackReleased();
   void keyMoveReleased();
+  void keyShopReleased();
 
  private:
   friend class EventHandler::View;
@@ -256,8 +261,8 @@ class PlanetInfoMenu : public Menu {
 
  private:
   void Destroy();
+  ImageItem* background_ = nullptr;
 
-  QGraphicsRectItem* background_ = nullptr;
   ButtonItem* upgrade_button_ = nullptr;
   ButtonItem* exit_button_ = nullptr;
   FullPlanetInfo* planet_info_ = nullptr;
@@ -265,6 +270,7 @@ class PlanetInfoMenu : public Menu {
  private slots:
   void Upgrade();
   void Exit();
+
   void keyEscapePressed();
 };
 
@@ -339,8 +345,6 @@ class SettingsMenu : public Menu {
   void btnBackClicked();
 
  private:
-  friend class EventHandler::View;
-
   QGraphicsRectItem* background_rect_;
   QGraphicsTextItem* settings_;
   QGraphicsTextItem* keypad_;
@@ -358,6 +362,77 @@ class SettingsMenu : public Menu {
   bool AddSection(const QString& name, int x, int y);
   void DrawData();
   QString GetSectionName(Controller::MenuType type);
+};
+
+class ShopMenu : public Menu {
+  Q_OBJECT
+
+  enum ShopState {
+    kUnits,
+    kBuildings,
+  };
+
+ public:
+  ShopMenu();
+  ~ShopMenu() override;
+
+  void SetZValue() override;
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
+
+  void SwitchState(ShopState state);
+  void MakePurchase(ShopItemType type, Resources cost, QString item_name);
+  void UpdateInfo();
+
+ private slots:
+  void ChangeShop();
+  void Show();
+  void Close();
+
+ private:
+  friend class EventHandler::View;
+
+  QGraphicsSimpleTextItem* text_ = nullptr;
+  ShopState current_state_ = kBuildings;
+
+  QGraphicsLineItem* border_line_ = nullptr;
+  ButtonItem* buildings_btn_ = nullptr;
+  ButtonItem* units_btn_ = nullptr;
+  ButtonItem* exit_bnt_ = nullptr;
+  ImageItem* background_image_ = nullptr;
+
+  QGraphicsScene* shop_scene_scroll_ = nullptr;
+  ScrollingView* shop_scrolling_view_ = nullptr;
+  QVector<ShopWidget*> shop_buildings_;
+  QVector<ShopWidget*> shop_units_;
+
+  QGraphicsScene* info_scene_scroll_ = nullptr;
+  ScrollingView* info_scrolling_view_ = nullptr;
+  QVector<ShopPlanetInfo*> info_buildings_;
+  QVector<ShopPlanetInfo*> info_units_;
+
+  const double kShopSizeCoefficient = 0.9;
+  const double kBorderCoefficient = 0.25;
+
+  // группа констов отвечающихся за размер и кол-во тайлов магазина
+  const int32_t kWidthCount = 3;
+  const int32_t kHeightCount = 2;
+  const double kWidgetWidthCoef = 1. / (kWidthCount + 1);
+  const double kWidgetHeightCoef = 1. / (kHeightCount + 1);
+  const int32_t kWidgetWidth = static_cast<int32_t>(
+      kWidth * kSizeCoefficient * (1 - kBorderCoefficient) * kWidgetWidthCoef);
+  const int32_t kWidgetHeight =
+      static_cast<int32_t>(kHeight * kSizeCoefficient * kWidgetHeightCoef);
+  //-------------------------------------------------------------
+  const int32_t kInfoCount = 5;
+  const int32_t kInfoWidth = static_cast<int32_t>(
+      kWidth * kSizeCoefficient * kBorderCoefficient * kSizeCoefficient);
+  const int32_t kInfoHeight = static_cast<int32_t>(
+      kHeight * kSizeCoefficient * kSizeCoefficient / kInfoCount);
+
+  const int32_t kExitBtnSize = kHeight / 20;
+  const int32_t kBtnWidth = kHeight / 15;
+  const int32_t kBtnHeight = kHeight / 15;
 };
 
 #endif  // MENU_H

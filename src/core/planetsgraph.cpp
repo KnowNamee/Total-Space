@@ -46,6 +46,21 @@ void PlanetsGraph::Update() {
     for (const std::shared_ptr<Edge>& edge : edges) {
       edge->Update();
     }
+    }
+}
+
+void PlanetsGraph::UpdatePlanet(PlanetGraphics* planet) {
+  for (const auto& edge : graph_[planet]) {
+    PlanetGraphics* left = edge->GetLeftPlanetGraphics();
+    PlanetGraphics* right = edge->GetRightPlanetGraphics();
+    PlanetGraphics* another_planet = right;
+    if (planet == right) {
+      another_planet = left;
+    }
+    for (const auto& edge_another : graph_[another_planet]) {
+      edge_another->Update();
+    }
+    edge->Update();
   }
 }
 

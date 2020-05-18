@@ -15,6 +15,7 @@
 GameView::GameView(GameScene* scene, QWidget* parent)
     : QGraphicsView(scene, parent) {
   QCursor cursor = QCursor(QPixmap(":/Img/cursor.png"));
+  setFocus();
   setCursor(cursor);
   setMouseTracking(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -37,6 +38,12 @@ void GameView::SetNewGameSettings() {
 void GameView::EnableKeyReleaseListener() { is_key_listener_enabled_ = true; }
 
 bool GameView::IsKeyListenerEnabled() { return is_key_listener_enabled_; }
+
+void GameView::ShowBotsAttack(
+    QVector<std::pair<Planet*, Planet*>> planet_to_show) {
+  event_handler_->GeneratePath(planet_to_show);
+  event_handler_->ShowBotsAttack();
+}
 
 std::shared_ptr<EventHandler::View> GameView::EventHandler() {
   return event_handler_;

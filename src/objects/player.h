@@ -13,7 +13,7 @@ class Player : public PlayerBase {
  public:
   explicit Player(Planet* planet);
   Player(Planet* planet, const QString& color);
-  virtual ~Player();
+  virtual ~Player() override;
 
   void Next() override;
 };

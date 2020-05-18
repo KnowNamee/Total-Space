@@ -5,24 +5,32 @@
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QMediaPlayer>
 #include <QPushButton>
 #include <QTimer>
+#include <algorithm>
+#include <cmath>
 #include <memory>
 
 #include "core/keyhandler.h"
 #include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "data/objectsstorage.h"
 #include "graphics/attackresultwindow.h"
 #include "graphics/buttonitem.h"
 #include "graphics/fullplanetinfo.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "graphics/planetinfographics.h"
+#include "graphics/shopplanetinfo.h"
+#include "graphics/shopwidget.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
+#include "objects/building.h"
 #include "objects/planet.h"
 #include "objects/player.h"
+#include "objects/unit.h"
 #include "scene/gamescene.h"
 #include "scene/gameview.h"
 #include "util/typeoffset.h"
@@ -39,6 +47,11 @@ MainMenu::~MainMenu() {
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_new_game_);
   Controller::scene->removeItem(btn_settings_);
+
+  delete txt_total_space_;
+  delete btn_exit_;
+  delete btn_new_game_;
+  delete btn_settings_;
 }
 
 void MainMenu::SetZValue() {
@@ -133,7 +146,8 @@ PauseMenu::PauseMenu() {
   Controller::MenuType type = Controller::MenuType::kPause;
   KeyHandler* key_handler = Controller::GetKeyHandler();
   Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
-  shortcuts_[key_esc] = std::make_shared<QShortcut>(key_esc, Controller::view);
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
   connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
           SLOT(keyEscapeReleased()));
 }
@@ -143,6 +157,11 @@ PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_settings_);
   Controller::scene->removeItem(background_rect_);
+
+  delete btn_back_;
+  delete btn_exit_;
+  delete background_rect_;
+  delete btn_settings_;
 }
 
 void PauseMenu::SetZValue() {
@@ -249,8 +268,8 @@ PlanetMenu::PlanetMenu() {
   KeyHandler* key_handler = Controller::GetKeyHandler();
   Controller::MenuType type = Controller::MenuType::kPlanet;
   Qt::Key key_btn1 = key_handler->Get(type, Qt::Key_W).key;
-  Qt::Key key_btn2 = key_handler->Get(type, Qt::Key_A).key;
-  Qt::Key key_btn3 = key_handler->Get(type, Qt::Key_D).key;
+  Qt::Key key_btn2 = key_handler->Get(type, Qt::Key_D).key;
+  Qt::Key key_btn3 = key_handler->Get(type, Qt::Key_A).key;
   Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
 
   if (Controller::GetActivePlanet() == nullptr ||
@@ -264,22 +283,22 @@ PlanetMenu::PlanetMenu() {
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
 
     btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kAttackButton));
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
 
     shortcuts_[key_btn1] =
         std::make_shared<QShortcut>(key_btn1, Controller::window);
-    shortcuts_[key_btn2] =
-        std::make_shared<QShortcut>(key_btn2, Controller::window);
     shortcuts_[key_btn3] =
         std::make_shared<QShortcut>(key_btn3, Controller::window);
+    shortcuts_[key_btn2] =
+        std::make_shared<QShortcut>(key_btn2, Controller::window);
 
     connect(shortcuts_[key_btn1].get(), SIGNAL(activated()), this,
             SLOT(keyAttackReleased()));
     connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
-            SLOT(keyEscapeReleased()));
-    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
             SLOT(keyInfoReleased()));
+    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
+            SLOT(keyEscapeReleased()));
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
@@ -288,29 +307,30 @@ PlanetMenu::PlanetMenu() {
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
     btn2_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
 
     btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kMoveButton));
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kShopButton));
 
     shortcuts_[key_btn1] =
         std::make_shared<QShortcut>(key_btn1, Controller::window);
-    shortcuts_[key_btn2] =
-        std::make_shared<QShortcut>(key_btn2, Controller::window);
     shortcuts_[key_btn3] =
         std::make_shared<QShortcut>(key_btn3, Controller::window);
+    shortcuts_[key_btn2] =
+        std::make_shared<QShortcut>(key_btn2, Controller::window);
 
     connect(shortcuts_[key_btn1].get(), SIGNAL(activated()), this,
             SLOT(keyMoveReleased()));
-    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
-            SLOT(keyInfoReleased()));
     connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
-            SLOT(keyEscapeReleased()));
+            SLOT(keyInfoReleased()));
+    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
+            SLOT(keyShopReleased()));
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
-    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
+    connect(btn3_, SIGNAL(clicked()), this, SLOT(btnShopClicked()));
   }
   shortcuts_[key_esc] =
       std::make_shared<QShortcut>(key_esc, Controller::window);
@@ -324,6 +344,9 @@ PlanetMenu::~PlanetMenu() {
   Controller::scene->removeItem(btn1_);
   Controller::scene->removeItem(btn2_);
   Controller::scene->removeItem(btn3_);
+  delete btn1_;
+  delete btn2_;
+  delete btn3_;
 }
 
 void PlanetMenu::SetZValue() {
@@ -388,6 +411,12 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       Controller::SetPlanetInfoMenu(new PlanetInfoMenu());
       break;
     }
+    case Controller::MenuType::kShop: {
+      Controller::SetPlanetMenu(nullptr);
+      Controller::SetShopMenu(new ShopMenu());
+      Controller::SetMenuType(Controller::MenuType::kShop);
+      break;
+    }
     default: {
       break;
     }
@@ -410,6 +439,9 @@ void PlanetMenu::btnAttackClicked() {
 
 void PlanetMenu::btnMoveClicked() {
   Controller::SwitchMenu(Controller::MenuType::kMove);
+}
+void PlanetMenu::btnShopClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kShop);
 }
 
 void PlanetMenu::keyEscapeReleased() {
@@ -444,6 +476,14 @@ void PlanetMenu::keyMoveReleased() {
   }
 }
 
+void PlanetMenu::keyShopReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kShop);
+  }
+}
+
 UnitMenu::UnitMenu() { this->Draw(); }
 
 UnitMenu::~UnitMenu() {}
@@ -452,6 +492,418 @@ void UnitMenu::Draw() {}
 
 void UnitMenu::SwitchTo(Controller::MenuType) {}
 
+//-------------------------------- Shop Menu -------------------------
+ShopMenu::ShopMenu() {
+  double scale = Controller::view->matrix().m11();
+  // создание виджетов магазина и меню инфы
+  std::map<BuildingType, int32_t> buildings_number;
+  std::map<BuildingType, ShopPlanetInfo*> building_info_ptr;
+  std::map<UnitType, int32_t> units_number;
+  std::map<UnitType, ShopPlanetInfo*> unit_info_ptr;
+
+  for (const BuildingType& building :
+       Controller::GetActivePlanet()->GetBuildings()) {
+    ++buildings_number[building];
+  }
+  for (const auto& building : buildings_number) {
+    ShopPlanetInfo* building_info = new ShopPlanetInfo(
+        kInfoWidth, kInfoHeight,
+        ObjectsStorage::GetBuildingCaption(building.first), building.second,
+        Loader::GetBuildingImage(building.first));
+    info_buildings_.push_back(building_info);
+    building_info_ptr[building.first] = building_info;
+  }
+
+  for (const UnitType& unit : Controller::GetActivePlanet()->GetUnits()) {
+    ++units_number[unit];
+  }
+  for (const UnitType& unit : Controller::GetActivePlanet()->GetTiredUnits()) {
+    ++units_number[unit];
+  }
+  for (const auto& unit : units_number) {
+    ShopPlanetInfo* unit_info = new ShopPlanetInfo(
+        kInfoWidth, kInfoHeight, ObjectsStorage::GetUnitCaption(unit.first),
+        unit.second, Loader::GetUnitImage(unit.first));
+    info_units_.push_back(unit_info);
+    unit_info_ptr[unit.first] = unit_info;
+  }
+
+  for (const UnitType& unit :
+       Controller::GetActivePlanet()->GetAvailableUnits()) {
+    auto unit_data_ptr = ObjectsStorage::GetUnit(unit);
+    if (units_number.find(unit) == units_number.end()) {
+      ShopPlanetInfo* unit_info = new ShopPlanetInfo(
+          kInfoWidth, kInfoHeight, unit_data_ptr->GetCaption(), 0,
+          Loader::GetUnitImage(unit));
+      info_units_.push_back(unit_info);
+      unit_info_ptr[unit] = unit_info;
+    }
+
+    ShopWidget* unit_widget =
+        new ShopWidget(kWidgetWidth, kWidgetHeight, ShopItemType::kUnit,
+                       unit_data_ptr->GetCaption(), unit_data_ptr->GetCost(),
+                       unit_info_ptr[unit]);
+    shop_units_.push_back(unit_widget);
+  }
+  for (const BuildingType& building :
+       Controller::GetActivePlanet()->GetAvailableBuildings()) {
+    auto buildings_data_ptr = ObjectsStorage::GetBuilding(building);
+    // Картинка посторйки, которая будет находиться слева
+    if (buildings_number.find(building) == buildings_number.end()) {
+      ShopPlanetInfo* building_info = new ShopPlanetInfo(
+          kInfoWidth, kInfoHeight, buildings_data_ptr->GetCaption(), 0,
+          Loader::GetBuildingImage(building));
+      info_buildings_.push_back(building_info);
+      building_info_ptr[building] = building_info;
+    }
+    // виджет постройки, которую можно купить
+    ShopWidget* building_widget = new ShopWidget(
+        kWidgetWidth, kWidgetHeight, ShopItemType::kBuilding,
+        buildings_data_ptr->GetCaption(), buildings_data_ptr->GetCost(),
+        building_info_ptr[building]);
+    shop_buildings_.push_back(building_widget);
+  }
+
+  std::sort(info_units_.begin(), info_units_.end(),
+            [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
+              return l->GetQuant() > r->GetQuant();
+            });
+  std::sort(info_buildings_.begin(), info_buildings_.end(),
+            [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
+              return l->GetQuant() > r->GetQuant();
+            });
+
+  // создание всего прочего
+  border_line_ = new QGraphicsLineItem();
+  text_ = new QGraphicsSimpleTextItem();
+  exit_bnt_ = new ButtonItem(kExitBtnSize / scale, kExitBtnSize / scale, false);
+  exit_bnt_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kEscapeButton));
+
+  units_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+  units_btn_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kUnitsButton));
+  buildings_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+  buildings_btn_->SetPixmap(
+      Loader::GetButtonImage(ButtonsEnum::kBuildingsButton));
+
+  connect(exit_bnt_, SIGNAL(clicked()), this, SLOT(Close()));
+  connect(units_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
+  connect(buildings_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
+
+  this->Draw();
+}
+
+ShopMenu::~ShopMenu() {
+  Controller::scene->removeItem(background_image_);
+  Controller::scene->removeItem(border_line_);
+  Controller::scene->removeItem(exit_bnt_);
+  Controller::scene->removeItem(units_btn_);
+  Controller::scene->removeItem(buildings_btn_);
+  Controller::scene->removeItem(text_);
+
+  delete exit_bnt_;
+  delete text_;
+  delete units_btn_;
+  delete buildings_btn_;
+  delete background_image_;
+  delete border_line_;
+
+  for (auto el : shop_units_) {
+    el->deleteLater();
+  }
+  for (auto el : shop_buildings_) {
+    el->deleteLater();
+  }
+  for (auto el : info_units_) {
+    el->deleteLater();
+  }
+  for (auto el : info_buildings_) {
+    el->deleteLater();
+  }
+
+  shop_scrolling_view_->deleteLater();
+  shop_scene_scroll_->deleteLater();
+  info_scrolling_view_->deleteLater();
+  info_scene_scroll_->deleteLater();
+}
+
+void ShopMenu::Draw() {
+  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
+  double scale = Controller::view->matrix().m11();
+
+  QPointF top_left_cor(Controller::GetActivePlanet()->GetCoordinates() -
+                       QPointF(size.width() / 2, size.height() / 2));
+  QPointF top_right_cor(Controller::GetActivePlanet()->GetCoordinates() +
+                        QPointF(size.width() / 2, -size.height() / 2));
+  QRectF background(top_left_cor, size);
+
+  background_image_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background);
+
+  border_line_->setPen(QPen(Qt::green));
+  border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient,
+                        top_left_cor.y(),
+                        top_left_cor.x() + size.width() * kBorderCoefficient,
+                        top_left_cor.y() + size.height());
+
+  // создание и размещения магазина
+  // то окно, в котором можно купить
+  shop_scene_scroll_ = new QGraphicsScene;
+  QBrush* ibrush = Loader::GetBrush();
+  shop_scene_scroll_->setBackgroundBrush(*ibrush);
+
+  shop_scrolling_view_ =
+      new ScrollingView(shop_scene_scroll_, Controller::window);
+  shop_scrolling_view_->setStyleSheet("border: 0px");
+
+  int32_t x_offset = static_cast<int32_t>(
+      size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+  int32_t y_offset =
+      static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
+  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   size.height() - 2 * y_offset);
+  //  QSizeF shop_size(
+  //      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset /
+  //      10, size.height() - 2 * y_offset);
+  //   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
+  //                        (kWidth / scale - size.width()) / 2 + size.width() *
+  //                        kBorderCoefficient, (kHeight / scale -
+  //                        size.height()) / 2));
+  //  QPointF shop_pos = top_left_cor;
+  //  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
+  //  shop_pos += QPointF(x_offset, y_offset);
+  QPointF shop_pos(kWidth / scale * (1 - kShopSizeCoefficient) / 2 +
+                       size.width() * kBorderCoefficient,
+                   kHeight / scale * (1 - kShopSizeCoefficient) / 2);
+  shop_pos += QPointF(x_offset, y_offset);
+  shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
+                                    static_cast<int32_t>(shop_pos.y()),
+                                    static_cast<int32_t>(shop_size.width()),
+                                    static_cast<int32_t>(shop_size.height()));
+  shop_scrolling_view_->setSceneRect(
+      0, 0, shop_size.width(),
+      (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) -
+          y_offset);
+
+  // добавление тайлов в магазин
+  QPointF start_pos(kWidgetWidth / 2, kWidgetHeight / 2);
+  for (auto i = 0; i < shop_units_.size(); ++i) {
+    shop_units_[i]->SetScene(shop_scene_scroll_);
+    shop_units_[i]->setPos(
+        start_pos + QPointF(kWidgetWidth + x_offset, 0) * (i % kWidthCount) +
+        QPointF(0, kWidgetHeight + y_offset) * (i / kWidthCount));
+    shop_scene_scroll_->addItem(shop_units_[i]);
+    shop_units_[i]->WidgetHide();
+  }
+  for (auto i = 0; i < shop_buildings_.size(); ++i) {
+    shop_buildings_[i]->SetScene(shop_scene_scroll_);
+    shop_buildings_[i]->setPos(
+        start_pos + QPointF(kWidgetWidth + x_offset, 0) * (i % kWidthCount) +
+        QPointF(0, kWidgetHeight + y_offset) * (i / kWidthCount));
+    shop_scene_scroll_->addItem(shop_buildings_[i]);
+  }
+
+  // создание зоны с инфой
+  info_scene_scroll_ = new QGraphicsScene();
+  info_scene_scroll_->setBackgroundBrush(*ibrush);
+  info_scrolling_view_ =
+      new ScrollingView(info_scene_scroll_, Controller::window);
+  info_scrolling_view_->setStyleSheet("border: 0px");
+
+  QPointF info_pos(kWidth * (1 - kShopSizeCoefficient) / 2,
+                   kHeight * (1 - kShopSizeCoefficient) / 2);
+  info_pos += QPointF(
+      size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
+      size.height() * (1 - kShopSizeCoefficient) / 2);
+  info_scrolling_view_->setGeometry(
+      static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
+      static_cast<int32_t>(size.width() * kBorderCoefficient *
+                           kShopSizeCoefficient),
+      static_cast<int32_t>(size.height() * kShopSizeCoefficient));
+  int32_t visible_widgets = 0;
+
+  // добавление виджетов в меню инфы
+  for (auto i = 0; i < info_buildings_.size(); ++i) {
+    info_buildings_[i]->setPos(
+        QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+    info_scene_scroll_->addItem(info_buildings_[i]);
+    visible_widgets += info_buildings_[i]->GetQuant() != 0 ? 1 : 0;
+  }
+  for (auto i = 0; i < info_units_.size(); ++i) {
+    info_units_[i]->setPos(
+        QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+    info_scene_scroll_->addItem(info_units_[i]);
+    info_units_[i]->hide();
+  }
+
+  info_scrolling_view_->setSceneRect(
+      0, 0, size.width() * kBorderCoefficient * kShopSizeCoefficient,
+      std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+               static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+
+  text_->setText("Player info");
+  text_->setBrush(Qt::green);
+  text_->setPos(top_left_cor);
+
+  exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / 2);
+  units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / 2);
+  // + 20 для небольшого отступа между вкладками
+  buildings_btn_->setPos(top_left_cor +
+                         QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / 2);
+
+  QTimer::singleShot(1, this, SLOT(Show()));
+}
+
+void ShopMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
+    return;
+  }
+  Controller::SetShopMenu(nullptr);
+  Controller::SetPlanetMenu(new PlanetMenu());
+  Controller::SetMenuType(Controller::MenuType::kPlanet);
+}
+
+void ShopMenu::Show() {
+  SetZValue();
+  shop_scrolling_view_->show();
+  info_scrolling_view_->show();
+  Controller::scene->addItem(background_image_);
+  Controller::scene->addItem(border_line_);
+  Controller::scene->addItem(text_);
+  Controller::scene->addItem(exit_bnt_);
+  Controller::scene->addItem(units_btn_);
+  Controller::scene->addItem(buildings_btn_);
+}
+
+void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void ShopMenu::ChangeShop() {
+  ButtonItem* sender = dynamic_cast<ButtonItem*>(QObject::sender());
+  if ((sender == units_btn_ && current_state_ == kUnits) ||
+      (sender == buildings_btn_ && current_state_ == kBuildings)) {
+    return;
+  }
+
+  // Это просто копи-паст из Draw(). Не вижу смысла ещё такое большое кол-во
+  // констант выносить
+  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
+  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
+  int32_t x_offset = static_cast<int32_t>(
+      size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+  int32_t y_offset =
+      static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
+  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   size.height() - 2 * y_offset);
+
+  if (current_state_ == kUnits) {
+    SwitchState(kBuildings);
+    for (const auto& unit_widget : shop_units_) {
+      unit_widget->WidgetHide();
+    }
+    for (const auto& build_widget : shop_buildings_) {
+      build_widget->WidgetShow();
+    }
+    int32_t lines = shop_buildings_.size() / kWidthCount;
+    lines += shop_buildings_.size() % kWidthCount != 0 ? 1 : 0;
+    qDebug() << lines;
+    shop_scrolling_view_->setSceneRect(
+        0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
+
+    int32_t visible_widgets = 0;
+    for (const auto& unit_info : info_units_) {
+      unit_info->hide();
+    }
+    for (const auto& building_info : info_buildings_) {
+      if (building_info->GetQuant() == 0) {
+        break;
+      }
+      ++visible_widgets;
+      building_info->show();
+    }
+    info_scrolling_view_->setSceneRect(
+        0, 0, kInfoWidth,
+        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+  } else {
+    SwitchState(kUnits);
+    for (const auto& build_widget : shop_buildings_) {
+      build_widget->WidgetHide();
+    }
+    for (const auto& unit_widget : shop_units_) {
+      unit_widget->WidgetShow();
+    }
+    int32_t lines = shop_units_.size() / kWidthCount;
+    lines += shop_units_.size() % kWidthCount != 0 ? 1 : 0;
+    shop_scrolling_view_->setSceneRect(
+        0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
+
+    int32_t visible_widgets = 0;
+    for (const auto& building_info : info_buildings_) {
+      building_info->hide();
+    }
+    for (const auto& unit_info : info_units_) {
+      if (unit_info->GetQuant() == 0) {
+        break;
+      }
+      ++visible_widgets;
+      unit_info->show();
+    }
+    info_scrolling_view_->setSceneRect(
+        0, 0, kInfoWidth,
+        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
+                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+  }
+}
+
+void ShopMenu::SetZValue() {
+  background_image_->setZValue(ZValues::kShopMenu);
+  border_line_->setZValue(ZValues::kShopMenu);
+  text_->setZValue(ZValues::kShopMenu);
+  exit_bnt_->setZValue(ZValues::kShopMenu);
+  units_btn_->setZValue(ZValues::kShopMenu);
+  buildings_btn_->setZValue(ZValues::kShopMenu);
+}
+
+void ShopMenu::SwitchState(ShopState state) { current_state_ = state; }
+
+void ShopMenu::MakePurchase(ShopItemType type, Resources cost,
+                            QString item_name) {
+  Controller::GetActivePlanet()->GetOwner()->SubResources(cost);
+  if (type == ShopItemType::kUnit) {
+    Controller::GetActivePlanet()->AddUnit(
+        ObjectsStorage::GetUnitType(item_name));
+  } else {
+    Controller::GetActivePlanet()->AddBuilding(
+        ObjectsStorage::GetBuildingType(item_name));
+  }
+  UpdateInfo();
+}
+
+void ShopMenu::UpdateInfo() {
+  if (current_state_ == ShopState::kBuildings) {
+    std::sort(info_buildings_.begin(), info_buildings_.end(),
+              [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
+                return l->GetQuant() > r->GetQuant();
+              });
+    for (auto i = 0; i < info_buildings_.size(); ++i) {
+      info_buildings_[i]->setPos(
+          QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+      info_buildings_[i]->update();
+    }
+    return;
+  }
+
+  std::sort(info_units_.begin(), info_units_.end(),
+            [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
+              return l->GetQuant() > r->GetQuant();
+            });
+  for (auto i = 0; i < info_units_.size(); ++i) {
+    info_units_[i]->setPos(
+        QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
+    info_units_[i]->update();
+  }
+}
+// ----------------------------- Game Menu -------------------------------
 GameMenu::GameMenu() {
   Controller::SetMenuType(Controller::MenuType::kLoad);
 
@@ -464,9 +916,10 @@ GameMenu::GameMenu() {
   KeyHandler* key_handler = Controller::GetKeyHandler();
   Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
   Qt::Key key_next_turn = key_handler->Get(type, Qt::Key_N).key;
-  shortcuts_[key_esc] = std::make_shared<QShortcut>(key_esc, Controller::view);
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
   shortcuts_[key_next_turn] =
-      std::make_shared<QShortcut>(key_next_turn, Controller::view);
+      std::make_shared<QShortcut>(key_next_turn, Controller::window);
 
   connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
           SLOT(keyEscapeReleased()));
@@ -530,7 +983,10 @@ void GameMenu::StartGame() {
 
 void GameMenu::Hide() { btn_next_->hide(); }
 
-void GameMenu::Show() { btn_next_->show(); }
+void GameMenu::Show() {
+  btn_next_->show();
+  ReDraw();
+}
 
 void GameMenu::keyEscapeReleased() {
   QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
@@ -620,6 +1076,7 @@ void UnitsInteractionMenu::Draw() {
   // размеров и количества виджетов
   scroll_view_->setSceneRect(0, 0, kUnitCellWidth + 5,
                              kUnitCellHeight * unit_widgets_.size() + 1);
+  scroll_view_->setStyleSheet("border: 0px");
   int32_t y = 0;
   for (const auto& unit : unit_widgets_) {
     unit.get()->setPos(0, y);
@@ -638,6 +1095,7 @@ void UnitsInteractionMenu::Draw() {
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
       kButtonHeight + kButtonHeight / 2);
+
   interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   interaction_button_->SetEnabled(false);
   cancel_button_->setPos(Controller::view->mapToScene(
@@ -765,7 +1223,8 @@ AttackMenu::AttackMenu() : UnitsInteractionMenu() {
   KeyHandler* key_handler = Controller::GetKeyHandler();
   Qt::Key key_esc =
       key_handler->Get(Controller::MenuType::kAttack, Qt::Key_Escape).key;
-  shortcuts_[key_esc] = std::make_shared<QShortcut>(key_esc, Controller::view);
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
   connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
           SLOT(keyEscapeReleased()));
 }
@@ -847,7 +1306,8 @@ MoveMenu::MoveMenu() : UnitsInteractionMenu() {
   KeyHandler* key_handler = Controller::GetKeyHandler();
   Qt::Key key_esc =
       key_handler->Get(Controller::MenuType::kMove, Qt::Key_Escape).key;
-  shortcuts_[key_esc] = std::make_shared<QShortcut>(key_esc, Controller::view);
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
   connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
           SLOT(keyEscapeReleased()));
 }
@@ -878,7 +1338,6 @@ void MoveMenu::keyEscapeReleased() {
 }
 
 PlanetInfoMenu::PlanetInfoMenu() {
-  background_ = new QGraphicsRectItem;
   if (Controller::GetActivePlanet()->GetOwner() ==
       Controller::scene->GetPlayer()) {
     upgrade_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
@@ -919,9 +1378,9 @@ void PlanetInfoMenu::Draw() {
 
   QRectF background_rect(
       2 * (coordinates - QPointF(size.width(), size.height()) / 4), size);
-  background_->setRect(background_rect);
-  background_->setPen(QColor(Qt::black));
-  background_->setBrush(QColor(Qt::black));
+  background_ = new ImageItem(
+      Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background_rect);
+
   Controller::scene->addItem(background_);
 
   const double kLeftTopCornerCoeffient = (1 - kSizeCoefficient) / 2;
@@ -933,6 +1392,8 @@ void PlanetInfoMenu::Draw() {
 
   if (upgrade_button_ != nullptr) {
     upgrade_button_->setPos(Controller::view->mapToScene(upgrade_x, button_y));
+    upgrade_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kUpgradActiveButton));
     Controller::scene->addItem(upgrade_button_);
     Resources upgrade = Controller::GetActivePlanet()->GetUpgradeCost();
     if (!(Controller::GetActivePlanet()->GetOwner()->GetTools() >
@@ -940,14 +1401,15 @@ void PlanetInfoMenu::Draw() {
           Controller::GetActivePlanet()->GetOwner()->GetBatteries() >
               upgrade.GetBatteries())) {
       upgrade_button_->SetEnabled(false);
-      // TODO
-      // установка другой картинки для кнопки
+      upgrade_button_->SetPixmap(
+          Loader::GetButtonImage(ButtonsEnum::kUpgradeUnactiveButton));
     }
   }
 
   const int32_t exit_x = static_cast<int32_t>(
       upgrade_x + background_rect.width() * kScale * 2 / 3);
   exit_button_->setPos(Controller::view->mapToScene(exit_x, button_y));
+  exit_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
   Controller::scene->addItem(exit_button_);
 
   planet_info_ = new FullPlanetInfo(
@@ -980,6 +1442,7 @@ void PlanetInfoMenu::SwitchTo(Controller::MenuType menu) {
 void PlanetInfoMenu::Destroy() {
   if (upgrade_button_ != nullptr) {
     Controller::scene->removeItem(upgrade_button_);
+    delete upgrade_button_;
   }
   Controller::scene->removeItem(exit_button_);
   Controller::scene->removeItem(planet_info_);
@@ -992,6 +1455,13 @@ void PlanetInfoMenu::Destroy() {
 void PlanetInfoMenu::Upgrade() {
   Controller::GetActivePlanet()->Upgrade();
   planet_info_->SetLevel(Controller::GetActivePlanet()->GetLevel());
+  if (Controller::scene->GetPlayer()->GetResources() <
+      Controller::GetActivePlanet()->GetUpgradeCost()) {
+    upgrade_button_->SetEnabled(false);
+    upgrade_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kUpgradeUnactiveButton));
+    upgrade_button_->update();
+  }
 }
 
 void PlanetInfoMenu::Exit() { SwitchTo(Controller::MenuType::kPlanet); }
