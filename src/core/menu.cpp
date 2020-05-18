@@ -200,7 +200,7 @@ PlanetMenu::PlanetMenu() {
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
-
+    btn3_->hide();
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
