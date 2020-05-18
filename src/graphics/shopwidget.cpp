@@ -17,7 +17,7 @@
 #include "objects/unit.h"
 
 ShopWidget::ShopWidget(int32_t width, int32_t height, ShopItemType type,
-                       QString name, Resources cost, ShopPlanetInfo *info)
+                       QString name, Resources cost, ShopPlanetInfo* info)
     : type_(type),
       width_(width),
       height_(height),

@@ -42,7 +42,8 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
   QFont font =
       QFont(QFontDatabase::applicationFontFamilies(Loader::GetFont()).first(),
-            static_cast<int32_t>(30 / Controller::view->matrix().m11()));
+            static_cast<int32_t>(Controller::scene->GetFontSize(30) /
+                                 Controller::view->matrix().m11()));
   painter->setFont(font);
 
   painter->setPen(QPen(Qt::white, 20));

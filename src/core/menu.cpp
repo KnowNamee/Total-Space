@@ -986,6 +986,10 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
     QCoreApplication::processEvents();
     Controller::SetMenuType(Controller::MenuType::kPause);
   }
+  if (menu == Controller::MenuType::kMain) {
+      Controller::SetGameMenu(nullptr);
+      Controller::SetMainMenu(new MainMenu());
+  }
 }
 
 void GameMenu::Draw() {
@@ -1025,17 +1029,21 @@ void GameMenu::StartGame() {
   Controller::scene->NewGame();
 }
 
-void GameMenu::Hide() { btn_next_->hide(); }
+void GameMenu::Hide() {
+  btn_next_->hide();
+  status_bar_->hide();
+}
 
-void GameMenu::Show() {
+void GameMenu::Show() {  
   btn_next_->show();
+  status_bar_->show();
   ReDraw();
 }
 
 void GameMenu::keyEscapeReleased() {
   QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
   if (sc && sc->objectName() == "From KeyReleaseEvent") {
-    sc->setObjectName("");
+    sc->setObjectName("");    
     Controller::SwitchMenu(Controller::MenuType::kPause);
   }
 }

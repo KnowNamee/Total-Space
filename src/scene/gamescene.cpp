@@ -5,7 +5,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
-#include <thread>
+#include <QTimer>
 
 #include "core/menu.h"
 #include "core/planetsgraph.h"
@@ -98,6 +98,14 @@ void GameScene::NewGame() {
   screen.LoadNext("Updating map ...");
   UpdatePlanetsGraph();
   screen.StopLoad();
+}
+
+void GameScene::ShowLoseMessage() {
+
+}
+
+void GameScene::ShowWinMessage() {
+
 }
 
 void GameScene::SetSceneSettings() {
@@ -264,6 +272,16 @@ void GameScene::Next() {
   bot1_->Next();  // тут определена логика бота на ход
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
+  if (player_->GetPlanets().size() == 0) {
+//    UpdatePlanetsGraph();
+//    QTimer::singleShot(1000, this, SLOT(ShowLoseMessage()));
+//    return;
+  }
+  if (bot1_->GetPlanets().size() == 0 && bot2_->GetPlanets().size() == 0) {
+//    UpdatePlanetsGraph();
+//    QTimer::singleShot(1000, this, SLOT(ShowWinMessage()));
+//    return;
+  }
   QVector<std::pair<Planet*, Planet*>> planets_to_show =
       bot1_->GetPlanetsToShow();
   QVector<std::pair<Planet*, Planet*>> bot2_planet_to_show =

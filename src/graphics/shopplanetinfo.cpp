@@ -4,8 +4,8 @@
 #include <QPainter>
 
 #include "core/statemachine.h"
-#include "scene/gamescene.h"
 #include "data/loader.h"
+#include "scene/gamescene.h"
 
 ShopPlanetInfo::ShopPlanetInfo(int32_t width, int32_t height, QString caption,
                                int32_t quantity, QPixmap *image)
@@ -23,8 +23,11 @@ ShopPlanetInfo::ShopPlanetInfo(int32_t width, int32_t height, QString caption,
 const int32_t &ShopPlanetInfo::GetQuant() { return quantity_; }
 
 void ShopPlanetInfo::IncQuant() {
-  ++quantity_;
-  show();
+  if (Controller::GetActivePlanet()->GetCurrentBuilding() ==
+      BuildingType::kNoBuilding) {
+    ++quantity_;
+    show();
+  }
 }
 
 QRectF ShopPlanetInfo::boundingRect() const {
