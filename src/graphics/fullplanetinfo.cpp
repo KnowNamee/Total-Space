@@ -66,7 +66,7 @@ void FullPlanetInfo::paint(QPainter* painter,
   const double kScale = Controller::view->matrix().m11();
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(37 / kScale));
+            static_cast<int32_t>(32 / kScale));
   painter->setFont(fabulist_header);
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
