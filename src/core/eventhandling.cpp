@@ -184,6 +184,9 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
 }
 
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
+  if (current_motion_ == MotionType::kBotsAttack) {
+    return;
+  }
   Controller::MenuType state = Controller::GetMenuType();
   if (event->key() == Qt::Key_Escape) {
     switch (state) {
