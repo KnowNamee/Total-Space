@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QScreen>
 #include <QScrollBar>
+#include <QTextCodec>
 #include <QTimer>
 #include <cmath>
 #include <thread>
@@ -188,28 +189,61 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
     return;
   }
   Controller::MenuType state = Controller::GetMenuType();
-  if (event->key() == Qt::Key_Escape) {
-    switch (state) {
-      case Controller::MenuType::kPlanet:
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-        break;
-      case Controller::MenuType::kGame:
-        Controller::SwitchMenu(Controller::MenuType::kPause);
-        break;
-      case Controller::MenuType::kPause:
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-        break;
-      case Controller::MenuType::kAttack:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      case Controller::MenuType::kMove:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      case Controller::MenuType::kPlanetInfo:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      default:
-        break;
+  QShortcut* shortcut;
+  Qt::Key unused_key = Qt::Key_ToggleCallHangup;  // Фиктивная кнопка
+
+  if (state == Controller::MenuType::kLoad) {
+    return;
+  }
+
+  // TODO lambda-function to SafeShortcutActivate
+  if (state == Controller::MenuType::kPlanet) {
+    shortcut = Controller::GetPlanetMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kGame) {
+    shortcut = Controller::GetGameMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kPlanetInfo) {
+    shortcut = Controller::GetPlanetInfoMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kPause) {
+    shortcut = Controller::GetPauseMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kAttack) {
+    shortcut = Controller::GetAttackMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kMove) {
+    shortcut = Controller::GetMoveMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kSettings) {
+    shortcut = Controller::GetSettingsMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kShop) {
+    shortcut = Controller::GetShopMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
     }
   }
 }
