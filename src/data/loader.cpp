@@ -79,6 +79,12 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/buy_button.png");
     button_images_[ButtonsEnum::kBeautifulMoveButton] =
         std::make_shared<QPixmap>(":/Img/move_beautiful_button.png");
+    button_images_[ButtonsEnum::kBatteriesIcon] =
+        std::make_shared<QPixmap>(":/Img/battery.png");
+    button_images_[ButtonsEnum::kArmyPowerIcon] =
+        std::make_shared<QPixmap>(":/Img/army.png");
+    button_images_[ButtonsEnum::kToolsIcon] =
+        std::make_shared<QPixmap>(":/Img/tools.png");
   }
   // unit images
   {

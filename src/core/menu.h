@@ -19,6 +19,7 @@ class UnitWidget;
 class ButtonItem;
 class ShopWidget;
 class ShopPlanetInfo;
+class StatusBar;
 class PlanetInfoGraphics;
 class FullPlanetInfo;
 class AttackResultWindow;
@@ -256,10 +257,17 @@ class GameMenu : public Menu {
   void Hide();
   void Show();
 
- private:
+private slots:
+  void UpdateStatusBar();
+
+private:
   friend class EventHandler::View;
 
   ButtonItem* btn_next_;
+  StatusBar* status_bar_;
+
+  const int32_t kStatusWidthCoef = 4;
+  const int32_t kStatusHeightCoef = 10;
 };
 
 class ShopMenu : public Menu {

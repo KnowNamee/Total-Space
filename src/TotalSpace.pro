@@ -40,6 +40,7 @@ SOURCES += \
         graphics/planetinfographics.cpp \
         graphics/shopplanetinfo.cpp \
         graphics/shopwidget.cpp \
+        graphics/statusbar.cpp \
         graphics/unitwidget.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     graphics/planetinfographics.h \
     graphics/shopplanetinfo.h \
     graphics/shopwidget.h \
+    graphics/statusbar.h \
     graphics/unitwidget.h \
         mainwindow.h \
         core/menu.h \
