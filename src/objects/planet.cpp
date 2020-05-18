@@ -112,9 +112,6 @@ BuildingType Planet::GetCurrentBuilding() const {
 }
 
 void Planet::Upgrade() {
-  // TODO
-  // Возможно стоит добавить что-то вроде увеличения дохода планеты
-  // вопрос баланса
   income_ += Resources(GetUpgradeCost() / 5);
   if (owner_ != nullptr) {
     owner_->SubResources(GetUpgradeCost());
