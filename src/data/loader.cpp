@@ -3,13 +3,13 @@
 #include <QBrush>
 #include <QFontDatabase>
 #include <QVector>
-#include <QBrush>
 #include <memory>
 
 std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
 QVector<std::shared_ptr<QPixmap>> Loader::planet_pictures_;
 QMap<ButtonsEnum, std::shared_ptr<QPixmap>> Loader::button_images_;
 QMap<UnitType, std::shared_ptr<QPixmap>> Loader::unit_images_;
+QMap<BuildingType, std::shared_ptr<QPixmap>> Loader::building_images_;
 int32_t Loader::font_;
 QBrush* Loader::ibrush_ = nullptr;
 
@@ -69,6 +69,14 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/info_button.png");
     button_images_[ButtonsEnum::kNoNameUnit] =
         std::make_shared<QPixmap>(":/Img/no_name.png");
+    button_images_[ButtonsEnum::kEscapeButton] =
+        std::make_shared<QPixmap>(":/Img/exit_shop.png");
+    button_images_[ButtonsEnum::kUnitsButton] =
+        std::make_shared<QPixmap>(":/Img/unit_shop.png");
+    button_images_[ButtonsEnum::kBuildingsButton] =
+        std::make_shared<QPixmap>(":/Img/factory_shop.png");
+    button_images_[ButtonsEnum::kBuyButton] =
+        std::make_shared<QPixmap>(":/Img/buy_button.png");
   }
   // unit images
   {
@@ -85,6 +93,20 @@ void Loader::LoadAll() {
     unit_images_[UnitType::kNoUnit] =
         std::make_shared<QPixmap>(":/Img/EmptyUnit.png");
   }
+  {
+    building_images_[BuildingType::kForge] =
+        std::make_shared<QPixmap>(":/Img/forge.png");
+    building_images_[BuildingType::kWorkshop] =
+        std::make_shared<QPixmap>(":/Img/workshop.png");
+    building_images_[BuildingType::kRobotsLine] =
+        std::make_shared<QPixmap>(":/Img/robot_line.png");
+    building_images_[BuildingType::kElectronics] =
+        std::make_shared<QPixmap>(":/Img/electronics.png");
+    building_images_[BuildingType::kAssemblyShop] =
+        std::make_shared<QPixmap>(":/Img/assembly_shop.png");
+    building_images_[BuildingType::kBatteryFactory] =
+        std::make_shared<QPixmap>(":/Img/battery_factory.png");
+  }
 }
 
 QPixmap* Loader::GetPlanetImage(int number) {
@@ -99,6 +121,10 @@ QPixmap* Loader::GetButtonImage(ButtonsEnum type) {
 
 QPixmap* Loader::GetUnitImage(UnitType type) {
   return unit_images_[type].get();
+}
+
+QPixmap* Loader::GetBuildingImage(BuildingType type) {
+  return building_images_[type].get();
 }
 
 QBrush* Loader::GetBrush() { return ibrush_; }

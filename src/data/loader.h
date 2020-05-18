@@ -26,7 +26,11 @@ enum class ButtonsEnum {
   kUpgradeUnactiveButton,
   kUpgradActiveButton,
   kInfoButton,
-  kNoNameUnit
+  kNoNameUnit,
+  kEscapeButton,
+  kUnitsButton,
+  kBuildingsButton,
+  kBuyButton
 };
 
 class Loader : public QGraphicsItem {
@@ -37,6 +41,7 @@ class Loader : public QGraphicsItem {
   static QPixmap* GetBackgroundImage();
   static QPixmap* GetButtonImage(ButtonsEnum);
   static QPixmap* GetUnitImage(UnitType);
+  static QPixmap* GetBuildingImage(BuildingType);
   static QBrush* GetBrush();
   static int32_t GetFont();
 
@@ -45,6 +50,7 @@ class Loader : public QGraphicsItem {
   static std::shared_ptr<QPixmap> background_image_;
   static QMap<ButtonsEnum, std::shared_ptr<QPixmap>> button_images_;
   static QMap<UnitType, std::shared_ptr<QPixmap>> unit_images_;
+  static QMap<BuildingType, std::shared_ptr<QPixmap>> building_images_;
   static QBrush* ibrush_;
   static int32_t font_;
 };

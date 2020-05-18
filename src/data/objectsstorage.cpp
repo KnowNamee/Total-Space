@@ -134,3 +134,15 @@ std::set<BuildingType> ObjectsStorage::GetUpgrades(BuildingType building) {
 UnitType ObjectsStorage::GetBuildingUnit(BuildingType building) {
   return type_to_building_.at(building)->GetUnit();
 }
+
+const Unit* ObjectsStorage::GetUnit(UnitType unit) {
+  return type_to_unit_[unit];
+}
+
+const Building* ObjectsStorage::GetBuilding(BuildingType building) {
+  return type_to_building_[building];
+}
+
+const QString& ObjectsStorage::GetBuildingCaption(BuildingType building) {
+  return type_to_building_.at(building)->GetCaption();
+}
