@@ -30,7 +30,11 @@ enum class ButtonsEnum {
   kEscapeButton,
   kUnitsButton,
   kBuildingsButton,
-  kBuyButton
+  kBuyButton,
+  kBeautifulMoveButton,
+  kBatteriesIcon,
+  kToolsIcon,
+  kArmyPowerIcon
 };
 
 class Loader : public QGraphicsItem {
