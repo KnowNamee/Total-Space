@@ -507,20 +507,21 @@ void ShopMenu::Draw() {
       size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
       static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
-    QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
-                     size.height() - 2 * y_offset);
-//  QSizeF shop_size(
-//      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset / 10,
-//      size.height() - 2 * y_offset);
-//   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
-//                        (kWidth / scale - size.width()) / 2 + size.width() * kBorderCoefficient,
-//                        (kHeight / scale - size.height()) / 2));
-//  QPointF shop_pos = top_left_cor;
-//  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
-//  shop_pos += QPointF(x_offset, y_offset);
-  QPointF shop_pos(
-      kWidth / scale * (1 - kShopSizeCoefficient) / 2 + size.width() * kBorderCoefficient,
-      kHeight / scale * (1 - kShopSizeCoefficient) / 2);
+  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   size.height() - 2 * y_offset);
+  //  QSizeF shop_size(
+  //      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset /
+  //      10, size.height() - 2 * y_offset);
+  //   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
+  //                        (kWidth / scale - size.width()) / 2 + size.width() *
+  //                        kBorderCoefficient, (kHeight / scale -
+  //                        size.height()) / 2));
+  //  QPointF shop_pos = top_left_cor;
+  //  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
+  //  shop_pos += QPointF(x_offset, y_offset);
+  QPointF shop_pos(kWidth / scale * (1 - kShopSizeCoefficient) / 2 +
+                       size.width() * kBorderCoefficient,
+                   kHeight / scale * (1 - kShopSizeCoefficient) / 2);
   shop_pos += QPointF(x_offset, y_offset);
   shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
                                     static_cast<int32_t>(shop_pos.y()),
@@ -558,9 +559,9 @@ void ShopMenu::Draw() {
 
   QPointF info_pos(kWidth * (1 - kShopSizeCoefficient) / 2,
                    kHeight * (1 - kShopSizeCoefficient) / 2);
-  info_pos +=
-      QPointF(size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
-              size.height() * (1 - kShopSizeCoefficient) / 2);
+  info_pos += QPointF(
+      size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
+      size.height() * (1 - kShopSizeCoefficient) / 2);
   info_scrolling_view_->setGeometry(
       static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
       static_cast<int32_t>(size.width() * kBorderCoefficient *
@@ -833,9 +834,17 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   }
 
   interaction_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
-  interaction_button_->SetPixmap(
-      Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  if (Controller::GetActivePlanet()->GetOwner() ==
+      Controller::scene->GetPlayer()) {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulMoveButton));
+  } else {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  }
+
   cancel_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+
   cancel_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
 
   std::map<Planet*, QVector<UnitType>> nearest_units =

@@ -45,5 +45,9 @@
         <file>robot_line.png</file>
         <file>unit_shop.png</file>
         <file>workshop.png</file>
+        <file>barrack.png</file>
+        <file>Spaceport.png</file>
+        <file>Training Base.png</file>
+        <file>move_beautiful_button.png</file>
     </qresource>
 </RCC>

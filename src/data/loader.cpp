@@ -77,6 +77,8 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/factory_shop.png");
     button_images_[ButtonsEnum::kBuyButton] =
         std::make_shared<QPixmap>(":/Img/buy_button.png");
+    button_images_[ButtonsEnum::kBeautifulMoveButton] =
+        std::make_shared<QPixmap>(":/Img/move_beautiful_button.png");
   }
   // unit images
   {
@@ -106,6 +108,12 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/assembly_shop.png");
     building_images_[BuildingType::kBatteryFactory] =
         std::make_shared<QPixmap>(":/Img/battery_factory.png");
+    building_images_[BuildingType::kBarracks] =
+        std::make_shared<QPixmap>(":/Img/barrack.png");
+    building_images_[BuildingType::kTrainingBase] =
+        std::make_shared<QPixmap>(":/Img/Training Base.png");
+    building_images_[BuildingType::kSpaceport] =
+        std::make_shared<QPixmap>(":/Img/Spaceport.png");
   }
 }
 
