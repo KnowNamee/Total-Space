@@ -134,5 +134,9 @@ enum class BuildingRole {
   kBatteries,
   kTools,
 };
+enum class ShopItemType {
+  kUnit,
+  kBuilding,
+};
 
 #endif  // UTILITY_H

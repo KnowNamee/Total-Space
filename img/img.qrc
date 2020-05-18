@@ -34,5 +34,16 @@
         <file>info_button.png</file>
         <file>loading_background.jpg</file>
         <file>no_name.png</file>
+        <file>assembly_shop.png</file>
+        <file>battery_factory.png</file>
+        <file>buy_button.png</file>
+        <file>cursor — копия.png</file>
+        <file>electronics.png</file>
+        <file>exit_shop.png</file>
+        <file>factory_shop.png</file>
+        <file>forge.png</file>
+        <file>robot_line.png</file>
+        <file>unit_shop.png</file>
+        <file>workshop.png</file>
     </qresource>
 </RCC>
