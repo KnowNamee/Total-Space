@@ -67,6 +67,7 @@ class   PlanetsGraph {
 
   void Draw();
   void Update();
+  void UpdatePlanet(PlanetGraphics* planet);
   Planet* GetBotPlanet();
   QVector<Planet*> GetConnectedPlanets(PlanetGraphics* planet_grapics) const;
 

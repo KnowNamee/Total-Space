@@ -45,7 +45,7 @@ class PlayerBase {
 
  private:
   QString name_;
-  Resources resources_ = Resources(1000, 1000);
+  Resources resources_ = Resources(3000, 3000);
   int64_t army_power_ = 0;
   QVector<Planet*> planets_;
 

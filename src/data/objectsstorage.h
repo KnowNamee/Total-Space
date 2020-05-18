@@ -16,12 +16,13 @@ class ObjectsStorage {
   ObjectsStorage() = delete;
 
   static void AddBuilding(const Building* building);
-  static void AddUnit(const Unit* unit);
+  static void AddUnit(const Unit* unit);  
 
   static const Resources& GetIncome(BuildingType building);
   static BuildingType GetBuildingType(const QString& caption);
   static const Resources& GetBuildingCost(BuildingType building);
 
+  static QVector<UnitType> GetAllPossibleUnits();
   static UnitType GetUnitType(const QString& caption);
   static UnitRole GetUnitRole(const QString& role);
   static BuildingRole GetBuildingRole(const QString& role);

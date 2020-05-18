@@ -30,8 +30,10 @@ void GameView::SetNewGameSettings() {
                     kScaleCoefficient, matrix().dx(), matrix().dy()));
 }
 
-void GameView::ShowBotAttack(Planet* planet) {
-  event_handler_->ShowBotAttack(planet);
+void GameView::ShowBotsAttack(
+    QVector<std::pair<Planet*, Planet*>> planet_to_show) {
+  event_handler_->GeneratePath(planet_to_show);
+  event_handler_->ShowBotsAttack();
 }
 
 std::shared_ptr<EventHandler::View> GameView::EventHandler() {

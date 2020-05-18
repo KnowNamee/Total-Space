@@ -13,7 +13,10 @@ const std::map<QString, BuildingType>
         std::make_pair("Battery Factory", BuildingType::kBatteryFactory),
         std::make_pair("Assembly Shop", BuildingType::kAssemblyShop),
         std::make_pair("Electronics", BuildingType::kElectronics),
-        std::make_pair("Robots Line", BuildingType::kRobotsLine)};
+        std::make_pair("Robots Line", BuildingType::kRobotsLine),
+        std::make_pair("Barracks", BuildingType::kBarracks),
+        std::make_pair("Spaceport", BuildingType::kSpaceport),
+        std::make_pair("Training Base", BuildingType::kTrainingBase)};
 
 const std::map<QString, UnitType> ObjectsStorage::unit_caption_to_type_ = {
     std::make_pair("No Unit", UnitType::kNoUnit),
@@ -61,6 +64,16 @@ BuildingType ObjectsStorage::GetBuildingType(const QString& caption) {
 
 const Resources& ObjectsStorage::GetBuildingCost(BuildingType building) {
   return type_to_building_.at(building)->GetCost();
+}
+
+QVector<UnitType> ObjectsStorage::GetAllPossibleUnits() {
+  QVector<UnitType> units;
+  for (const auto& caption_to_type : unit_caption_to_type_) {
+    if (caption_to_type.second != UnitType::kNoUnit) {
+      units.push_back(caption_to_type.second);
+    }
+  }
+  return units;
 }
 
 UnitRole ObjectsStorage::GetUnitRole(const QString& role) {

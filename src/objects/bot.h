@@ -16,6 +16,8 @@ class Bot : public PlayerBase {
   virtual ~Bot() override;
 
   void Next() override;
+  const QVector<std::pair<Planet*, Planet*>>& GetPlanetsToShow() const;
+  void ClearPlanetToShow();
 
  private:
   void ApplyAttackStrategy();
@@ -23,11 +25,13 @@ class Bot : public PlayerBase {
   void TryAttack(Planet* planet, Resources* available_resources);
   void TryBuild(Planet* planet, Resources* available_resources,
                 BuildingRole role);
-  void RunFromPlanet(Planet* planet, std::set<Planet*> planets_to_run);
+  void RunFromPlanet(Planet* planet, std::set<Planet*> planets_to_run); 
   Resources BinarySearchResources(
       std::function<bool(Planet*, QVector<UnitType>, Planet*)>,
       const QVector<UnitType>&, Planet*, const Resources&,
       Planet* aim = nullptr);
+
+  QVector<std::pair<Planet*, Planet*>> planets_to_show_;
 
   const double kAttackResources = 0.7;
   const double kUpgradeCoefficient = 0.7;

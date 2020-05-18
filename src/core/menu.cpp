@@ -382,7 +382,10 @@ void GameMenu::StartGame() {
 
 void GameMenu::Hide() { btn_next_->hide(); }
 
-void GameMenu::Show() { btn_next_->show(); }
+void GameMenu::Show() {
+  btn_next_->show();
+  ReDraw();
+}
 
 UnitsInteractionMenu::UnitsInteractionMenu() {
   PlanetGraphics* planet_graphics =
@@ -474,7 +477,7 @@ void UnitsInteractionMenu::Draw() {
   const int32_t attack_y = static_cast<int32_t>(
       kScrollPosition * kHeight + kHeight * (1 - 2 * kScrollPosition) -
       kButtonHeight + kButtonHeight / 2);
-  
+
   interaction_button_->setPos(Controller::view->mapToScene(attack_x, attack_y));
   interaction_button_->SetEnabled(false);
   cancel_button_->setPos(Controller::view->mapToScene(

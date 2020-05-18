@@ -22,7 +22,7 @@ const Resources& Planet::GetIncome() const { return income_; }
 Resources Planet::GetUpgradeCost() const {
   return Resources((level_ + 1) * (level_ + 1) * 1000,
                    (level_ + 1) * (level_ + 1) * 1000) /
-         6;
+         5;
 }
 
 void Planet::AddBuilding(BuildingType building) {
@@ -38,14 +38,16 @@ void Planet::AddUnit(UnitType unit) {
 }
 
 void Planet::BuyBuildinng(BuildingType building) {
-  if (owner_ != nullptr) {
+  if (owner_ != nullptr &&
+      owner_->GetResources() >= ObjectsStorage::GetBuildingCost(building)) {
     owner_->SubResources(ObjectsStorage::GetBuildingCost(building));
     AddBuilding(building);
   }
 }
 
 void Planet::BuyUnit(UnitType unit) {
-  if (owner_ != nullptr) {
+  if (owner_ != nullptr &&
+      owner_->GetResources() >= ObjectsStorage::GetUnitCost(unit)) {
     owner_->SubResources(ObjectsStorage::GetUnitCost(unit));
     AddUnit(unit);
   }
@@ -253,7 +255,7 @@ QVector<UnitType> Planet::GetMostProfitableUnits(const QVector<UnitType>& units,
 BuildingType Planet::GetMostProfitableBuilding(
     const Resources& available_resources, double upgrade_coefficient,
     BuildingRole role) const {
-  if (GetUpgradeCost() <= available_resources * upgrade_coefficient) {
+  if (GetUpgradeCost() <= available_resources * upgrade_coefficient / level_) {
     return BuildingType::kUpgrade;
   }
   std::set<BuildingType> types = GetAffordableBuildings(available_resources);
@@ -389,6 +391,15 @@ std::map<PlayerBase*, QVector<Planet*>> Planet::GetNearestEnemies() const {
     }
   }
   return enemies_to_planets;
+}
+
+std::map<Planet*, QVector<UnitType>> Planet::GetNearestEnemies(
+    PlayerBase* player) const {
+  std::map<Planet*, QVector<UnitType>> nearest_units;
+  for (Planet* planet : GetNearestEnemies()[player]) {
+    nearest_units[planet] = planet->GetUnits();
+  }
+  return nearest_units;
 }
 
 bool Planet::IsAbleToDefend(const QVector<UnitType>& current_units,
@@ -659,8 +670,17 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
   if (enemy_units.size() == 0) {
     return false;
   }
-  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
 
+  for (UnitType unit : units_on_planet_) {
+    RemoveUnit(unit);
+    units_on_planet_.clear();
+  }
+  for (UnitType unit : tired_units_) {
+    RemoveTiredUnit(unit);
+    tired_units_.clear();
+  }
+
+  std::map<Planet*, QVector<UnitType>> enemy_units_copy = enemy_units;
   const double kMaxDeadCoefficient = 0.5;
   const double kDeadCoefficient =
       kMaxDeadCoefficient * static_cast<double>(points.first) / points.second;
@@ -682,12 +702,6 @@ bool Planet::Win(const std::map<Planet*, QVector<UnitType>>& enemy_units,
   }
 
   PlayerBase* enemy = enemy_units.begin()->first->GetOwner();
-  for (UnitType unit : units_on_planet_) {
-    RemoveUnit(unit);
-  }
-  for (UnitType unit : tired_units_) {
-    RemoveTiredUnit(unit);
-  }
   MoveUnits(enemy_units_copy);
   if (owner_ != nullptr) {
     owner_->RemovePlanet(this);

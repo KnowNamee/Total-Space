@@ -29,9 +29,13 @@ FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
   batteries_cost_ = res.GetBatteries();
   is_players_ = Controller::GetActivePlanet()->GetOwner() ==
                 dynamic_cast<PlayerBase*>(Controller::scene->GetPlayer());
-  nearest_power_ =
-      Controller::scene->GetNearestPower(Controller::scene->GetPlayer());
-  power_ = planet->GetPower();
+  if (!is_players_) {
+    PlayerBase* player = Controller::scene->GetPlayer();
+    QVector<UnitType> defending_units = planet->GetUnits();
+    defending_units.append(planet->GetTiredUnits());
+    result_ = planet->CalculateAttack(planet->GetNearestEnemies(player),
+                                      defending_units);
+  }
   if (is_players_) {
     Resources income = Controller::GetActivePlanet()->GetIncome();
     tools_income_ = income.GetTools();
@@ -120,10 +124,10 @@ void FullPlanetInfo::paint(QPainter* painter,
   if (is_players_) {
     status = "belongs to you";
     color = Qt::white;
-  } else if (abs(power_ - nearest_power_) < 400) {
+  } else if (result_ == Planet::AttackResult::kDraw) {
     status = "attackable";
     color = Qt::yellow;
-  } else if (nearest_power_ > power_) {
+  } else if (result_ == Planet::AttackResult::kWin) {
     status = "approachable";
     color = Qt::green;
   } else {

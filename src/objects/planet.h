@@ -16,14 +16,14 @@ class Unit;
 
 class Planet : public QObject {
   Q_OBJECT
- private:
+
+ public:
   enum class AttackResult {
     kWin,
     kLose,
     kDraw,
   };
 
- public:
   Planet(QPointF coordinates, double radius);
 
   void SetOwner(PlayerBase* owner);
@@ -72,6 +72,8 @@ class Planet : public QObject {
   std::set<BuildingType> GetAffordableBuildings(
       const Resources& resources) const;
   std::map<PlayerBase*, QVector<Planet*>> GetNearestEnemies() const;
+  std::map<Planet*, QVector<UnitType>> GetNearestEnemies(
+      PlayerBase* player) const;
   bool IsAbleToDefend(const QVector<UnitType>& current_units,
                       Planet* retired_planet = nullptr);
   bool TryTakeAttack(const QVector<UnitType>& attacking_units,

@@ -5,9 +5,9 @@
 #include <cmath>
 
 #include "core/statemachine.h"
-#include "scene/gameview.h"
 #include "data/objectsstorage.h"
 #include "scene/gamescene.h"
+#include "scene/gameview.h"
 
 Bot::Bot(Planet* planet, const QString& color)
     : PlayerBase(planet, PlayerBase::Type::kBot, color) {
@@ -22,8 +22,13 @@ void Bot::Next() {
   ApplyAttackStrategy();
   ApplyEconomicStrategy();
   UpdateResources();
-  Controller::scene->UpdatePlanetsGraph();
 }
+
+const QVector<std::pair<Planet*, Planet*>>& Bot::GetPlanetsToShow() const {
+  return planets_to_show_;
+}
+
+void Bot::ClearPlanetToShow() { planets_to_show_.clear(); }
 
 void Bot::ApplyAttackStrategy() {
   Resources attack_resources = GetResources() * kAttackResources;
@@ -31,7 +36,7 @@ void Bot::ApplyAttackStrategy() {
     if (!Controller::scene->IsPlanetOnScene(planet)) {
       continue;
     }
-    if (!planet->IsBorder()) {
+    if (!planet->IsBorder() || planet->GetOwner() != this) {
       continue;
     }
     QVector<UnitType> units_on_planet = planet->GetUnits();
@@ -159,8 +164,7 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
         std::map<Planet*, QVector<UnitType>> attacking_units = {
             std::make_pair(planet, units_to_attack)};
         planet_to_attack->TakeAttack(attacking_units);
-        Controller::view->ShowBotAttack(planet);
-        qDebug() << "NotMoveTo";
+        planets_to_show_.push_back(std::make_pair(planet, planet_to_attack));
 
         planet->BuyUnits(units_to_buy);
         *available_resources -= necessary_resources;
@@ -193,8 +197,7 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
       std::map<Planet*, QVector<UnitType>> attack;
       attack[planet] = planet->GetUnits();
       planet_to_attack->TakeAttack(attack);
-      Controller::view->ShowBotAttack(planet);
-      qDebug() << "NotMoveTo";
+      planets_to_show_.push_back(std::make_pair(planet, planet_to_attack));
 
       planet->BuyUnits(units_to_defence);
       *available_resources -= defence_resources;
@@ -216,8 +219,7 @@ void Bot::TryAttack(Planet* planet, Resources* available_resources) {
         std::map<Planet*, QVector<UnitType>> attack;
         attack[planet] = planet->GetUnits();
         planet_to_attack->TakeAttack(attack);
-        Controller::view->ShowBotAttack(planet);
-        qDebug() << "NotMoveTo";
+        planets_to_show_.push_back(std::make_pair(planet, planet_to_attack));
 
         planet->BuyUnits(units_to_defence);
         *available_resources -= defence_resources;

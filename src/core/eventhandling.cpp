@@ -8,10 +8,11 @@
 #include <QScreen>
 #include <QScrollBar>
 #include <QTimer>
-#include <thread>
 #include <cmath>
+#include <thread>
 
 #include "core/menu.h"
+#include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
@@ -42,7 +43,8 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent() {
-  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame &&
+      current_motion_ != MotionType::kBotsAttack) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -152,7 +154,8 @@ void EventHandler::View::Move() {
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent* event) {
-  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame &&
+      current_motion_ != MotionType::kBotsAttack) {
     QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
@@ -171,6 +174,7 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
       }
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
+      target_position_ = target_->pos();
       timer_ = new QTimer();
       timer_->start(15);
       is_scaled_motion = true;
@@ -208,15 +212,13 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
 }
 
 void EventHandler::View::MoveTo() {
-  qDebug() << "MoveTo";
   double width = view_->sceneRect().width();
   double height = view_->sceneRect().height();
-
-  QPointF direction = 2 * target_->pos() - view_->sceneRect().center();
+  QPointF direction = 2 * target_position_ - view_->sceneRect().center();
   double distance =
       sqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-  double velocity_coefficient = 20;
+  double velocity_coefficient = 5;
   if (is_scaled_motion) {
     velocity_coefficient = 30;
   }
@@ -250,18 +252,18 @@ void EventHandler::View::MoveTo() {
   }
   if (distance <= kVelocity &&
       (view_->matrix().m11() >= kMaxScale || !is_scaled_motion)) {
-    view_->setSceneRect(2 * target_->pos().x() - width / 2,
-                        2 * target_->pos().y() - height / 2, width, height);
-    if (is_scaled_motion) {
-      Controller::GetGameMenu()->ReDraw();
-    }
-    current_motion_ = MotionType::kNoMotion;
-    if (is_scaled_motion) {
-      Controller::SwitchMenu(Controller::MenuType::kPlanet);
-    }
+    view_->setSceneRect(2 * target_position_.x() - width / 2,
+                        2 * target_position_.y() - height / 2, width, height);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
+    if (is_scaled_motion) {
+      Controller::GetGameMenu()->ReDraw();
+      current_motion_ = MotionType::kNoMotion;
+      Controller::SwitchMenu(Controller::MenuType::kPlanet);
+    } else {
+      QTimer::singleShot(500, this, SLOT(ChangePlanet()));
+    }
   }
 }
 
@@ -305,26 +307,74 @@ void EventHandler::View::Scale(QWheelEvent* event) {
   }
 }
 
-void EventHandler::View::ShowBotAttack(Planet* planet) {
-  current_motion_ = MotionType::kMoveToPlanet;
-  target_ =
-      Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform());
-  if (target_ == nullptr) {
-    return;
+void EventHandler::View::GeneratePath(
+    QVector<std::pair<Planet*, Planet*>> planets_to_show) {
+  for (const auto& planet_to_show : planets_to_show) {
+    planets_to_show_.push_back(
+        std::make_pair(planet_to_show.first->GetCoordinates() * 2,
+                       planet_to_show.second->GetCoordinates() * 2));
   }
-  is_scaled_motion = false;
-//  MoveToBot();
-  timer_ = new QTimer();
-  timer_->start(15);
-  connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
-//  std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+  if (!planets_to_show.empty()) {
+    planets_to_show_.push_back(
+        std::make_pair(view_->sceneRect().center() / 2, QPointF(0, 0)));
+  }
 }
 
-void EventHandler::View::MoveToBot() {
-  while (target_ != nullptr) {
-//    MoveTo();
-    QTimer::singleShot(15, this, SLOT(MoveTo()));
+void EventHandler::View::ShowBotsAttack() {
+  if (planets_to_show_.size() <= motion_counter) {
+    current_motion_ = MotionType::kNoMotion;
+    motion_counter = 0;
+    Controller::scene->UpdatePlanetsGraph();
+    Controller::GetGameMenu()->Show();
+    planets_to_show_.clear();
+    return;
   }
+
+  if (planets_to_show_.size() <= motion_counter + 1) {
+    target_position_ = planets_to_show_[motion_counter].first;
+    StartMotion();
+    return;
+  }
+
+  target_ = dynamic_cast<QGraphicsItem*>(Controller::scene->itemAt(
+      planets_to_show_[motion_counter].first, QTransform()));
+  if (target_ == nullptr) {
+    int32_t i = motion_counter;
+    for (; i < planets_to_show_.size(); i++) {
+      target_ = dynamic_cast<QGraphicsItem*>(Controller::scene->itemAt(
+          planets_to_show_[motion_counter].first, QTransform()));
+      if (target_ != nullptr) {
+        motion_counter = i;
+        break;
+      }
+    }
+    if (i == planets_to_show_.size() && target_ == nullptr) {
+      motion_counter = 0;
+      planets_to_show_.clear();
+      return;
+    }
+  }
+  target_position_ = target_->pos();
+  StartMotion();
+}
+
+void EventHandler::View::StartMotion() {
+  current_motion_ = MotionType::kBotsAttack;
+  timer_ = new QTimer();
+  timer_->start(15);
+  is_scaled_motion = false;
+  connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
+}
+
+void EventHandler::View::ChangePlanet() {
+  PlanetGraphics* planet =
+      dynamic_cast<PlanetGraphics*>(Controller::scene->itemAt(
+          planets_to_show_[motion_counter].second, QTransform()));
+  if (planet != nullptr) {
+    Controller::scene->GetGraph()->UpdatePlanet(planet);
+  }
+  motion_counter++;
+  QTimer::singleShot(500, this, SLOT(ShowBotsAttack()));
 }
 
 EventHandler::View::MotionType EventHandler::View::GetMotionType() {

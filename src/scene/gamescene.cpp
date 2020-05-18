@@ -7,9 +7,9 @@
 #include <QRandomGenerator>
 #include <thread>
 
+#include "core/menu.h"
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
-#include "core/menu.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
 #include "graphics/buttonitem.h"
@@ -70,10 +70,6 @@ void GameScene::NewGame() {
 
   player_ = std::make_shared<Player>(player_planet.get());
   player_planet->SetOwner(player_.get());
-  player_planet->AddUnit(UnitType::kDroid);
-  player_planet->AddUnit(UnitType::kRover);
-  player_planet->AddUnit(UnitType::kFalcon);
-  player_planet->AddUnit(UnitType::kMarine);
 
   player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
   player_->SetName("Player");
@@ -84,6 +80,7 @@ void GameScene::NewGame() {
   screen.StopLoad();
   screen.LoadNext("Generating map ...");
   GenerateMap();
+  GenerateRandomUnits();
   screen.StopLoad();
 
   // Добавляем ботов
@@ -95,10 +92,6 @@ void GameScene::NewGame() {
   bot1_->SetName("First Bot");
   bot2_ = std::make_shared<Bot>(graph_->GetBotPlanet(), "#D49000");  // orange
   bot2_->GetPlanets()[0]->SetOwner(bot2_.get());
-  bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kForge);
-  bot2_->GetPlanets()[0]->AddBuilding(BuildingType::kElectronics);
-  bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kForge);
-  bot1_->GetPlanets()[0]->AddBuilding(BuildingType::kElectronics);
   bot2_->SetName("Second Bot");
   screen.StopLoad();
   // Перерисовываем рёбра графа
@@ -173,6 +166,25 @@ void GameScene::GenerateMap() {
   drawer_->DrawPlanetsGraph(graph_);
 }
 
+void GameScene::GenerateRandomUnits() {
+  QVector<UnitType> unit_types = ObjectsStorage::GetAllPossibleUnits();
+  for (const auto& planet : planets_) {
+    uint32_t initial_power = QRandomGenerator::global()->generate() %
+                                 (kMaxInitialPower - kMinInitialPower) +
+                             kMinInitialPower;
+    if (planet->GetOwner() == GetPlayer()) {
+      initial_power = kPlayerPower;
+    }
+    while (static_cast<uint32_t>(planet->GetPower()) < initial_power) {
+      int32_t index =
+          abs(static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+              unit_types.size());
+      UnitType random_unit = unit_types[index];
+      planet->AddUnit(random_unit);
+    }
+  }
+}
+
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
   return std::sqrt((lhs.x() - rhs.x()) * (lhs.x() - rhs.x()) +
                    (lhs.y() - rhs.y()) * (lhs.y() - rhs.y()));
@@ -243,5 +255,12 @@ void GameScene::Next() {
   bot1_->Next();  // тут определена логика бота на ход
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
-  Controller::GetGameMenu()->Show();
+  QVector<std::pair<Planet*, Planet*>> planets_to_show =
+      bot1_->GetPlanetsToShow();
+  QVector<std::pair<Planet*, Planet*>> bot2_planet_to_show =
+      bot2_->GetPlanetsToShow();
+  planets_to_show.append(bot2_planet_to_show);
+  bot1_->ClearPlanetToShow();
+  bot2_->ClearPlanetToShow();
+  Controller::view->ShowBotsAttack(planets_to_show);
 }

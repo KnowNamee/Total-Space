@@ -45,6 +45,10 @@ class Resources {
     return batteries_ <= rhs.batteries_ && tools_ <= rhs.tools_;
   }
 
+  bool operator>=(const Resources& rhs) const {
+    return batteries_ >= rhs.batteries_ && tools_ >= rhs.tools_;
+  }
+
   bool operator<(const Resources& rhs) const {
     return batteries_ < rhs.batteries_ && tools_ < rhs.tools_;
   }
@@ -110,7 +114,10 @@ enum class BuildingType {
   kWorkshop,
   kAssemblyShop,
   kElectronics,
-  kRobotsLine
+  kRobotsLine,
+  kBarracks,
+  kSpaceport,
+  kTrainingBase,
 };
 
 enum class UnitType {

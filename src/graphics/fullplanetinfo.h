@@ -6,9 +6,9 @@
 #include <cstdint>
 
 #include "util/utility.h"
+#include "objects/planet.h"
 
 class QPixmap;
-class Planet;
 
 class FullPlanetInfo : public QGraphicsItem {
  public:
@@ -33,8 +33,7 @@ class FullPlanetInfo : public QGraphicsItem {
   int32_t batteries_cost_;
   int32_t tools_income_;
   int32_t batteries_income_;
-  int32_t nearest_power_;
-  int32_t power_;
+  Planet::AttackResult result_;
   bool is_players_;
 };
 
