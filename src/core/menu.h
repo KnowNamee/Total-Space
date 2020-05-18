@@ -257,7 +257,6 @@ class GameMenu : public Menu {
   void Hide();
   void Show();
 
-private slots:
   void UpdateStatusBar();
 
 private:

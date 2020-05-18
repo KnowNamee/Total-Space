@@ -272,4 +272,5 @@ void GameScene::Next() {
   bot1_->ClearPlanetToShow();
   bot2_->ClearPlanetToShow();
   Controller::view->ShowBotsAttack(planets_to_show);
+  Controller::GetGameMenu()->UpdateStatusBar();
 }

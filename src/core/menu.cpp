@@ -767,7 +767,6 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
-  connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
