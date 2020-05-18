@@ -23,6 +23,7 @@
 #include "graphics/planetinfographics.h"
 #include "graphics/shopplanetinfo.h"
 #include "graphics/shopwidget.h"
+#include "graphics/statusbar.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
 #include "objects/building.h"
@@ -200,7 +201,7 @@ PlanetMenu::PlanetMenu() {
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
-
+    btn3_->hide();
     button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
@@ -520,6 +521,7 @@ void ShopMenu::Draw() {
   QPointF shop_pos(
       kWidth * (1 - kShopSizeCoefficient) / 2 + real_size.width() * kBorderCoefficient,
       kHeight * (1 - kShopSizeCoefficient) / 2);
+
   shop_pos += QPointF(x_offset, y_offset);
 
   shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
@@ -562,6 +564,7 @@ void ShopMenu::Draw() {
   info_pos +=
       QPointF(real_size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
               real_size.height() * (1 - kShopSizeCoefficient) / 2);
+
   info_scrolling_view_->setGeometry(
       static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
       static_cast<int32_t>(real_size.width() * kBorderCoefficient *
@@ -762,11 +765,15 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
+  connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
-void GameMenu::SetZValue() { btn_next_->setZValue(ZValues::kGameMenu); }
+void GameMenu::SetZValue() {
+  btn_next_->setZValue(ZValues::kGameMenu);
+  status_bar_->setZValue(ZValues::kGameMenu);
+}
 
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
@@ -797,10 +804,17 @@ void GameMenu::Draw() {
   btn_next_ = new ButtonItem(width / 10, height / 15);
   btn_next_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNextTurnButton));
 
+  status_bar_ =
+      new StatusBar(width / kStatusWidthCoef, height / kStatusHeightCoef);
+
   SetZValue();
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(QPoint(
+      width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
+
   Controller::scene->addItem(btn_next_);
+  Controller::scene->addItem(status_bar_);
 }
 
 void GameMenu::ReDraw() {
@@ -809,7 +823,11 @@ void GameMenu::ReDraw() {
 
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(QPoint(
+      width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
 }
+
+void GameMenu::UpdateStatusBar() { status_bar_->update(); }
 
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
@@ -840,9 +858,17 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   }
 
   interaction_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
-  interaction_button_->SetPixmap(
-      Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  if (Controller::GetActivePlanet()->GetOwner() ==
+      Controller::scene->GetPlayer()) {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulMoveButton));
+  } else {
+    interaction_button_->SetPixmap(
+        Loader::GetButtonImage(ButtonsEnum::kBeautifulAttackButton));
+  }
+
   cancel_button_ = new ButtonItem(kButtonWidth, kButtonHeight);
+
   cancel_button_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
 
   std::map<Planet*, QVector<UnitType>> nearest_units =
