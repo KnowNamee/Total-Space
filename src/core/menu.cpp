@@ -647,9 +647,9 @@ void ShopMenu::Draw() {
   QSizeF real_size(kWidth, kHeight);
   real_size *= kShopSizeCoefficient;
 
-  QPointF top_left_cor(
-      Controller::GetActivePlanet()->GetCoordinates() -
-      QPointF(scale_size.width() / 2, scale_size.height() / 2));
+  QPointF top_left_cor = Controller::view->mapToScene(
+              QPoint(static_cast<int32_t>(kWidth * (1 - kShopSizeCoefficient) / 2),
+                     static_cast<int32_t>(kHeight * (1 - kShopSizeCoefficient) / 2)));
   QPointF top_right_cor = top_left_cor + QPointF(scale_size.width(), 0);
 
   QRectF background(top_left_cor, scale_size);

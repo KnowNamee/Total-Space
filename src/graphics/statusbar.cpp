@@ -3,6 +3,7 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QPainter>
+#include <QDebug>
 
 #include "core/statemachine.h"
 #include "data/loader.h"
@@ -15,6 +16,11 @@ StatusBar::StatusBar(int32_t width, int32_t height)
   batteries_ = Loader::GetButtonImage(ButtonsEnum::kBatteriesIcon);
   tools_ = Loader::GetButtonImage(ButtonsEnum::kToolsIcon);
   army_power_ = Loader::GetButtonImage(ButtonsEnum::kArmyPowerIcon);
+  setFlag(ItemIsSelectable);
+}
+
+void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
+    Q_UNUSED(event);
 }
 
 QRectF StatusBar::boundingRect() const {

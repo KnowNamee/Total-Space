@@ -10,7 +10,10 @@ class StatusBar : public QObject, public QGraphicsItem {
  public:
   StatusBar(int32_t width, int32_t height);
 
- private:
+protected:
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+
+private:
   QRectF boundingRect() const override;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
