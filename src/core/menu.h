@@ -278,8 +278,6 @@ class ShopMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
-  //  void Hide();
-
   void SwitchState(ShopState state);
   void MakePurchase(ShopItemType type, Resources cost, QString item_name);
   void UpdateInfo();
@@ -311,7 +309,7 @@ class ShopMenu : public Menu {
   QVector<ShopPlanetInfo*> info_buildings_;
   QVector<ShopPlanetInfo*> info_units_;
 
-  const double kSizeCoefficient = 0.9;
+  const double kShopSizeCoefficient = 0.9;
   const double kBorderCoefficient = 0.25;
 
   // группа констов отвечающихся за размер и кол-во тайлов магазина
