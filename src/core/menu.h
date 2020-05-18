@@ -299,7 +299,7 @@ class GameMenu : public Menu {
   StatusBar* status_bar_;
 
   const int32_t kStatusWidthCoef = 4;
-  const int32_t kStatusHeightCoef = 10;
+  const int32_t kStatusHeightCoef = 9;
 };
 
 class Section : public QObject {
