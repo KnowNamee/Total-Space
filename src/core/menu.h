@@ -118,8 +118,6 @@ class PlanetMenu : public Menu {
   void SetZValue() override;
   void Draw() override;
 
-  Controller::MenuType GetNextMenu(ButtonItem* btn) const;
-
   void SwitchTo(Controller::MenuType menu) override;
 
  public slots:
@@ -143,8 +141,6 @@ class PlanetMenu : public Menu {
   ButtonItem* btn1_;
   ButtonItem* btn2_;
   ButtonItem* btn3_;
-  // TODO удалить button_to_menu_
-  std::map<ButtonItem*, Controller::MenuType> button_to_menu_;
   double radius_;
 };
 
@@ -394,6 +390,8 @@ class ShopMenu : public Menu {
   void ChangeShop();
   void Show();
   void Close();
+
+  void keyEscapeReleased();
 
  private:
   friend class EventHandler::View;

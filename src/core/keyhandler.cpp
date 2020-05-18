@@ -21,6 +21,8 @@ KeyHandler::KeyHandler() {
   AddToData(MType::kSettings,
             {{Qt::Key_Escape, {"Back", Qt::Key_Escape, false}}});
 
+  AddToData(MType::kShop, {{Qt::Key_Escape, {"Back", Qt::Key_Escape, false}}});
+
   AddToData(MType::kPlanetInfo,
             {{Qt::Key_Escape, {"Back", Qt::Key_Escape, false}}});
 

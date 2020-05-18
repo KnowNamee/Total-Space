@@ -380,13 +380,6 @@ void PlanetMenu::Draw() {
   btn3_->setX(btn3_->x() - radius_ / 48);
 }
 
-Controller::MenuType PlanetMenu::GetNextMenu(ButtonItem* button) const {
-  if (button_to_menu_.find(button) != button_to_menu_.end()) {
-    return button_to_menu_.at(button);
-  }
-  return Controller::MenuType::kPlanet;
-}
-
 void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
@@ -591,6 +584,14 @@ ShopMenu::ShopMenu() {
   connect(units_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
   connect(buildings_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
 
+  Controller::MenuType type = Controller::MenuType::kShop;
+  Qt::Key key_esc = Controller::GetKeyHandler()->Get(type, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
+
   this->Draw();
 }
 
@@ -778,6 +779,14 @@ void ShopMenu::Show() {
 }
 
 void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void ShopMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kPlanet);
+  }
+}
 
 void ShopMenu::ChangeShop() {
   ButtonItem* sender = dynamic_cast<ButtonItem*>(QObject::sender());

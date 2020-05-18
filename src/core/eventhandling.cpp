@@ -239,6 +239,12 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
       shortcut->setObjectName("From KeyReleaseEvent");
       emit shortcut->activated();
     }
+  } else if (state == Controller::MenuType::kShop) {
+    shortcut = Controller::GetShopMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
   }
 }
 
