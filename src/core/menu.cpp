@@ -17,6 +17,7 @@
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
 #include "graphics/planetinfographics.h"
+#include "graphics/statusbar.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
 #include "objects/planet.h"
@@ -326,11 +327,16 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
+  connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
+
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
-void GameMenu::SetZValue() { btn_next_->setZValue(ZValues::kGameMenu); }
+void GameMenu::SetZValue() {
+    btn_next_->setZValue(ZValues::kGameMenu);
+    status_bar_->setZValue(ZValues::kGameMenu);
+}
 
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
@@ -361,10 +367,16 @@ void GameMenu::Draw() {
   btn_next_ = new ButtonItem(width / 10, height / 15);
   btn_next_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNextTurnButton));
 
+  status_bar_ = new StatusBar(width / kStatusWidthCoef, height / kStatusHeightCoef);
+
   SetZValue();
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(
+      QPoint(width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
+
   Controller::scene->addItem(btn_next_);
+  Controller::scene->addItem(status_bar_);
 }
 
 void GameMenu::ReDraw() {
@@ -373,6 +385,13 @@ void GameMenu::ReDraw() {
 
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(
+      QPoint(width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
+
+}
+
+void GameMenu::UpdateStatusBar() {
+    status_bar_->update();
 }
 
 void GameMenu::StartGame() {
