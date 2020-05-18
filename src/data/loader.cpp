@@ -3,7 +3,6 @@
 #include <QBrush>
 #include <QFontDatabase>
 #include <QVector>
-#include <QBrush>
 #include <memory>
 
 std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
@@ -69,6 +68,12 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/info_button.png");
     button_images_[ButtonsEnum::kNoNameUnit] =
         std::make_shared<QPixmap>(":/Img/no_name.png");
+    button_images_[ButtonsEnum::kBatteriesIcon] =
+        std::make_shared<QPixmap>(":/Img/battery.png");
+    button_images_[ButtonsEnum::kArmyPowerIcon] =
+        std::make_shared<QPixmap>(":/Img/army.png");
+    button_images_[ButtonsEnum::kToolsIcon] =
+        std::make_shared<QPixmap>(":/Img/tools.png");
   }
   // unit images
   {

@@ -34,5 +34,8 @@
         <file>info_button.png</file>
         <file>loading_background.jpg</file>
         <file>no_name.png</file>
+        <file>army.png</file>
+        <file>battery.png</file>
+        <file>tools.png</file>
     </qresource>
 </RCC>

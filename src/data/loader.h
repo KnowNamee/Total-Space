@@ -26,7 +26,10 @@ enum class ButtonsEnum {
   kUpgradeUnactiveButton,
   kUpgradActiveButton,
   kInfoButton,
-  kNoNameUnit
+  kNoNameUnit,
+  kBatteriesIcon,
+  kToolsIcon,
+  kArmyPowerIcon
 };
 
 class Loader : public QGraphicsItem {
