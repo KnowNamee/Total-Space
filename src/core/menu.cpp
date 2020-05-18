@@ -23,6 +23,7 @@
 #include "graphics/planetinfographics.h"
 #include "graphics/shopplanetinfo.h"
 #include "graphics/shopwidget.h"
+#include "graphics/statusbar.h"
 #include "graphics/unitwidget.h"
 #include "mainwindow.h"
 #include "objects/building.h"
@@ -507,20 +508,21 @@ void ShopMenu::Draw() {
       size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
       static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
-    QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
-                     size.height() - 2 * y_offset);
-//  QSizeF shop_size(
-//      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset / 10,
-//      size.height() - 2 * y_offset);
-//   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
-//                        (kWidth / scale - size.width()) / 2 + size.width() * kBorderCoefficient,
-//                        (kHeight / scale - size.height()) / 2));
-//  QPointF shop_pos = top_left_cor;
-//  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
-//  shop_pos += QPointF(x_offset, y_offset);
-  QPointF shop_pos(
-      kWidth / scale * (1 - kShopSizeCoefficient) / 2 + size.width() * kBorderCoefficient,
-      kHeight / scale * (1 - kShopSizeCoefficient) / 2);
+  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   size.height() - 2 * y_offset);
+  //  QSizeF shop_size(
+  //      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset /
+  //      10, size.height() - 2 * y_offset);
+  //   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
+  //                        (kWidth / scale - size.width()) / 2 + size.width() *
+  //                        kBorderCoefficient, (kHeight / scale -
+  //                        size.height()) / 2));
+  //  QPointF shop_pos = top_left_cor;
+  //  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
+  //  shop_pos += QPointF(x_offset, y_offset);
+  QPointF shop_pos(kWidth / scale * (1 - kShopSizeCoefficient) / 2 +
+                       size.width() * kBorderCoefficient,
+                   kHeight / scale * (1 - kShopSizeCoefficient) / 2);
   shop_pos += QPointF(x_offset, y_offset);
   shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
                                     static_cast<int32_t>(shop_pos.y()),
@@ -558,9 +560,9 @@ void ShopMenu::Draw() {
 
   QPointF info_pos(kWidth * (1 - kShopSizeCoefficient) / 2,
                    kHeight * (1 - kShopSizeCoefficient) / 2);
-  info_pos +=
-      QPointF(size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
-              size.height() * (1 - kShopSizeCoefficient) / 2);
+  info_pos += QPointF(
+      size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
+      size.height() * (1 - kShopSizeCoefficient) / 2);
   info_scrolling_view_->setGeometry(
       static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
       static_cast<int32_t>(size.width() * kBorderCoefficient *
@@ -755,11 +757,15 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
+  connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
 
-void GameMenu::SetZValue() { btn_next_->setZValue(ZValues::kGameMenu); }
+void GameMenu::SetZValue() {
+  btn_next_->setZValue(ZValues::kGameMenu);
+  status_bar_->setZValue(ZValues::kGameMenu);
+}
 
 void GameMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
@@ -790,10 +796,17 @@ void GameMenu::Draw() {
   btn_next_ = new ButtonItem(width / 10, height / 15);
   btn_next_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNextTurnButton));
 
+  status_bar_ =
+      new StatusBar(width / kStatusWidthCoef, height / kStatusHeightCoef);
+
   SetZValue();
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(QPoint(
+      width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
+
   Controller::scene->addItem(btn_next_);
+  Controller::scene->addItem(status_bar_);
 }
 
 void GameMenu::ReDraw() {
@@ -802,7 +815,11 @@ void GameMenu::ReDraw() {
 
   btn_next_->setPos(Controller::view->mapToScene(
       QPoint(width, height) - QPoint(width / 8, height / 8)));
+  status_bar_->setPos(Controller::view->mapToScene(QPoint(
+      width - width / kStatusWidthCoef / 2, height / kStatusHeightCoef / 2)));
 }
+
+void GameMenu::UpdateStatusBar() { status_bar_->update(); }
 
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
