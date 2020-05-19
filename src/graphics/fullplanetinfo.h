@@ -14,6 +14,7 @@ class FullPlanetInfo : public QGraphicsItem {
  public:
   FullPlanetInfo(int32_t width, int32_t height, Planet* planet);
   void SetLevel(int32_t level);
+  void Update();
 
  private:
   QRectF boundingRect() const override;
@@ -33,7 +34,7 @@ class FullPlanetInfo : public QGraphicsItem {
   int32_t tools_cost_;
   int32_t batteries_cost_;
   int32_t tools_income_;
-  int32_t batteries_income_;  ;
+  int32_t batteries_income_;
   Planet::AttackResult result_;
   bool is_players_;
 };

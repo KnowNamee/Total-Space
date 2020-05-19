@@ -32,9 +32,9 @@ bool Planet::CanBuyUnit(UnitType unit) {
 const Resources& Planet::GetIncome() const { return income_; }
 
 Resources Planet::GetUpgradeCost() const {
-  return Resources((level_ + 1) * (level_ + 1) * 1000,
-                   (level_ + 1) * (level_ + 1) * 1000) /
-         5;
+    return Resources((level_ + 1) * (level_ + 1) * 1000,
+                     (level_ + 1) * (level_ + 1) * 1000) /
+           5;
 }
 
 void Planet::AddBuilding(BuildingType building) {
@@ -112,11 +112,12 @@ BuildingType Planet::GetCurrentBuilding() const {
 }
 
 void Planet::Upgrade() {
-  income_ += Resources(GetUpgradeCost() / 5);
-  if (owner_ != nullptr) {
+  if (owner_ != nullptr &&
+      GetOwner()->GetResources() >= GetUpgradeCost()) {
+    income_ += Resources(GetUpgradeCost() / 5);
     owner_->SubResources(GetUpgradeCost());
+    level_++;
   }
-  level_++;
 }
 
 void Planet::Next() {

@@ -1559,14 +1559,15 @@ void PlanetInfoMenu::Destroy() {
 
 void PlanetInfoMenu::Upgrade() {
   Controller::GetActivePlanet()->Upgrade();
-  planet_info_->SetLevel(Controller::GetActivePlanet()->GetLevel());
   if (Controller::scene->GetPlayer()->GetResources() <
       Controller::GetActivePlanet()->GetUpgradeCost()) {
     upgrade_button_->SetEnabled(false);
     upgrade_button_->SetPixmap(
         Loader::GetButtonImage(ButtonsEnum::kUpgradeUnactiveButton));
-    upgrade_button_->update();
   }
+  planet_info_->SetLevel(Controller::GetActivePlanet()->GetLevel());
+  planet_info_->Update();
+  upgrade_button_->update();
 }
 
 void PlanetInfoMenu::Exit() { SwitchTo(Controller::MenuType::kPlanet); }
