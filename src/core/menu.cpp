@@ -1038,6 +1038,7 @@ void GameMenu::ShowWinMessage() {
   result_msg_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kWinner));
   result_msg_->setZValue(ZValues::kResultMessage);
   result_msg_->setPos(Controller::view->mapToScene(w / 2, h / 2));
+
   Controller::scene->addItem(result_msg_);
   Controller::view->DisableMotion();
 
@@ -1052,6 +1053,7 @@ void GameMenu::ShowLoseMessage() {
   result_msg_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kLoser));
   result_msg_->setZValue(ZValues::kResultMessage);
   result_msg_->setPos(Controller::view->mapToScene(w / 2, h / 2));
+
   Controller::scene->addItem(result_msg_);
   Controller::view->DisableMotion();
 
@@ -1626,15 +1628,11 @@ void SettingsMenu::Draw() {
   QPointF center =
       view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
   double coef = view->matrix().m11();
-  QRectF rect = view->sceneRect();
-
-  rect.setX(center.x() - view->rect().width() / coef);
-  rect.setY(center.y() - view->rect().height() / coef);
-  rect.setSize(rect.size() * 4);
 
   background_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kMenuBackground),
                     static_cast<int>(w / coef), static_cast<int>(h / coef));
+  background_->setPos(Controller::view->mapToScene(w / 2, h / 2) / 2);
 
   settings_ = new QGraphicsTextItem("Settings");
   settings_->setDefaultTextColor(Qt::white);
