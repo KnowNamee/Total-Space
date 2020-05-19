@@ -652,8 +652,8 @@ void ShopMenu::Draw() {
   real_size *= kShopSizeCoefficient;
 
   QPointF top_left_cor = Controller::view->mapToScene(
-              QPoint(static_cast<int32_t>(kWidth * (1 - kShopSizeCoefficient) / 2),
-                     static_cast<int32_t>(kHeight * (1 - kShopSizeCoefficient) / 2)));
+      QPoint(static_cast<int32_t>(kWidth * (1 - kShopSizeCoefficient) / 2),
+             static_cast<int32_t>(kHeight * (1 - kShopSizeCoefficient) / 2)));
   QPointF top_right_cor = top_left_cor + QPointF(scale_size.width(), 0);
 
   QRectF background(top_left_cor, scale_size);
@@ -943,6 +943,10 @@ GameMenu::GameMenu() {
 
   this->StartGame();
   this->Draw();
+
+  QMediaPlayer* background_song = Loader::GetBackgroundSong();
+  background_song->setVolume(40);
+  background_song->play();
 
   Controller::SetMenuType(Controller::MenuType::kGame);
 
