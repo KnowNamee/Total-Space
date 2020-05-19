@@ -5,7 +5,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
-#include <thread>
+#include <QTimer>
 
 #include "core/menu.h"
 #include "core/planetsgraph.h"
@@ -98,6 +98,18 @@ void GameScene::NewGame() {
   screen.LoadNext("Updating map ...");
   UpdatePlanetsGraph();
   screen.StopLoad();
+}
+
+void GameScene::ShowLoseMessage() {
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowLoseMessage();
+}
+
+void GameScene::ShowWinMessage() {
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowWinMessage();
 }
 
 void GameScene::SetSceneSettings() {
@@ -221,6 +233,15 @@ int32_t GameScene::GetNearestPower(PlayerBase* player) {
   return power;
 }
 
+int32_t GameScene::GetFontSize(int32_t size) const {
+  if (GetWidth() > 2000) {
+    if (size >= 20) {
+      return size - 5;
+    }
+  }
+  return size;
+}
+
 bool GameScene::IsPlanetReachable(PlayerBase* player) {
   if (Controller::GetActivePlanet() != nullptr &&
       Controller::GetActivePlanet()->GetOwner() == player) {
@@ -255,6 +276,16 @@ void GameScene::Next() {
   bot1_->Next();  // тут определена логика бота на ход
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
+  if (player_->GetPlanets().size() == 0) {
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowLoseMessage()));
+    return;
+  }
+  if (bot1_->GetPlanets().size() == 0 && bot2_->GetPlanets().size() == 0) {
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowWinMessage()));
+    return;
+  }
   QVector<std::pair<Planet*, Planet*>> planets_to_show =
       bot1_->GetPlanetsToShow();
   QVector<std::pair<Planet*, Planet*>> bot2_planet_to_show =
@@ -263,4 +294,5 @@ void GameScene::Next() {
   bot1_->ClearPlanetToShow();
   bot2_->ClearPlanetToShow();
   Controller::view->ShowBotsAttack(planets_to_show);
+  Controller::GetGameMenu()->UpdateStatusBar();
 }

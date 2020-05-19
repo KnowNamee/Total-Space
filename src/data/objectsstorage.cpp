@@ -66,6 +66,10 @@ const Resources& ObjectsStorage::GetBuildingCost(BuildingType building) {
   return type_to_building_.at(building)->GetCost();
 }
 
+int32_t ObjectsStorage::GetBuildingLevel(BuildingType building) {
+  return type_to_building_.at(building)->GetLevel();
+}
+
 QVector<UnitType> ObjectsStorage::GetAllPossibleUnits() {
   QVector<UnitType> units;
   for (const auto& caption_to_type : unit_caption_to_type_) {
@@ -133,6 +137,10 @@ std::set<BuildingType> ObjectsStorage::GetUpgrades(BuildingType building) {
 
 UnitType ObjectsStorage::GetBuildingUnit(BuildingType building) {
   return type_to_building_.at(building)->GetUnit();
+}
+
+int32_t ObjectsStorage::GetBuildingTime(BuildingType building) {
+  return type_to_building_.at(building)->GetTime();
 }
 
 const Unit* ObjectsStorage::GetUnit(UnitType unit) {

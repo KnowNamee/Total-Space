@@ -23,6 +23,7 @@ class ShopWidget : public QObject, public QGraphicsItem {
   const QString& GetName() const;
   const Resources& GetCost() const;
   ShopItemType GetType() const;
+  void CheckEnabled() const;
 
   void WidgetShow();
   void WidgetHide();

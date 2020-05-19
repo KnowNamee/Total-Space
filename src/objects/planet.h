@@ -28,15 +28,20 @@ class Planet : public QObject {
 
   void SetOwner(PlayerBase* owner);
 
+  bool CanBuyBuilding(BuildingType building);
+  bool CanBuyUnit(UnitType unit);
   void AddBuilding(BuildingType building);
   void AddUnit(UnitType unit);
-  void BuyBuildinng(BuildingType building);
+  void BuyBuilding(BuildingType building);
   void BuyUnit(UnitType unit);
   void BuyUnits(QVector<UnitType> units);
   void AddUnits(const QVector<UnitType>& units);
   void RemoveUnit(UnitType unit);
   void RemoveTiredUnit(UnitType unit);
   void RemoveUnits(const QVector<UnitType>& units);
+  int32_t GetCurrentBuildingTime() const;
+  QString GetCurrentBuildingCaption() const;
+  BuildingType GetCurrentBuilding() const;
 
   void Upgrade();
   void Next();
@@ -107,6 +112,8 @@ class Planet : public QObject {
   PlayerBase* owner_ = nullptr;
   Resources income_ = Resources(100, 100);
   std::pair<int32_t, int32_t> attack_points_;
+  std::pair<BuildingType, int32_t> current_building_ =
+      std::make_pair(BuildingType::kNoBuilding, 0);
   QVector<BuildingType> buildings_;
   QVector<UnitType> units_on_planet_;
   QVector<UnitType> tired_units_;

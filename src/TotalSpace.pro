@@ -26,6 +26,7 @@ CONFIG += c++17
 
 SOURCES += \
         core/eventhandling.cpp \
+        core/keyhandler.cpp \
         core/planetsgraph.cpp \
         core/statemachine.cpp \
         data/loader.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
         graphics/drawer.cpp \
         graphics/fullplanetinfo.cpp \
         graphics/imageitem.cpp \
+        graphics/keyfield.cpp \
         graphics/planetgraphics.cpp \
         graphics/planetinfographics.cpp \
         graphics/shopplanetinfo.cpp \
@@ -58,6 +60,7 @@ SOURCES += \
 
 HEADERS += \
     core/eventhandling.h \
+  core/keyhandler.h \
     core/planetsgraph.h \
     core/statemachine.h \
     data/loader.h \
@@ -68,6 +71,7 @@ HEADERS += \
     graphics/drawer.h \
     graphics/fullplanetinfo.h \
     graphics/imageitem.h \
+  graphics/keyfield.h \
     graphics/planetgraphics.h \
     graphics/planetinfographics.h \
     graphics/shopplanetinfo.h \

@@ -242,7 +242,7 @@ void Bot::TryBuild(Planet* planet, Resources* available_resources,
     return;
   }
   if (building_to_buy != BuildingType::kNoBuilding) {
-    planet->BuyBuildinng(building_to_buy);
+    planet->BuyBuilding(building_to_buy);
     *available_resources -= ObjectsStorage::GetBuildingCost(building_to_buy);
   }
 }

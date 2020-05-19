@@ -6,6 +6,7 @@
 #include <QPixmap>
 
 #include "core/statemachine.h"
+#include "scene/gamescene.h"
 #include "data/loader.h"
 #include "data/objectsstorage.h"
 #include "objects/planet.h"
@@ -38,10 +39,10 @@ void PlanetInfoGraphics::paint(QPainter* painter,
 
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(40 / kScale));
+            static_cast<int32_t>(Controller::scene->GetFontSize(40) / kScale));
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(35 / kScale));
+            static_cast<int32_t>(Controller::scene->GetFontSize(35) / kScale));
   painter->setFont(fabulist_header);
 
   int32_t level_text_x = width_ / 4 * 3 - width_ / 30;

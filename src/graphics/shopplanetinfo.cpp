@@ -5,6 +5,7 @@
 
 #include "core/statemachine.h"
 #include "data/loader.h"
+#include "scene/gamescene.h"
 
 ShopPlanetInfo::ShopPlanetInfo(int32_t width, int32_t height, QString caption,
                                int32_t quantity, QPixmap *image)
@@ -22,8 +23,11 @@ ShopPlanetInfo::ShopPlanetInfo(int32_t width, int32_t height, QString caption,
 const int32_t &ShopPlanetInfo::GetQuant() { return quantity_; }
 
 void ShopPlanetInfo::IncQuant() {
-  ++quantity_;
-  show();
+  if (Controller::GetActivePlanet()->GetCurrentBuilding() ==
+      BuildingType::kNoBuilding) {
+    ++quantity_;
+    show();
+  }
 }
 
 QRectF ShopPlanetInfo::boundingRect() const {
@@ -35,7 +39,7 @@ void ShopPlanetInfo::paint(QPainter *painter,
                            QWidget *widget) {
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(25));
+            static_cast<int32_t>(Controller::scene->GetFontSize(25)));
   // TODO kscale for font
   painter->setFont(fabulist_general);
   painter->setPen(QColor(Qt::white));

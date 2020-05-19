@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QMediaPlayer>
@@ -11,6 +12,7 @@
 #include <cmath>
 #include <memory>
 
+#include "core/keyhandler.h"
 #include "core/menugraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
@@ -38,22 +40,26 @@ MainMenu::MainMenu() {
   this->Draw();
   connect(btn_exit_, SIGNAL(clicked()), Controller::window, SLOT(Exit()));
   connect(btn_new_game_, SIGNAL(clicked()), this, SLOT(btnNewGameClicked()));
+  connect(btn_settings_, SIGNAL(clicked()), this, SLOT(btnSettingsClicked()));
 }
 
 MainMenu::~MainMenu() {
   Controller::scene->removeItem(txt_total_space_);
   Controller::scene->removeItem(btn_exit_);
   Controller::scene->removeItem(btn_new_game_);
+  Controller::scene->removeItem(btn_settings_);
 
   delete txt_total_space_;
   delete btn_exit_;
   delete btn_new_game_;
+  delete btn_settings_;
 }
 
 void MainMenu::SetZValue() {
   btn_exit_->setZValue(ZValues::kMainMenu);
   txt_total_space_->setZValue(ZValues::kMainMenu);
   btn_new_game_->setZValue(ZValues::kMainMenu);
+  btn_settings_->setZValue(ZValues::kMainMenu);
 }
 
 void MainMenu::Draw() {
@@ -68,6 +74,8 @@ void MainMenu::Draw() {
   btn_new_game_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
   btn_new_game_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNewGameButton));
 
+  btn_settings_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+
   txt_total_space_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kBackground),
       static_cast<int>(kWidth + 10), static_cast<int>(kHeight + 10));
@@ -77,11 +85,14 @@ void MainMenu::Draw() {
   Controller::scene->addItem(txt_total_space_);
   Controller::scene->addItem(btn_exit_);
   Controller::scene->addItem(btn_new_game_);
+  Controller::scene->addItem(btn_settings_);
 
   btn_new_game_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
   btn_exit_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
+  btn_settings_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6)));
 
   txt_total_space_->setPos(Controller::view->sceneRect().center() / 2);
 }
@@ -90,38 +101,75 @@ void MainMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
   }
-  Controller::SetMainMenu(nullptr);
 
   if (menu == Controller::MenuType::kGame) {
+    Controller::SetMainMenu(nullptr);
     Controller::SetGameMenu(new GameMenu());
-    Controller::SetMenuType(Controller::MenuType::kGame);
   }
+
+  if (menu == Controller::MenuType::kSettings) {
+    Hide();
+    Controller::SetSettingsMenu(new SettingsMenu());
+    Controller::GetSettingsMenu()->SetPrevMenu(Controller::MenuType::kMain);
+  }
+
+  Controller::SetMenuType(menu);
+}
+
+void MainMenu::Hide() {
+  txt_total_space_->hide();
+  btn_exit_->hide();
+  btn_new_game_->hide();
+  btn_settings_->hide();
+}
+
+void MainMenu::Show() {
+  txt_total_space_->show();
+  btn_exit_->show();
+  btn_new_game_->show();
+  btn_settings_->show();
 }
 
 void MainMenu::btnNewGameClicked() {
   Controller::SwitchMenu(Controller::MenuType::kGame);
 }
 
+void MainMenu::btnSettingsClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kSettings);
+}
+
 PauseMenu::PauseMenu() {
   this->Draw();
   connect(btn_back_, SIGNAL(clicked()), this, SLOT(btnBackClicked()));
   connect(btn_exit_, SIGNAL(clicked()), this, SLOT(btnExitClicked()));
+  connect(btn_settings_, SIGNAL(clicked()), this, SLOT(btnSettingsClicked()));
+
+  Controller::MenuType type = Controller::MenuType::kPause;
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
 }
 
 PauseMenu::~PauseMenu() {
   Controller::scene->removeItem(btn_back_);
   Controller::scene->removeItem(btn_exit_);
+  Controller::scene->removeItem(btn_settings_);
   Controller::scene->removeItem(background_rect_);
 
   delete btn_back_;
   delete btn_exit_;
   delete background_rect_;
+  delete btn_settings_;
 }
 
 void PauseMenu::SetZValue() {
   background_rect_->setZValue(ZValues::kPauseMenu);
   btn_back_->setZValue(ZValues::kPauseMenu);
   btn_exit_->setZValue(ZValues::kPauseMenu);
+  btn_settings_->setZValue(ZValues::kPauseMenu);
 }
 
 void PauseMenu::Draw() {
@@ -145,17 +193,21 @@ void PauseMenu::Draw() {
   btn_back_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kBackToGameButton));
   btn_exit_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
   btn_exit_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kToMenuButton));
+  btn_settings_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
 
   SetZValue();
 
   Controller::scene->addItem(background_rect_);
   Controller::scene->addItem(btn_back_);
   Controller::scene->addItem(btn_exit_);
+  Controller::scene->addItem(btn_settings_);
 
   btn_back_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
   btn_exit_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
+  btn_settings_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6)));
 }
 
 void PauseMenu::SwitchTo(Controller::MenuType menu) {
@@ -165,16 +217,32 @@ void PauseMenu::SwitchTo(Controller::MenuType menu) {
 
   if (menu == Controller::MenuType::kGame) {
     Controller::SetPauseMenu(nullptr);
-    Controller::SetMenuType(Controller::MenuType::kGame);
     Controller::GetGameMenu()->Show();
-  }
-
-  if (menu == Controller::MenuType::kMain) {
+  } else if (menu == Controller::MenuType::kMain) {
     Controller::SetPauseMenu(nullptr);
     Controller::SetGameMenu(nullptr);
     Controller::SetMainMenu(new MainMenu());
-    Controller::SetMenuType(Controller::MenuType::kMain);
+  } else if (menu == Controller::MenuType::kSettings) {
+    Hide();
+    Controller::SetSettingsMenu(new SettingsMenu());
+    Controller::GetSettingsMenu()->SetPrevMenu(Controller::MenuType::kPause);
   }
+
+  Controller::SetMenuType(menu);
+}
+
+void PauseMenu::Hide() {
+  btn_back_->hide();
+  btn_exit_->hide();
+  background_rect_->hide();
+  btn_settings_->hide();
+}
+
+void PauseMenu::Show() {
+  btn_back_->show();
+  btn_exit_->show();
+  background_rect_->show();
+  btn_settings_->show();
 }
 
 void PauseMenu::btnBackClicked() {
@@ -185,44 +253,91 @@ void PauseMenu::btnExitClicked() {
   Controller::SwitchMenu(Controller::MenuType::kMain);
 }
 
+void PauseMenu::btnSettingsClicked() {
+  Controller::SwitchMenu(Controller::MenuType::kSettings);
+}
+
+void PauseMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kGame);
+  }
+}
+
 PlanetMenu::PlanetMenu() {
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Controller::MenuType type = Controller::MenuType::kPlanet;
+  Qt::Key key_btn1 = key_handler->Get(type, Qt::Key_W).key;
+  Qt::Key key_btn2 = key_handler->Get(type, Qt::Key_D).key;
+  Qt::Key key_btn3 = key_handler->Get(type, Qt::Key_A).key;
+  Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
+
   if (Controller::GetActivePlanet() == nullptr ||
       Controller::GetActivePlanet()->GetOwner() !=
           Controller::scene->GetPlayer()) {
-    // TODO убрать граф перехода по кнопке (getNextMenu)
     btn1_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kAttackButton));
-    button_to_menu_[btn1_] = Controller::MenuType::kAttack;
     btn2_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
-    button_to_menu_[btn2_] = Controller::MenuType::kGame;
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+
+    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kAttackButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kSimpleButton));
+
+    shortcuts_[key_btn1] =
+        std::make_shared<QShortcut>(key_btn1, Controller::window);
+    shortcuts_[key_btn3] =
+        std::make_shared<QShortcut>(key_btn3, Controller::window);
+    shortcuts_[key_btn2] =
+        std::make_shared<QShortcut>(key_btn2, Controller::window);
+
+    connect(shortcuts_[key_btn1].get(), SIGNAL(activated()), this,
+            SLOT(keyAttackReleased()));
+    connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
+            SLOT(keyInfoReleased()));
+    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
+            SLOT(keyEscapeReleased()));
     btn3_->hide();
-    button_to_menu_[btn3_] = Controller::MenuType::kGame;
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnAttackClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnDefaultClicked()));
   } else {
     btn1_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kMoveButton));
-    button_to_menu_[btn1_] = Controller::MenuType::kGame;
     btn2_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
-    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
-    button_to_menu_[btn2_] = Controller::MenuType::kGame;
+
     btn3_ =
         new ButtonItem(kPlanetMenuButtonWidth, kPlanetMenuButtonHeight, false);
+
+    btn1_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kMoveButton));
+    btn2_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kInfoButton));
     btn3_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kShopButton));
-    button_to_menu_[btn3_] = Controller::MenuType::kGame;
+
+    shortcuts_[key_btn1] =
+        std::make_shared<QShortcut>(key_btn1, Controller::window);
+    shortcuts_[key_btn3] =
+        std::make_shared<QShortcut>(key_btn3, Controller::window);
+    shortcuts_[key_btn2] =
+        std::make_shared<QShortcut>(key_btn2, Controller::window);
+
+    connect(shortcuts_[key_btn1].get(), SIGNAL(activated()), this,
+            SLOT(keyMoveReleased()));
+    connect(shortcuts_[key_btn2].get(), SIGNAL(activated()), this,
+            SLOT(keyInfoReleased()));
+    connect(shortcuts_[key_btn3].get(), SIGNAL(activated()), this,
+            SLOT(keyShopReleased()));
     connect(btn1_, SIGNAL(clicked()), this, SLOT(btnMoveClicked()));
     connect(btn2_, SIGNAL(clicked()), this, SLOT(btnInfoClicked()));
     connect(btn3_, SIGNAL(clicked()), this, SLOT(btnShopClicked()));
   }
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
   this->Draw();
   Controller::scene->UpdatePlanetsGraph();
 }
@@ -265,40 +380,30 @@ void PlanetMenu::Draw() {
   btn3_->setX(btn3_->x() - radius_ / 48);
 }
 
-Controller::MenuType PlanetMenu::GetNextMenu(ButtonItem* button) const {
-  if (button_to_menu_.find(button) != button_to_menu_.end()) {
-    return button_to_menu_.at(button);
-  }
-  return Controller::MenuType::kPlanet;
-}
-
 void PlanetMenu::SwitchTo(Controller::MenuType menu) {
   if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
     return;
   }
+
   switch (menu) {
     case Controller::MenuType::kGame: {
       Controller::SetPlanetMenu(nullptr);
-      Controller::SetMenuType(Controller::MenuType::kGame);
       Controller::GetGameMenu()->Show();
       break;
     }
     case Controller::MenuType::kAttack: {
       Controller::SetPlanetMenu(nullptr);
       Controller::SetAttackMenu(new AttackMenu());
-      Controller::SetMenuType(Controller::MenuType::kAttack);
       break;
     }
     case Controller::MenuType::kMove: {
       Controller::SetPlanetMenu(nullptr);
       Controller::SetMoveMenu(new MoveMenu());
-      Controller::SetMenuType(Controller::MenuType::kMove);
       break;
     }
     case Controller::MenuType::kPlanetInfo: {
       Controller::SetPlanetMenu(nullptr);
       Controller::SetPlanetInfoMenu(new PlanetInfoMenu());
-      Controller::SetMenuType(Controller::MenuType::kPlanetInfo);
       break;
     }
     case Controller::MenuType::kShop: {
@@ -311,6 +416,8 @@ void PlanetMenu::SwitchTo(Controller::MenuType menu) {
       break;
     }
   }
+
+  Controller::SetMenuType(menu);
 }
 
 void PlanetMenu::btnInfoClicked() {
@@ -332,6 +439,46 @@ void PlanetMenu::btnShopClicked() {
   Controller::SwitchMenu(Controller::MenuType::kShop);
 }
 
+void PlanetMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kGame);
+  }
+}
+
+void PlanetMenu::keyInfoReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kPlanetInfo);
+  }
+}
+
+void PlanetMenu::keyAttackReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kAttack);
+  }
+}
+
+void PlanetMenu::keyMoveReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kMove);
+  }
+}
+
+void PlanetMenu::keyShopReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kShop);
+  }
+}
+
 UnitMenu::UnitMenu() { this->Draw(); }
 
 UnitMenu::~UnitMenu() {}
@@ -351,6 +498,10 @@ ShopMenu::ShopMenu() {
 
   for (const BuildingType& building :
        Controller::GetActivePlanet()->GetBuildings()) {
+    ++buildings_number[building];
+  }
+  BuildingType building = Controller::GetActivePlanet()->GetCurrentBuilding();
+  if (building != BuildingType::kNoBuilding) {
     ++buildings_number[building];
   }
   for (const auto& building : buildings_number) {
@@ -424,18 +575,31 @@ ShopMenu::ShopMenu() {
   // создание всего прочего
   border_line_ = new QGraphicsLineItem();
   text_ = new QGraphicsSimpleTextItem();
-  exit_bnt_ = new ButtonItem(kExitBtnSize / scale, kExitBtnSize / scale, false);
+  exit_bnt_ = new ButtonItem(static_cast<int32_t>(kExitBtnSize / scale),
+                             static_cast<int32_t>(kExitBtnSize / scale), false);
   exit_bnt_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kEscapeButton));
 
-  units_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+  units_btn_ = new ButtonItem(static_cast<int32_t>(kBtnWidth / scale),
+                              static_cast<int32_t>(kBtnHeight / scale), false);
   units_btn_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kUnitsButton));
-  buildings_btn_ = new ButtonItem(kBtnWidth / scale, kBtnHeight / scale, false);
+
+  buildings_btn_ =
+      new ButtonItem(static_cast<int32_t>(kBtnWidth / scale),
+                     static_cast<int32_t>(kBtnHeight / scale), false);
   buildings_btn_->SetPixmap(
       Loader::GetButtonImage(ButtonsEnum::kBuildingsButton));
 
   connect(exit_bnt_, SIGNAL(clicked()), this, SLOT(Close()));
   connect(units_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
   connect(buildings_btn_, SIGNAL(clicked()), this, SLOT(ChangeShop()));
+
+  Controller::MenuType type = Controller::MenuType::kShop;
+  Qt::Key key_esc = Controller::GetKeyHandler()->Get(type, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
 
   this->Draw();
 }
@@ -475,24 +639,30 @@ ShopMenu::~ShopMenu() {
 }
 
 void ShopMenu::Draw() {
-  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
-  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
   double scale = Controller::view->matrix().m11();
 
-  QPointF top_left_cor(Controller::GetActivePlanet()->GetCoordinates() -
-                       QPointF(size.width() / 2, size.height() / 2));
-  QPointF top_right_cor(Controller::GetActivePlanet()->GetCoordinates() +
-                        QPointF(size.width() / 2, -size.height() / 2));
-  QRectF background(top_left_cor, size);
+  QSizeF scale_size(Controller::scene->GetWidth(),
+                    Controller::scene->GetHeight());
+  scale_size *= kShopSizeCoefficient / scale;
+  QSizeF real_size(kWidth, kHeight);
+  real_size *= kShopSizeCoefficient;
+
+  QPointF top_left_cor(
+      Controller::GetActivePlanet()->GetCoordinates() -
+      QPointF(scale_size.width() / 2, scale_size.height() / 2));
+  QPointF top_right_cor = top_left_cor + QPointF(scale_size.width(), 0);
+
+  QRectF background(top_left_cor, scale_size);
 
   background_image_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kMenuBackground), background);
 
   border_line_->setPen(QPen(Qt::green));
-  border_line_->setLine(top_left_cor.x() + size.width() * kBorderCoefficient,
-                        top_left_cor.y(),
-                        top_left_cor.x() + size.width() * kBorderCoefficient,
-                        top_left_cor.y() + size.height());
+  border_line_->setLine(
+      top_left_cor.x() + scale_size.width() * kBorderCoefficient,
+      top_left_cor.y(),
+      top_left_cor.x() + scale_size.width() * kBorderCoefficient,
+      top_left_cor.y() + scale_size.height());
 
   // создание и размещения магазина
   // то окно, в котором можно купить
@@ -505,33 +675,26 @@ void ShopMenu::Draw() {
   shop_scrolling_view_->setStyleSheet("border: 0px");
 
   int32_t x_offset = static_cast<int32_t>(
-      size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
+      real_size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
-      static_cast<int32_t>(size.height() * pow(kWidgetHeightCoef, 2));
-  QSizeF shop_size(size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
-                   size.height() - 2 * y_offset);
-  //  QSizeF shop_size(
-  //      size.width() * (1 - kBorderCoefficient) - 2 * x_offset + x_offset /
-  //      10, size.height() - 2 * y_offset);
-  //   QPointF sshop_pos = Controller::view->mapToScene(QPoint(
-  //                        (kWidth / scale - size.width()) / 2 + size.width() *
-  //                        kBorderCoefficient, (kHeight / scale -
-  //                        size.height()) / 2));
-  //  QPointF shop_pos = top_left_cor;
-  //  shop_pos -= QPointF(size.width() * kBorderCoefficient, 0);
-  //  shop_pos += QPointF(x_offset, y_offset);
-  QPointF shop_pos(kWidth / scale * (1 - kShopSizeCoefficient) / 2 +
-                       size.width() * kBorderCoefficient,
-                   kHeight / scale * (1 - kShopSizeCoefficient) / 2);
+      static_cast<int32_t>(real_size.height() * pow(kWidgetHeightCoef, 2));
+
+  QSizeF shop_size(real_size.width() * (1 - kBorderCoefficient) - 2 * x_offset,
+                   real_size.height() - 2 * y_offset);
+  QPointF shop_pos(kWidth * (1 - kShopSizeCoefficient) / 2 +
+                       real_size.width() * kBorderCoefficient,
+                   kHeight * (1 - kShopSizeCoefficient) / 2);
+
   shop_pos += QPointF(x_offset, y_offset);
+
   shop_scrolling_view_->setGeometry(static_cast<int32_t>(shop_pos.x()),
                                     static_cast<int32_t>(shop_pos.y()),
                                     static_cast<int32_t>(shop_size.width()),
                                     static_cast<int32_t>(shop_size.height()));
+  int32_t lines = shop_buildings_.size() / kWidthCount;
+  lines += shop_buildings_.size() % kWidthCount == 0 ? 1 : 2;
   shop_scrolling_view_->setSceneRect(
-      0, 0, shop_size.width(),
-      (shop_buildings_.size() / kWidthCount + 1) * (kWidgetHeight + y_offset) -
-          y_offset);
+      0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
 
   // добавление тайлов в магазин
   QPointF start_pos(kWidgetWidth / 2, kWidgetHeight / 2);
@@ -561,13 +724,14 @@ void ShopMenu::Draw() {
   QPointF info_pos(kWidth * (1 - kShopSizeCoefficient) / 2,
                    kHeight * (1 - kShopSizeCoefficient) / 2);
   info_pos += QPointF(
-      size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
-      size.height() * (1 - kShopSizeCoefficient) / 2);
+      real_size.width() * kBorderCoefficient * (1 - kShopSizeCoefficient) / 2,
+      real_size.height() * (1 - kShopSizeCoefficient) / 2);
+
   info_scrolling_view_->setGeometry(
       static_cast<int32_t>(info_pos.x()), static_cast<int32_t>(info_pos.y()),
-      static_cast<int32_t>(size.width() * kBorderCoefficient *
+      static_cast<int32_t>(real_size.width() * kBorderCoefficient *
                            kShopSizeCoefficient),
-      static_cast<int32_t>(size.height() * kShopSizeCoefficient));
+      static_cast<int32_t>(real_size.height() * kShopSizeCoefficient));
   int32_t visible_widgets = 0;
 
   // добавление виджетов в меню инфы
@@ -583,21 +747,21 @@ void ShopMenu::Draw() {
     info_scene_scroll_->addItem(info_units_[i]);
     info_units_[i]->hide();
   }
-
+  visible_widgets = std::max(kInfoCount, visible_widgets);
   info_scrolling_view_->setSceneRect(
-      0, 0, size.width() * kBorderCoefficient * kShopSizeCoefficient,
-      std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-               static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+      0, 0, real_size.width() * kBorderCoefficient * kShopSizeCoefficient,
+      visible_widgets * kInfoHeight);
 
   text_->setText("Player info");
   text_->setBrush(Qt::green);
   text_->setPos(top_left_cor);
 
-  exit_bnt_->setPos(top_right_cor + QPointF(-kExitBtnSize, kExitBtnSize) / 2);
-  units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / 2);
+  exit_bnt_->setPos(top_right_cor +
+                    QPointF(-kExitBtnSize, kExitBtnSize) / scale / 2);
+  units_btn_->setPos(top_left_cor + QPoint(-kBtnWidth, kBtnHeight) / scale / 2);
   // + 20 для небольшого отступа между вкладками
   buildings_btn_->setPos(top_left_cor +
-                         QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / 2);
+                         QPointF(-kBtnWidth, 3 * kBtnHeight + 20) / scale / 2);
 
   QTimer::singleShot(1, this, SLOT(Show()));
 }
@@ -621,10 +785,17 @@ void ShopMenu::Show() {
   Controller::scene->addItem(exit_bnt_);
   Controller::scene->addItem(units_btn_);
   Controller::scene->addItem(buildings_btn_);
-  Controller::scene->addItem(buildings_btn_);
 }
 
 void ShopMenu::Close() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void ShopMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kPlanet);
+  }
+}
 
 void ShopMenu::ChangeShop() {
   ButtonItem* sender = dynamic_cast<ButtonItem*>(QObject::sender());
@@ -635,8 +806,8 @@ void ShopMenu::ChangeShop() {
 
   // Это просто копи-паст из Draw(). Не вижу смысла ещё такое большое кол-во
   // констант выносить
-  QSizeF size(Controller::scene->GetWidth(), Controller::scene->GetHeight());
-  size *= kShopSizeCoefficient / Controller::view->matrix().m11();
+  QSizeF size(kWidth, kHeight);
+  size *= kShopSizeCoefficient;
   int32_t x_offset = static_cast<int32_t>(
       size.width() * (1 - kBorderCoefficient) * pow(kWidgetWidthCoef, 2));
   int32_t y_offset =
@@ -652,9 +823,9 @@ void ShopMenu::ChangeShop() {
     for (const auto& build_widget : shop_buildings_) {
       build_widget->WidgetShow();
     }
+
     int32_t lines = shop_buildings_.size() / kWidthCount;
-    lines += shop_buildings_.size() % kWidthCount != 0 ? 1 : 0;
-    qDebug() << lines;
+    lines += shop_buildings_.size() % kWidthCount == 0 ? 1 : 2;
     shop_scrolling_view_->setSceneRect(
         0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
 
@@ -669,10 +840,9 @@ void ShopMenu::ChangeShop() {
       ++visible_widgets;
       building_info->show();
     }
-    info_scrolling_view_->setSceneRect(
-        0, 0, kInfoWidth,
-        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+    visible_widgets = std::max(kInfoCount, visible_widgets);
+    info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                                       visible_widgets * kInfoHeight);
   } else {
     SwitchState(kUnits);
     for (const auto& build_widget : shop_buildings_) {
@@ -681,8 +851,9 @@ void ShopMenu::ChangeShop() {
     for (const auto& unit_widget : shop_units_) {
       unit_widget->WidgetShow();
     }
+
     int32_t lines = shop_units_.size() / kWidthCount;
-    lines += shop_units_.size() % kWidthCount != 0 ? 1 : 0;
+    lines += shop_units_.size() % kWidthCount == 0 ? 1 : 2;
     shop_scrolling_view_->setSceneRect(
         0, 0, shop_size.width(), lines * (kWidgetHeight + y_offset) - y_offset);
 
@@ -697,10 +868,9 @@ void ShopMenu::ChangeShop() {
       ++visible_widgets;
       unit_info->show();
     }
-    info_scrolling_view_->setSceneRect(
-        0, 0, kInfoWidth,
-        std::max(static_cast<int32_t>(visible_widgets * kInfoHeight),
-                 static_cast<int32_t>(size.height() * kShopSizeCoefficient)));
+    visible_widgets = std::max(kInfoCount, visible_widgets);
+    info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                                       visible_widgets * kInfoHeight);
   }
 }
 
@@ -715,20 +885,19 @@ void ShopMenu::SetZValue() {
 
 void ShopMenu::SwitchState(ShopState state) { current_state_ = state; }
 
-void ShopMenu::MakePurchase(ShopItemType type, Resources cost,
-                            QString item_name) {
-  Controller::GetActivePlanet()->GetOwner()->SubResources(cost);
+void ShopMenu::MakePurchase(ShopItemType type, QString item_name) {
   if (type == ShopItemType::kUnit) {
-    Controller::GetActivePlanet()->AddUnit(
+    Controller::GetActivePlanet()->BuyUnit(
         ObjectsStorage::GetUnitType(item_name));
   } else {
-    Controller::GetActivePlanet()->AddBuilding(
+    Controller::GetActivePlanet()->BuyBuilding(
         ObjectsStorage::GetBuildingType(item_name));
   }
   UpdateInfo();
 }
 
 void ShopMenu::UpdateInfo() {
+  int32_t visible_widgets = 1;
   if (current_state_ == ShopState::kBuildings) {
     std::sort(info_buildings_.begin(), info_buildings_.end(),
               [](ShopPlanetInfo* l, ShopPlanetInfo* r) {
@@ -738,7 +907,13 @@ void ShopMenu::UpdateInfo() {
       info_buildings_[i]->setPos(
           QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
       info_buildings_[i]->update();
+      if (info_buildings_[i]->GetQuant() != 0) {
+        ++visible_widgets;
+      }
     }
+    visible_widgets = std::max(kInfoCount, visible_widgets);
+    info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                                       visible_widgets * kInfoHeight);
     return;
   }
 
@@ -750,10 +925,18 @@ void ShopMenu::UpdateInfo() {
     info_units_[i]->setPos(
         QPointF(kInfoWidth / 2, kInfoHeight / 2 + kInfoHeight * i));
     info_units_[i]->update();
+    if (info_units_[i]->GetQuant() != 0) {
+      ++visible_widgets;
+    }
   }
+  visible_widgets = std::max(kInfoCount, visible_widgets);
+  info_scrolling_view_->setSceneRect(0, 0, kInfoWidth,
+                                     visible_widgets * kInfoHeight);
 }
 // ----------------------------- Game Menu -------------------------------
 GameMenu::GameMenu() {
+  Controller::SetMenuType(Controller::MenuType::kLoad);
+
   this->StartGame();
   this->Draw();
 
@@ -761,8 +944,22 @@ GameMenu::GameMenu() {
   background_song->setVolume(40);
   background_song->play();
 
+  Controller::SetMenuType(Controller::MenuType::kGame);
+
+  Controller::MenuType type = Controller::MenuType::kGame;
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
+  Qt::Key key_next_turn = key_handler->Get(type, Qt::Key_N).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+  shortcuts_[key_next_turn] =
+      std::make_shared<QShortcut>(key_next_turn, Controller::window);
+
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
+  connect(shortcuts_[key_next_turn].get(), SIGNAL(activated()), this,
+          SLOT(keyNextReleased()));
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
-  connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
 }
 
 GameMenu::~GameMenu() { Controller::scene->Destroy(); }
@@ -790,7 +987,14 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
       return;
     }
     Controller::SetPauseMenu(new PauseMenu());
+    QCoreApplication::processEvents();
     Controller::SetMenuType(Controller::MenuType::kPause);
+  }
+
+  if (menu == Controller::MenuType::kMain) {
+    Controller::SetGameMenu(nullptr);
+    Controller::SetMainMenu(new MainMenu());
+    Controller::SetMenuType(Controller::MenuType::kMain);
   }
 }
 
@@ -826,16 +1030,69 @@ void GameMenu::ReDraw() {
 
 void GameMenu::UpdateStatusBar() { status_bar_->update(); }
 
+void GameMenu::ShowWinMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->setZValue(ZValues::kResultMessage);
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
+void GameMenu::ShowLoseMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->setZValue(ZValues::kResultMessage);
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
   Controller::scene->NewGame();
 }
 
-void GameMenu::Hide() { btn_next_->hide(); }
+void GameMenu::Hide() {
+  btn_next_->hide();
+  status_bar_->hide();
+}
 
 void GameMenu::Show() {
   btn_next_->show();
+  status_bar_->show();
   ReDraw();
+}
+
+void GameMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::SwitchMenu(Controller::MenuType::kPause);
+  }
+}
+
+void GameMenu::keyNextReleased() {
+  if (Controller::view->IsInMotion() ||
+      Controller::GetCurrentState() != Controller::MenuType::kGame) {
+    return;
+  }
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    Controller::scene->Next();
+  }
+}
+
+void GameMenu::GameOver() {
+  Controller::view->EnableMotion();
+  SwitchTo(Controller::MenuType::kMain);
 }
 
 UnitsInteractionMenu::UnitsInteractionMenu() {
@@ -878,6 +1135,7 @@ UnitsInteractionMenu::UnitsInteractionMenu() {
   }
   connect(cancel_button_, SIGNAL(clicked()), this, SLOT(Close()));
   connect(interaction_button_, SIGNAL(clicked()), this, SLOT(Interact()));
+
   Draw();
 }
 
@@ -913,8 +1171,8 @@ void UnitsInteractionMenu::Draw() {
       static_cast<int32_t>(kScrollPosition * kHeight), kUnitCellWidth + 5,
       std::min(kUnitCellHeight * unit_widgets_.size(),
                static_cast<int32_t>(kHeight * (1 - 2 * kScrollPosition) + 1)));
-  // Область внутри, которая скроллится, выставляется в зависимости от размеров
-  // и количества виджетов
+  // Область внутри, которая скроллится, выставляется в зависимости от
+  // размеров и количества виджетов
   scroll_view_->setSceneRect(0, 0, kUnitCellWidth + 5,
                              kUnitCellHeight * unit_widgets_.size() + 1);
   scroll_view_->setStyleSheet("border: 0px");
@@ -1061,6 +1319,13 @@ void UnitsInteractionMenu::CloseResult() {
 AttackMenu::AttackMenu() : UnitsInteractionMenu() {
   // TODO
   //   interaction_button_->SetPixmap()
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Qt::Key key_esc =
+      key_handler->Get(Controller::MenuType::kAttack, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
 }
 
 void AttackMenu::Interact() {
@@ -1126,9 +1391,24 @@ void AttackMenu::Switch(Controller::MenuType menu) {
   }
 }
 
+void AttackMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    SwitchTo(Controller::MenuType::kPlanet);
+  }
+}
+
 MoveMenu::MoveMenu() : UnitsInteractionMenu() {
   // TODO
   // interaction_button_->SetPixmap();
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Qt::Key key_esc =
+      key_handler->Get(Controller::MenuType::kMove, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
 }
 
 void MoveMenu::Interact() {
@@ -1148,6 +1428,14 @@ void MoveMenu::Switch(Controller::MenuType menu) {
   }
 }
 
+void MoveMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    SwitchTo(Controller::MenuType::kPlanet);
+  }
+}
+
 PlanetInfoMenu::PlanetInfoMenu() {
   if (Controller::GetActivePlanet()->GetOwner() ==
       Controller::scene->GetPlayer()) {
@@ -1156,7 +1444,16 @@ PlanetInfoMenu::PlanetInfoMenu() {
   }
 
   exit_button_ = new ButtonItem(kButtonWidth, kButtonHeight, true);
+
+  KeyHandler* key_handler = Controller::GetKeyHandler();
+  Controller::MenuType type = Controller::MenuType::kMove;
+  Qt::Key key_esc = key_handler->Get(type, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+
   connect(exit_button_, SIGNAL(clicked()), this, SLOT(Exit()));
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapePressed()));
 
   Draw();
 }
@@ -1236,13 +1533,15 @@ void PlanetInfoMenu::SwitchTo(Controller::MenuType menu) {
   if (menu == Controller::MenuType::kPlanet) {
     Controller::SetPlanetInfoMenu(nullptr);
     Controller::SetPlanetMenu(new PlanetMenu());
-    Controller::SetMenuType(Controller::MenuType::kPlanet);
   }
+
+  Controller::SetMenuType(Controller::MenuType::kPlanet);
 }
 
 void PlanetInfoMenu::Destroy() {
   if (upgrade_button_ != nullptr) {
     Controller::scene->removeItem(upgrade_button_);
+    delete upgrade_button_;
   }
   Controller::scene->removeItem(exit_button_);
   Controller::scene->removeItem(planet_info_);
@@ -1265,3 +1564,235 @@ void PlanetInfoMenu::Upgrade() {
 }
 
 void PlanetInfoMenu::Exit() { SwitchTo(Controller::MenuType::kPlanet); }
+
+void PlanetInfoMenu::keyEscapePressed() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    SwitchTo(Controller::MenuType::kPlanet);
+  }
+}
+
+SettingsMenu::SettingsMenu() {
+  Draw();
+  SetZValue();
+  DrawData();
+
+  connect(btn_back_, SIGNAL(clicked()), this, SLOT(btnBackClicked()));
+
+  Controller::MenuType type = Controller::MenuType::kSettings;
+  Qt::Key key_esc = Controller::GetKeyHandler()->Get(type, Qt::Key_Escape).key;
+  shortcuts_[key_esc] =
+      std::make_shared<QShortcut>(key_esc, Controller::window);
+
+  connect(shortcuts_[key_esc].get(), SIGNAL(activated()), this,
+          SLOT(keyEscapeReleased()));
+}
+
+SettingsMenu::~SettingsMenu() {
+  delete (settings_);
+  delete (background_rect_);
+  delete (btn_back_);
+  delete (keypad_);
+}
+
+void SettingsMenu::SwitchTo(Controller::MenuType menu) {
+  if (!Controller::Graph()->HasConnection(Controller::GetMenuType(), menu)) {
+    return;
+  }
+  Controller::SetMenuType(menu);
+
+  if (menu == Controller::MenuType::kPause) {
+    Controller::GetPauseMenu()->Show();
+    Controller::SetSettingsMenu(nullptr);
+  } else if (menu == Controller::MenuType::kMain) {
+    Controller::GetMainMenu()->Show();
+    Controller::SetSettingsMenu(nullptr);
+  }
+}
+
+void SettingsMenu::Draw() {
+  int h = qApp->screens()[0]->size().height();
+  int w = qApp->screens()[0]->size().width();
+
+  cur_x = w / 20;
+  cur_y = h / 9;
+
+  GameView* view = Controller::view;
+  QPointF center =
+      view->mapToScene(QPoint(view->rect().width(), view->rect().height()) / 2);
+  double coef = view->matrix().m11();
+  QRectF rect = view->sceneRect();
+
+  rect.setX(center.x() - view->rect().width() / coef);
+  rect.setY(center.y() - view->rect().height() / coef);
+  rect.setSize(rect.size() * 4);
+
+  background_rect_ = new QGraphicsRectItem();
+  background_rect_->setScale(1 / coef);
+  background_rect_->setRect(rect);
+  background_rect_->setOpacity(0.7);
+  background_rect_->setBrush(Qt::black);
+
+  settings_ = new QGraphicsTextItem("Settings");
+  settings_->setDefaultTextColor(Qt::white);
+  settings_->setFont(QFont("Arial", 48));
+  settings_->setPos(Controller::view->mapToScene(
+      (w - settings_->boundingRect().width()) / 2, h / 30));
+  settings_->setScale(1 / coef);
+
+  keypad_ = new QGraphicsTextItem("Keypad");
+  keypad_->setDefaultTextColor(Qt::white);
+  keypad_->setFont(QFont("Arial", 36));
+  keypad_->setPos(Controller::view->mapToScene(cur_x, cur_y));
+  keypad_->setScale(1 / coef);
+
+  btn_back_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_back_->setPos(
+      Controller::view->mapToScene(QPoint(w, h) - QPoint(w / 8, h / 15)));
+
+  Controller::scene->addItem(keypad_);
+  Controller::scene->addItem(btn_back_);
+  Controller::scene->addItem(settings_);
+  Controller::scene->addItem(background_rect_);
+}
+
+void SettingsMenu::SetZValue() {
+  background_rect_->setZValue(ZValues::kSettingsMenuDown);
+  settings_->setZValue(ZValues::kSettingsMenuUp);
+  btn_back_->setZValue(ZValues::kSettingsMenuUp);
+  keypad_->setZValue(ZValues::kSettingsMenuUp);
+}
+
+void SettingsMenu::SetActiveKeyField(KeyField* field) { active_field_ = field; }
+
+KeyField* SettingsMenu::GetActiveKeyField() { return active_field_; }
+
+Controller::MenuType SettingsMenu::GetPrevMenu() { return prev_menu_; }
+
+void SettingsMenu::SetPrevMenu(Controller::MenuType menu) { prev_menu_ = menu; }
+
+void SettingsMenu::keyEscapeReleased() {
+  QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
+  if (sc && sc->objectName() == "From KeyReleaseEvent") {
+    sc->setObjectName("");
+    SwitchTo(Controller::GetSettingsMenu()->GetPrevMenu());
+  }
+}
+
+void SettingsMenu::btnBackClicked() { Controller::SwitchMenu(prev_menu_); }
+
+bool SettingsMenu::AddSection(const QString& name, int x, int y) {
+  if (name != kStrNoSection) {
+    sections_.push_back(std::make_shared<Section>(name, x, y));
+    return true;
+  }
+  return false;
+}
+
+void SettingsMenu::DrawData() {
+  int offset_section_x = keypad_->boundingRect().width() / 4;
+  for (const std::pair<Controller::MenuType,
+                       std::map<Qt::Key, KeyHandler::Key>>& p1 :
+       Controller::GetKeyHandler()->GetData()) {
+    cur_y += keypad_->boundingRect().height() * 1.25;
+    bool is_added =
+        AddSection(GetSectionName(p1.first), cur_x + offset_section_x, cur_y);
+    cur_y -= (keypad_->boundingRect().height() * 1.25) * (!is_added);
+    if (is_added) {
+      for (const std::pair<Qt::Key, KeyHandler::Key>& p2 : p1.second) {
+        sections_.back()->AddData(p2.second, p1.first);
+      }
+      cur_y = sections_.back()->GetY();
+    }
+  }
+}
+
+QString SettingsMenu::GetSectionName(Controller::MenuType type) {
+  switch (type) {
+    case Controller::MenuType::kGame:
+      return "Game";
+    case Controller::MenuType::kPlanet:
+      return "Planet";
+    default:
+      return kStrNoSection;
+  }
+}
+
+QShortcut* Menu::GetShortcut(int key) {
+  return (shortcuts_[key] == nullptr ? nullptr : shortcuts_[key].get());
+}
+
+Section::Section() {}
+
+Section::Section(const QString& name, int x, int y) : cur_x_(x), cur_y_(y) {
+  name_ = new QGraphicsTextItem(name);
+  name_->setDefaultTextColor(Qt::white);
+  name_->setFont(QFont("Arial", 28));
+  name_->setPos(Controller::view->mapToScene(cur_x_, cur_y_));
+  name_->setScale(1 / Controller::view->matrix().m11());
+  name_->setZValue(ZValues::kSettingsMenuUp);
+
+  Controller::scene->addItem(name_);
+}
+
+Section::~Section() {
+  delete (name_);
+  for (auto x : actions_) {
+    delete (x);
+  }
+  for (auto x : actions_keys_) {
+    delete (x);
+  }
+}
+
+void Section::AddData(const KeyHandler::Key& data, Controller::MenuType type) {
+  if (!data.can_modify) {
+    return;
+  }
+  int w = qApp->screens()[0]->size().width();
+
+  cur_y_ += name_->boundingRect().height() * 1.2;
+  QGraphicsTextItem* text = new QGraphicsTextItem(data.description);
+  text->setDefaultTextColor(Qt::white);
+  text->setFont(QFont("Arial", 24));
+  text->setPos(Controller::view->mapToScene(
+      cur_x_ + name_->boundingRect().width() / 4, cur_y_));
+  text->setScale(1 / Controller::view->matrix().m11());
+  text->setZValue(ZValues::kSettingsMenuUp);
+  actions_.push_back(text);
+
+  KeyField* ledit = new KeyField(data.key, type);
+  ledit->setFont(QFont("Arial", 23));
+  ledit->setReadOnly(true);
+  ledit->setStyleSheet(
+      "background-color: transparent;"
+      "border: 2px solid gray;"
+      "border-color: white;"
+      "padding-left: 10;"
+      "color: white;");
+  ledit->setCursor(Controller::view->cursor());
+  actions_keys_.push_back(ledit);
+
+  QGraphicsProxyWidget* widget = Controller::scene->addWidget(ledit);
+  widget->setPos(Controller::view->mapToScene(cur_x_ + w / 3, cur_y_));
+  widget->setScale(1 / Controller::view->matrix().m11());
+  widget->setZValue(ZValues::kSettingsMenuUp);
+  widget->setFlag(QGraphicsItem::ItemIsSelectable);
+
+  connect(ledit, SIGNAL(clicked()), this, SLOT(btnChangeKeyClicked()));
+  Controller::scene->addItem(text);
+}
+
+int Section::GetY() { return cur_y_; }
+
+void Section::btnChangeKeyClicked() {
+  KeyField* ledit = dynamic_cast<KeyField*>(QObject::sender());
+  if (ledit) {
+    if (!Controller::view->IsKeyListenerEnabled()) {
+      ledit->setText("");
+      Controller::view->EnableKeyReleaseListener();
+      Controller::GetSettingsMenu()->SetActiveKeyField(ledit);
+    }
+  }
+}

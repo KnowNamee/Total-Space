@@ -21,6 +21,7 @@ class ObjectsStorage {
   static const Resources& GetIncome(BuildingType building);
   static BuildingType GetBuildingType(const QString& caption);
   static const Resources& GetBuildingCost(BuildingType building);
+  static int32_t GetBuildingLevel(BuildingType building);
 
   static QVector<UnitType> GetAllPossibleUnits();
   static UnitType GetUnitType(const QString& caption);
@@ -37,6 +38,7 @@ class ObjectsStorage {
   static std::set<BuildingType> GetFirstLevelBuildings();
   static std::set<BuildingType> GetUpgrades(BuildingType building);
   static UnitType GetBuildingUnit(BuildingType building);
+  static int32_t GetBuildingTime(BuildingType building);
 
   static const Unit* GetUnit(UnitType unit);
   static const Building* GetBuilding(BuildingType building);
