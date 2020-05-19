@@ -101,11 +101,15 @@ void GameScene::NewGame() {
 }
 
 void GameScene::ShowLoseMessage() {
-
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowLoseMessage();
 }
 
 void GameScene::ShowWinMessage() {
-
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowWinMessage();
 }
 
 void GameScene::SetSceneSettings() {
@@ -273,14 +277,14 @@ void GameScene::Next() {
   bot2_->Next();    // добавляем ресурсы и т.п.
   player_->Next();  // добавляем ресурсы и т.п.
   if (player_->GetPlanets().size() == 0) {
-//    UpdatePlanetsGraph();
-//    QTimer::singleShot(1000, this, SLOT(ShowLoseMessage()));
-//    return;
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowLoseMessage()));
+    return;
   }
   if (bot1_->GetPlanets().size() == 0 && bot2_->GetPlanets().size() == 0) {
-//    UpdatePlanetsGraph();
-//    QTimer::singleShot(1000, this, SLOT(ShowWinMessage()));
-//    return;
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowWinMessage()));
+    return;
   }
   QVector<std::pair<Planet*, Planet*>> planets_to_show =
       bot1_->GetPlanetsToShow();

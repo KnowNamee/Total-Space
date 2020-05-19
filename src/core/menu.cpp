@@ -986,9 +986,11 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
     QCoreApplication::processEvents();
     Controller::SetMenuType(Controller::MenuType::kPause);
   }
+
   if (menu == Controller::MenuType::kMain) {
-      Controller::SetGameMenu(nullptr);
-      Controller::SetMainMenu(new MainMenu());
+    Controller::SetGameMenu(nullptr);
+    Controller::SetMainMenu(new MainMenu());
+    Controller::SetMenuType(Controller::MenuType::kMain);
   }
 }
 
@@ -1024,6 +1026,30 @@ void GameMenu::ReDraw() {
 
 void GameMenu::UpdateStatusBar() { status_bar_->update(); }
 
+void GameMenu::ShowWinMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->setZValue(ZValues::kResultMessage);
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
+void GameMenu::ShowLoseMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->setZValue(ZValues::kResultMessage);
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
   Controller::scene->NewGame();
@@ -1034,7 +1060,7 @@ void GameMenu::Hide() {
   status_bar_->hide();
 }
 
-void GameMenu::Show() {  
+void GameMenu::Show() {
   btn_next_->show();
   status_bar_->show();
   ReDraw();
@@ -1043,7 +1069,7 @@ void GameMenu::Show() {
 void GameMenu::keyEscapeReleased() {
   QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
   if (sc && sc->objectName() == "From KeyReleaseEvent") {
-    sc->setObjectName("");    
+    sc->setObjectName("");
     Controller::SwitchMenu(Controller::MenuType::kPause);
   }
 }
@@ -1058,6 +1084,11 @@ void GameMenu::keyNextReleased() {
     sc->setObjectName("");
     Controller::scene->Next();
   }
+}
+
+void GameMenu::GameOver() {
+  Controller::view->EnableMotion();
+  SwitchTo(Controller::MenuType::kMain);
 }
 
 UnitsInteractionMenu::UnitsInteractionMenu() {

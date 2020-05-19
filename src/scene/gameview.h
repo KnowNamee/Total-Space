@@ -17,7 +17,10 @@ class GameView : public QGraphicsView {
 
   void SetNewGameSettings();
   void EnableKeyReleaseListener();
+  void EnableMotion();
+  void DisableMotion();
   bool IsKeyListenerEnabled();
+  bool IsMotionEnabled();
   bool IsInMotion();
 
   void ShowBotsAttack(QVector<std::pair<Planet*, Planet*>> planet_to_show);
@@ -35,6 +38,7 @@ class GameView : public QGraphicsView {
 
   const double kScaleCoefficient = 0.5;
   bool is_key_listener_enabled_ = false;
+  bool is_in_motion_ = true;
   std::shared_ptr<EventHandler::View> event_handler_;
 };
 

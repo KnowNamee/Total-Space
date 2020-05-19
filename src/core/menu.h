@@ -288,15 +288,21 @@ class GameMenu : public Menu {
   void Show();
   void UpdateStatusBar();
 
+  void ShowWinMessage();
+  void ShowLoseMessage();
+
  private slots:
   void keyEscapeReleased();
   void keyNextReleased();
 
+  void GameOver();
+
  private:
   friend class EventHandler::View;
 
-  ButtonItem* btn_next_;
-  StatusBar* status_bar_;
+  ButtonItem* btn_next_ = nullptr;
+  ButtonItem* result_msg_ = nullptr;
+  StatusBar* status_bar_ = nullptr;
 
   const int32_t kStatusWidthCoef = 4;
   const int32_t kStatusHeightCoef = 9;
