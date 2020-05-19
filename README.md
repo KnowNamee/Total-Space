@@ -1,5 +1,3 @@
-# Total-Space
-Something great here
 # Total Space
 Total Space - некоммерческая 2D-стратегия, написанная на C++ с использованием [Qt framework (5.14.2+)](https://www.qt.io/)
 
