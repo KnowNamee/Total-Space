@@ -940,10 +940,6 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
 
-  QMediaPlayer* background_song = Loader::GetBackgroundSong();
-  background_song->setVolume(40);
-  background_song->play();
-
   Controller::SetMenuType(Controller::MenuType::kGame);
 
   Controller::MenuType type = Controller::MenuType::kGame;
