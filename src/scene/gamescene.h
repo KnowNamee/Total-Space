@@ -32,18 +32,24 @@ class GameScene : public QGraphicsScene {
   int32_t GetWidth() const;
   int32_t GetHeight() const;
   std::map<Planet*, QVector<UnitType>> GetNearestUnits(PlayerBase* player);
-  int32_t GetNearestPower(PlayerBase* player);
+  int32_t GetNearestPower(PlayerBase* player);  
+  int32_t GetFontSize(int32_t size) const;
   bool IsPlanetReachable(PlayerBase* player);
+  bool IsPlanetOnScene(Planet* planet);
+  PlanetsGraph* GetGraph() const;
 
   void UpdatePlanetsGraph();
 
  public slots:
   void Next();
   void NewGame();
+  void ShowLoseMessage();
+  void ShowWinMessage();
 
  private:
   void SetSceneSettings();
   void GenerateMap();
+  void GenerateRandomUnits();
   double Distance(const QPointF& lhs, const QPointF& rhs);
 
   ImageItem* background_;
@@ -57,6 +63,9 @@ class GameScene : public QGraphicsScene {
 
   const int32_t kWidth = qApp->screens()[0]->size().width();
   const int32_t kHeight = qApp->screens()[0]->size().height();
+  const uint32_t kMaxInitialPower = 1800;
+  const uint32_t kMinInitialPower = 1400;
+  const uint32_t kPlayerPower = 1600;
   const double kMapSize = 2.5;
 };
 

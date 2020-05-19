@@ -3,11 +3,16 @@
 
 #include <QApplication>
 #include <QGraphicsItem>
+#include <QLineEdit>
 #include <QScreen>
+#include <QShortcut>
 #include <QWidget>
 
 #include "core/eventhandling.h"
+#include "core/keyhandler.h"
 #include "core/statemachine.h"
+#include "data/objectsstorage.h"
+#include "graphics/keyfield.h"
 #include "scene/gameview.h"
 #include "util/utility.h"
 
@@ -16,9 +21,13 @@ class GameScene;
 class MainWindow;
 class UnitWidget;
 class ButtonItem;
+class ShopWidget;
+class ShopPlanetInfo;
+class StatusBar;
 class PlanetInfoGraphics;
 class FullPlanetInfo;
 class AttackResultWindow;
+class SettingsMenu;
 
 class Menu : public QObject {
   Q_OBJECT
@@ -33,10 +42,14 @@ class Menu : public QObject {
   const int32_t kGeneralButtonHeight = kHeight / 13;
   const int32_t kGeneralButtonWidth = kWidth / 5;
 
+  std::map<int, std::shared_ptr<QShortcut>> shortcuts_;
+
  public:
   virtual void SetZValue() = 0;
   virtual void Draw() = 0;
   virtual void SwitchTo(Controller::MenuType menu) = 0;
+
+  QShortcut* GetShortcut(int key);
 };
 
 class MainMenu : public Menu {
@@ -50,8 +63,12 @@ class MainMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnNewGameClicked();
+  void btnSettingsClicked();
 
  private:
   friend class EventHandler::View;
@@ -59,6 +76,7 @@ class MainMenu : public Menu {
   ImageItem* txt_total_space_;
   ButtonItem* btn_new_game_;
   ButtonItem* btn_exit_;
+  ButtonItem* btn_settings_;
 };
 
 class PauseMenu : public Menu {
@@ -72,15 +90,21 @@ class PauseMenu : public Menu {
   void Draw() override;
   void SwitchTo(Controller::MenuType menu) override;
 
+  void Hide();
+  void Show();
+
  public slots:
   void btnBackClicked();
   void btnExitClicked();
+  void btnSettingsClicked();
+  void keyEscapeReleased();
 
  private:
   friend class EventHandler::View;
 
   ButtonItem* btn_exit_;
   ButtonItem* btn_back_;
+  ButtonItem* btn_settings_;
   QGraphicsRectItem* background_rect_;
 };
 
@@ -94,8 +118,6 @@ class PlanetMenu : public Menu {
   void SetZValue() override;
   void Draw() override;
 
-  Controller::MenuType GetNextMenu(ButtonItem* btn) const;
-
   void SwitchTo(Controller::MenuType menu) override;
 
  public slots:
@@ -103,6 +125,13 @@ class PlanetMenu : public Menu {
   void btnDefaultClicked();
   void btnAttackClicked();
   void btnMoveClicked();
+  void btnShopClicked();
+
+  void keyEscapeReleased();
+  void keyInfoReleased();
+  void keyAttackReleased();
+  void keyMoveReleased();
+  void keyShopReleased();
 
  private:
   friend class EventHandler::View;
@@ -112,8 +141,6 @@ class PlanetMenu : public Menu {
   ButtonItem* btn1_;
   ButtonItem* btn2_;
   ButtonItem* btn3_;
-  // TODO удалить button_to_menu_
-  std::map<ButtonItem*, Controller::MenuType> button_to_menu_;
   double radius_;
 };
 
@@ -202,6 +229,9 @@ class AttackMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class MoveMenu : public UnitsInteractionMenu {
@@ -212,6 +242,9 @@ class MoveMenu : public UnitsInteractionMenu {
  private:
   void Interact() override;
   void Switch(Controller::MenuType menu) override;
+
+ private slots:
+  void keyEscapeReleased();
 };
 
 class PlanetInfoMenu : public Menu {
@@ -225,8 +258,8 @@ class PlanetInfoMenu : public Menu {
 
  private:
   void Destroy();
-
   ImageItem* background_ = nullptr;
+
   ButtonItem* upgrade_button_ = nullptr;
   ButtonItem* exit_button_ = nullptr;
   FullPlanetInfo* planet_info_ = nullptr;
@@ -234,6 +267,8 @@ class PlanetInfoMenu : public Menu {
  private slots:
   void Upgrade();
   void Exit();
+
+  void keyEscapePressed();
 };
 
 class GameMenu : public Menu {
@@ -251,11 +286,164 @@ class GameMenu : public Menu {
 
   void Hide();
   void Show();
+  void UpdateStatusBar();
+
+  void ShowWinMessage();
+  void ShowLoseMessage();
+
+ private slots:
+  void keyEscapeReleased();
+  void keyNextReleased();
+
+  void GameOver();
 
  private:
   friend class EventHandler::View;
 
-  ButtonItem* btn_next_;
+  ButtonItem* btn_next_ = nullptr;
+  ButtonItem* result_msg_ = nullptr;
+  StatusBar* status_bar_ = nullptr;
+
+  const int32_t kStatusWidthCoef = 4;
+  const int32_t kStatusHeightCoef = 9;
+};
+
+class Section : public QObject {
+  Q_OBJECT
+
+ public:
+  Section();
+  Section(const QString& name, int x, int y);
+  ~Section();
+
+  void AddData(const KeyHandler::Key& data, Controller::MenuType type);
+  int GetY();
+
+ private:
+  QGraphicsTextItem* name_;
+  int cur_x_;
+  int cur_y_;
+
+  std::vector<QGraphicsTextItem*> actions_;
+  std::vector<KeyField*> actions_keys_;
+
+ private slots:
+  void btnChangeKeyClicked();
+};
+
+class SettingsMenu : public Menu {
+  Q_OBJECT
+
+ public:
+  SettingsMenu();
+  ~SettingsMenu() override;
+
+  void SwitchTo(Controller::MenuType menu) override;
+  void Draw() override;
+  void SetZValue() override;
+
+  void SetActiveKeyField(KeyField* field);
+  KeyField* GetActiveKeyField();
+
+  Controller::MenuType GetPrevMenu();
+  void SetPrevMenu(Controller::MenuType menu);
+
+ private slots:
+  void keyEscapeReleased();
+  void btnBackClicked();
+
+ private:
+  ImageItem* background_;
+  //  QGraphicsRectItem* background_rect_;
+  QGraphicsTextItem* settings_;
+  QGraphicsTextItem* keypad_;
+  ButtonItem* btn_back_;
+  std::vector<std::shared_ptr<Section>> sections_;
+  Controller::MenuType prev_menu_;
+
+  int cur_x;
+  int cur_y;
+  int text_field_x;
+  int text_field_y;
+  KeyField* active_field_ = nullptr;
+  const QString kStrNoSection = "~";
+
+  bool AddSection(const QString& name, int x, int y);
+  void DrawData();
+  QString GetSectionName(Controller::MenuType type);
+};
+
+class ShopMenu : public Menu {
+  Q_OBJECT
+
+  enum ShopState {
+    kUnits,
+    kBuildings,
+  };
+
+ public:
+  ShopMenu();
+  ~ShopMenu() override;
+
+  void SetZValue() override;
+  void Draw() override;
+  void SwitchTo(Controller::MenuType menu) override;
+
+  void SwitchState(ShopState state);
+  void MakePurchase(ShopItemType type, QString item_name);
+  void UpdateInfo();
+
+ private slots:
+  void ChangeShop();
+  void Show();
+  void Close();
+
+  void keyEscapeReleased();
+
+ private:
+  friend class EventHandler::View;
+
+  QGraphicsSimpleTextItem* text_ = nullptr;
+  ShopState current_state_ = kBuildings;
+
+  QGraphicsLineItem* border_line_ = nullptr;
+  ButtonItem* buildings_btn_ = nullptr;
+  ButtonItem* units_btn_ = nullptr;
+  ButtonItem* exit_bnt_ = nullptr;
+  ImageItem* background_image_ = nullptr;
+
+  QGraphicsScene* shop_scene_scroll_ = nullptr;
+  ScrollingView* shop_scrolling_view_ = nullptr;
+  QVector<ShopWidget*> shop_buildings_;
+  QVector<ShopWidget*> shop_units_;
+
+  QGraphicsScene* info_scene_scroll_ = nullptr;
+  ScrollingView* info_scrolling_view_ = nullptr;
+  QVector<ShopPlanetInfo*> info_buildings_;
+  QVector<ShopPlanetInfo*> info_units_;
+
+  const double kShopSizeCoefficient = 0.9;
+  const double kBorderCoefficient = 0.25;
+
+  // группа констов отвечающихся за размер и кол-во тайлов магазина
+  const int32_t kWidthCount = 3;
+  const int32_t kHeightCount = 2;
+  const double kWidgetWidthCoef = 1. / (kWidthCount + 1);
+  const double kWidgetHeightCoef = 1. / (kHeightCount + 1);
+  const int32_t kWidgetWidth = static_cast<int32_t>(
+      kWidth * kSizeCoefficient * (1 - kBorderCoefficient) * kWidgetWidthCoef);
+  const int32_t kWidgetHeight =
+      static_cast<int32_t>(kHeight * kSizeCoefficient * kWidgetHeightCoef);
+  //-------------------------------------------------------------
+  const int32_t kInfoCount = 5;
+  const int32_t kInfoWidth = static_cast<int32_t>(
+      kWidth * kSizeCoefficient * kBorderCoefficient * kSizeCoefficient);
+  const int32_t kInfoHeight = static_cast<int32_t>(
+      kHeight * kSizeCoefficient * kSizeCoefficient / kInfoCount);
+
+  const int32_t kExitBtnSize = kHeight / 20;
+  const int32_t kBtnWidth = kHeight / 15;
+  const int32_t kBtnHeight = kHeight / 15;
 };
 
 #endif  // MENU_H

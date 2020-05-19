@@ -5,8 +5,9 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QRandomGenerator>
-#include <thread>
+#include <QTimer>
 
+#include "core/menu.h"
 #include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "data/loader.h"
@@ -24,7 +25,7 @@ GameScene::GameScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void GameScene::Destroy() {
-  clear(); 
+  clear();
   bot1_.reset();
   bot2_.reset();
   player_.reset();
@@ -69,10 +70,6 @@ void GameScene::NewGame() {
 
   player_ = std::make_shared<Player>(player_planet.get());
   player_planet->SetOwner(player_.get());
-  player_planet->AddUnit(UnitType::kDroid);
-  player_planet->AddUnit(UnitType::kRover);
-  player_planet->AddUnit(UnitType::kFalcon);
-  player_planet->AddUnit(UnitType::kMarine);
 
   player_ = std::make_shared<Player>(player_planet.get(), "#C9F76F");
   player_->SetName("Player");
@@ -83,6 +80,7 @@ void GameScene::NewGame() {
   screen.StopLoad();
   screen.LoadNext("Generating map ...");
   GenerateMap();
+  GenerateRandomUnits();
   screen.StopLoad();
 
   // Добавляем ботов
@@ -102,6 +100,18 @@ void GameScene::NewGame() {
   screen.StopLoad();
 }
 
+void GameScene::ShowLoseMessage() {
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowLoseMessage();
+}
+
+void GameScene::ShowWinMessage() {
+  Q_ASSERT(Controller::GetMenuType() == Controller::MenuType::kGame);
+  GameMenu* menu = Controller::GetGameMenu();
+  menu->ShowWinMessage();
+}
+
 void GameScene::SetSceneSettings() {
   background_ =
       new ImageItem(Loader::GetButtonImage(ButtonsEnum::kMainBackground),
@@ -113,11 +123,9 @@ void GameScene::SetSceneSettings() {
 }
 
 void GameScene::GenerateMap() {
-  uint32_t required_number_of_planets =
-      QRandomGenerator::global()->generate() % 10 + 20;
-
+  uint32_t required_number_of_planets = 22;
   const double kPlanetRadius = kWidth / 16 * 3;
-  const double kSizeCoefficient = 0.7;
+  const double kSizeCoefficient = 0.76;
   const double kMapWidth =
       kSizeCoefficient * kMapSize * kWidth - kWidth / 2 + kPlanetRadius;
   const double kMapHeight =
@@ -170,6 +178,25 @@ void GameScene::GenerateMap() {
   drawer_->DrawPlanetsGraph(graph_);
 }
 
+void GameScene::GenerateRandomUnits() {
+  QVector<UnitType> unit_types = ObjectsStorage::GetAllPossibleUnits();
+  for (const auto& planet : planets_) {
+    uint32_t initial_power = QRandomGenerator::global()->generate() %
+                                 (kMaxInitialPower - kMinInitialPower) +
+                             kMinInitialPower;
+    if (planet->GetOwner() == GetPlayer()) {
+      initial_power = kPlayerPower;
+    }
+    while (static_cast<uint32_t>(planet->GetPower()) < initial_power) {
+      int32_t index =
+          abs(static_cast<int32_t>(QRandomGenerator::global()->generate()) %
+              unit_types.size());
+      UnitType random_unit = unit_types[index];
+      planet->AddUnit(random_unit);
+    }
+  }
+}
+
 double GameScene::Distance(const QPointF& lhs, const QPointF& rhs) {
   return std::sqrt((lhs.x() - rhs.x()) * (lhs.x() - rhs.x()) +
                    (lhs.y() - rhs.y()) * (lhs.y() - rhs.y()));
@@ -181,11 +208,9 @@ std::map<Planet*, QVector<UnitType>> GameScene::GetNearestUnits(
   if (planet == nullptr) {
     return {};
   }
-  PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
-      itemAt(2 * planet->GetCoordinates(), QTransform()));
+
   std::map<Planet*, QVector<UnitType>> nearby_units;
-  for (const auto& nearby_planet :
-       graph_->GetConnectedPlanets(planet_graphics)) {
+  for (const auto& nearby_planet : planet->GetNearestPlanets()) {
     if (nearby_planet->GetOwner() == player) {
       QVector<UnitType> planet_units = nearby_planet->GetUnits();
       if (planet_units.size() > 0) {
@@ -208,22 +233,66 @@ int32_t GameScene::GetNearestPower(PlayerBase* player) {
   return power;
 }
 
+int32_t GameScene::GetFontSize(int32_t size) const {
+  if (GetWidth() > 2000) {
+    if (size >= 20) {
+      return size - 5;
+    }
+  }
+  return size;
+}
+
 bool GameScene::IsPlanetReachable(PlayerBase* player) {
   if (Controller::GetActivePlanet() != nullptr &&
       Controller::GetActivePlanet()->GetOwner() == player) {
     return true;
   }
-  return GetNearestUnits(player).size() != 0;
+  for (Planet* planet : Controller::GetActivePlanet()->GetNearestPlanets()) {
+    if (planet->GetOwner() == player) {
+      return true;
+    }
+  }
+  return false;
 }
+
+bool GameScene::IsPlanetOnScene(Planet* planet) {
+  for (const auto& scene_planet : planets_) {
+    if (planet == scene_planet.get()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+PlanetsGraph* GameScene::GetGraph() const { return graph_.get(); }
 
 void GameScene::UpdatePlanetsGraph() { graph_->Update(); }
 
 void GameScene::Next() {
-  bot1_->Next();  // тут определена логика бота на ход
-  bot2_->Next();    // добавляем ресурсы и т.п.
-  player_->Next();  // добавляем ресурсы и т.п.
-
+  Controller::GetGameMenu()->Hide();
   for (const std::shared_ptr<Planet>& planet : planets_) {
     planet->Next();  // обновляем флаги планеты
   }
+  bot1_->Next();  // тут определена логика бота на ход
+  bot2_->Next();    // добавляем ресурсы и т.п.
+  player_->Next();  // добавляем ресурсы и т.п.
+  if (player_->GetPlanets().size() == 0) {
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowLoseMessage()));
+    return;
+  }
+  if (bot1_->GetPlanets().size() == 0 && bot2_->GetPlanets().size() == 0) {
+    UpdatePlanetsGraph();
+    QTimer::singleShot(1000, this, SLOT(ShowWinMessage()));
+    return;
+  }
+  QVector<std::pair<Planet*, Planet*>> planets_to_show =
+      bot1_->GetPlanetsToShow();
+  QVector<std::pair<Planet*, Planet*>> bot2_planet_to_show =
+      bot2_->GetPlanetsToShow();
+  planets_to_show.append(bot2_planet_to_show);
+  bot1_->ClearPlanetToShow();
+  bot2_->ClearPlanetToShow();
+  Controller::view->ShowBotsAttack(planets_to_show);
+  Controller::GetGameMenu()->UpdateStatusBar();
 }

@@ -4,12 +4,25 @@
             "caption": "Forge",
             "type": "tools",
             "unit": "No Unit",
-            "upgrades": ["Workshop", "Assembly Shop"],
+            "upgrades": ["Workshop", "Barracks"],
             "level": 1,
-            "batteries_cost": 1000,
+            "time": 1,
+            "batteries_cost": 500,
             "tools_cost": 150,
-            "batteries_income": -10,
-            "tools_income": 100
+            "batteries_income": -20,
+            "tools_income": 250
+          },
+        "barracks": {
+            "caption": "Barracks",
+            "type": "war",
+            "unit": "Marine",
+            "upgrades": ["Training Base"],
+            "level": 2,
+            "time": 2,
+            "batteries_cost": 1200,
+            "tools_cost": 300,
+            "batteries_income": -20,
+            "tools_income": -40
           },
         "workshop": {
             "caption": "Workshop",
@@ -17,21 +30,23 @@
             "unit": "No Unit",
             "upgrades": [],
             "level": 2,
-            "batteries_cost": 2300,
+            "time": 2,
+            "batteries_cost": 1800,
             "tools_cost": 300,
-            "batteries_income": -15,
-            "tools_income": 200
+            "batteries_income": -30,
+            "tools_income": 600
           },
         "assembly shop": {
             "caption": "Assembly Shop",
             "type": "war",
             "unit": "Rover",
-            "upgrades": [],
+            "upgrades": ["Robots Line", "Spaceport"],
             "level": 2,
-            "batteries_cost": 2500,
+            "time": 2,
+            "batteries_cost": 1200,
             "tools_cost": 300,
-            "batteries_income": 20,
-            "tools_income": -5
+            "batteries_income": -20,
+            "tools_income": -40
           },
         "electronics": {
             "caption": "Electronics",
@@ -39,21 +54,47 @@
             "unit": "No Unit",
             "upgrades": ["Battery Factory", "Robots Line"],
             "level": 1,
+            "time": 1,
             "batteries_cost": 150,
-            "tools_cost": 1000,
-            "batteries_income": 200,
-            "tools_income": -10
+            "tools_cost": 500,
+            "batteries_income": 250,
+            "tools_income": -20
           },
         "robots line": {
             "caption": "Robots Line",
             "type": "war",
             "unit": "Droid",
             "upgrades": [],
-            "level": 2,
-            "batteries_cost": 400,
-            "tools_cost": 2500,
-            "batteries_income": -20,
-            "tools_income": 40
+            "level": 3,
+            "time": 3,
+            "batteries_cost": 700,
+            "tools_cost": 3000,
+            "batteries_income": -100,
+            "tools_income": -150
+          },
+        "spaceport": {
+            "caption": "Spaceport",
+            "type": "war",
+            "unit": "Falcon",
+            "upgrades": [],
+            "level": 3,
+            "time": 3,
+            "batteries_cost": 800,
+            "tools_cost": 3000,
+            "batteries_income": -100,
+            "tools_income": -150
+          },
+        "training base": {
+            "caption": "Training Base",
+            "type": "war",
+            "unit": "Ranger",
+            "upgrades": [],
+            "level": 3,
+            "time": 3,
+            "batteries_cost": 2000,
+            "tools_cost": 1500,
+            "batteries_income": -100,
+            "tools_income": -150
           },
         "battery factory": {
             "caption": "Battery Factory",
@@ -61,17 +102,18 @@
             "unit": "No Unit",
             "upgrades": [],
             "level": 2,
+            "time": 2,
             "batteries_cost": 300,
-            "tools_cost": 2300,
-            "batteries_income": 200,
+            "tools_cost": 1800,
+            "batteries_income": 600,
             "tools_income": -15
         }
     },
     "units" : {
         "marine" : {
             "caption": "Marine",
-            "power": 100,
-            "batteries_cost": 300,
+            "power": 170,
+            "batteries_cost": 100,
             "tools_cost": 100,
             "role": "Melee",
             "enemy": "Rover",
@@ -118,7 +160,7 @@
         },
         "rover" : {
             "caption": "Rover",
-            "power": 100,
+            "power": 170,
             "batteries_cost": 250,
             "tools_cost": 300,
             "role": "Range",

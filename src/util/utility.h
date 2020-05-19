@@ -1,9 +1,9 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <cstdint>
 #include <QPixmap>
 #include <QString>
+#include <cstdint>
 
 class Resources {
  public:
@@ -18,9 +18,39 @@ class Resources {
     return Resources(batteries_ + rhs.batteries_, tools_ + rhs.tools_);
   }
 
+  Resources operator-(const Resources& rhs) const {
+    return Resources(batteries_ - rhs.batteries_, tools_ - rhs.tools_);
+  }
+
+  Resources operator*(double rhs) const {
+    return Resources(static_cast<int32_t>(batteries_ * rhs),
+                     static_cast<int32_t>(tools_ * rhs));
+  }
+
+  Resources operator/(int32_t rhs) const {
+    return Resources(batteries_ / rhs, tools_ / rhs);
+  }
+
   Resources& operator+=(const Resources& rhs) {
     *this = *this + rhs;
     return *this;
+  }
+
+  Resources& operator-=(const Resources& rhs) {
+    *this = *this - rhs;
+    return *this;
+  }
+
+  bool operator<=(const Resources& rhs) const {
+    return batteries_ <= rhs.batteries_ && tools_ <= rhs.tools_;
+  }
+
+  bool operator>=(const Resources& rhs) const {
+    return batteries_ >= rhs.batteries_ && tools_ >= rhs.tools_;
+  }
+
+  bool operator<(const Resources& rhs) const {
+    return batteries_ < rhs.batteries_ || tools_ < rhs.tools_;
   }
 
  private:
@@ -44,8 +74,8 @@ class UnitCharacteristics {
   double GetStamina() const { return stamina_; }
 
   const UnitCharacteristics operator*(double rhs) const {
-    return UnitCharacteristics(attack_ * rhs, armor_ * rhs,
-                               health_ * rhs, stamina_ * rhs);
+    return UnitCharacteristics(attack_ * rhs, armor_ * rhs, health_ * rhs,
+                               stamina_ * rhs);
   }
 
   UnitCharacteristics& operator*=(double rhs) {
@@ -77,12 +107,17 @@ struct UnitData {
 };
 
 enum class BuildingType {
+  kUpgrade,
+  kNoBuilding,
   kBatteryFactory,
   kForge,
   kWorkshop,
   kAssemblyShop,
   kElectronics,
-  kRobotsLine
+  kRobotsLine,
+  kBarracks,
+  kSpaceport,
+  kTrainingBase,
 };
 
 enum class UnitType {
@@ -98,6 +133,17 @@ enum class UnitRole {
   kMelee,
   kRange,
   kHealer,
+};
+
+enum class BuildingRole {
+  kWar,
+  kEconomic,
+  kBatteries,
+  kTools,
+};
+enum class ShopItemType {
+  kUnit,
+  kBuilding,
 };
 
 #endif  // UTILITY_H

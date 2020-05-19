@@ -3,19 +3,33 @@
 #include <QBrush>
 #include <QFontDatabase>
 #include <QVector>
-#include <QBrush>
 #include <memory>
 
 std::shared_ptr<QPixmap> Loader::background_image_ = nullptr;
 QVector<std::shared_ptr<QPixmap>> Loader::planet_pictures_;
 QMap<ButtonsEnum, std::shared_ptr<QPixmap>> Loader::button_images_;
 QMap<UnitType, std::shared_ptr<QPixmap>> Loader::unit_images_;
+QMap<BuildingType, std::shared_ptr<QPixmap>> Loader::building_images_;
 int32_t Loader::font_;
 QBrush* Loader::ibrush_ = nullptr;
+QMediaPlayer* Loader::click_sound_ = nullptr;
+QMediaPlayer* Loader::background_song_ = nullptr;
 
 void Loader::LoadAll() {
   // font
   font_ = QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf");
+  // sounds
+
+  click_sound_ = new QMediaPlayer;
+  click_sound_->setMedia(QUrl("qrc:/Img/click sound.mp3"));
+
+  background_song_ = new QMediaPlayer;
+
+  QMediaPlaylist* playlist = new QMediaPlaylist();
+  playlist->addMedia(QUrl("qrc:/Img/Star Wars_1.mp3"));
+  playlist->setPlaybackMode(QMediaPlaylist::Loop);
+  background_song_->setPlaylist(playlist);
+
   // brush
   ibrush_ = new QBrush;
   ibrush_->setTextureImage(QImage(":/Img/transparent_bg.png"));
@@ -69,6 +83,28 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/info_button.png");
     button_images_[ButtonsEnum::kNoNameUnit] =
         std::make_shared<QPixmap>(":/Img/no_name.png");
+    button_images_[ButtonsEnum::kEscapeButton] =
+        std::make_shared<QPixmap>(":/Img/exit_shop.png");
+    button_images_[ButtonsEnum::kUnitsButton] =
+        std::make_shared<QPixmap>(":/Img/unit_shop.png");
+    button_images_[ButtonsEnum::kBuildingsButton] =
+        std::make_shared<QPixmap>(":/Img/factory_shop.png");
+    button_images_[ButtonsEnum::kBuyButton] =
+        std::make_shared<QPixmap>(":/Img/buy_button.png");
+    button_images_[ButtonsEnum::kBeautifulMoveButton] =
+        std::make_shared<QPixmap>(":/Img/move_beautiful_button.png");
+    button_images_[ButtonsEnum::kBatteriesIcon] =
+        std::make_shared<QPixmap>(":/Img/battery.png");
+    button_images_[ButtonsEnum::kArmyPowerIcon] =
+        std::make_shared<QPixmap>(":/Img/army.png");
+    button_images_[ButtonsEnum::kToolsIcon] =
+        std::make_shared<QPixmap>(":/Img/tools.png");
+    button_images_[ButtonsEnum::kSettingsButton] =
+        std::make_shared<QPixmap>(":/Img/settings.png");
+    button_images_[ButtonsEnum::kLoser] =
+        std::make_shared<QPixmap>(":/Img/looser.jpg");
+    button_images_[ButtonsEnum::kWinner] =
+        std::make_shared<QPixmap>(":/Img/winner.jpg");
   }
   // unit images
   {
@@ -84,6 +120,26 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/falcon.png");
     unit_images_[UnitType::kNoUnit] =
         std::make_shared<QPixmap>(":/Img/EmptyUnit.png");
+  }
+  {
+    building_images_[BuildingType::kForge] =
+        std::make_shared<QPixmap>(":/Img/forge.png");
+    building_images_[BuildingType::kWorkshop] =
+        std::make_shared<QPixmap>(":/Img/workshop.png");
+    building_images_[BuildingType::kRobotsLine] =
+        std::make_shared<QPixmap>(":/Img/robot_line.png");
+    building_images_[BuildingType::kElectronics] =
+        std::make_shared<QPixmap>(":/Img/electronics.png");
+    building_images_[BuildingType::kAssemblyShop] =
+        std::make_shared<QPixmap>(":/Img/assembly_shop.png");
+    building_images_[BuildingType::kBatteryFactory] =
+        std::make_shared<QPixmap>(":/Img/battery_factory.png");
+    building_images_[BuildingType::kBarracks] =
+        std::make_shared<QPixmap>(":/Img/barrack.png");
+    building_images_[BuildingType::kTrainingBase] =
+        std::make_shared<QPixmap>(":/Img/Training Base.png");
+    building_images_[BuildingType::kSpaceport] =
+        std::make_shared<QPixmap>(":/Img/Spaceport.png");
   }
 }
 
@@ -101,6 +157,14 @@ QPixmap* Loader::GetUnitImage(UnitType type) {
   return unit_images_[type].get();
 }
 
+QPixmap* Loader::GetBuildingImage(BuildingType type) {
+  return building_images_[type].get();
+}
+
 QBrush* Loader::GetBrush() { return ibrush_; }
 
 int32_t Loader::GetFont() { return font_; }
+
+QMediaPlayer* Loader::GetClickSound() { return click_sound_; }
+
+QMediaPlayer* Loader::GetBackgroundSong() { return background_song_; }

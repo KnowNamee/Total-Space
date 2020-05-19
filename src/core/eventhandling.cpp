@@ -7,10 +7,13 @@
 #include <QObject>
 #include <QScreen>
 #include <QScrollBar>
+#include <QTextCodec>
 #include <QTimer>
 #include <cmath>
+#include <thread>
 
 #include "core/menu.h"
+#include "core/planetsgraph.h"
 #include "core/statemachine.h"
 #include "graphics/imageitem.h"
 #include "graphics/planetgraphics.h"
@@ -41,7 +44,9 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 }
 
 void EventHandler::View::MouseMoveEvent() {
-  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame &&
+      current_motion_ != MotionType::kBotsAttack &&
+      Controller::view->IsMotionEnabled()) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -151,7 +156,8 @@ void EventHandler::View::Move() {
 }
 
 void EventHandler::View::DoubleClick(QMouseEvent* event) {
-  if (Controller::GetMenuType() == Controller::MenuType::kGame) {
+  if (Controller::GetMenuType() == Controller::MenuType::kGame &&
+      current_motion_ != MotionType::kBotsAttack) {
     QGraphicsItem* item =
         view_->scene()->itemAt(view_->mapToScene(event->pos()), QTransform());
     if (item != nullptr && timer_ == nullptr &&
@@ -170,37 +176,75 @@ void EventHandler::View::DoubleClick(QMouseEvent* event) {
       }
       current_motion_ = MotionType::kMoveToPlanet;
       target_ = item;
+      target_position_ = target_->pos();
       timer_ = new QTimer();
       timer_->start(15);
+      is_scaled_motion = true;
       connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
     }
   }
 }
 
 void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
+  if (current_motion_ == MotionType::kBotsAttack) {
+    return;
+  }
   Controller::MenuType state = Controller::GetMenuType();
-  if (event->key() == Qt::Key_Escape) {
-    switch (state) {
-      case Controller::MenuType::kPlanet:
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-        break;
-      case Controller::MenuType::kGame:
-        Controller::SwitchMenu(Controller::MenuType::kPause);
-        break;
-      case Controller::MenuType::kPause:
-        Controller::SwitchMenu(Controller::MenuType::kGame);
-        break;
-      case Controller::MenuType::kAttack:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      case Controller::MenuType::kMove:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      case Controller::MenuType::kPlanetInfo:
-        Controller::SwitchMenu(Controller::MenuType::kPlanet);
-        break;
-      default:
-        break;
+  QShortcut* shortcut;
+  Qt::Key unused_key = Qt::Key_ToggleCallHangup;  // Фиктивная кнопка
+
+  if (state == Controller::MenuType::kLoad) {
+    return;
+  }
+
+  // TODO lambda-function to SafeShortcutActivate
+  if (state == Controller::MenuType::kPlanet) {
+    shortcut = Controller::GetPlanetMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kGame) {
+    shortcut = Controller::GetGameMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kPlanetInfo) {
+    shortcut = Controller::GetPlanetInfoMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kPause) {
+    shortcut = Controller::GetPauseMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kAttack) {
+    shortcut = Controller::GetAttackMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kMove) {
+    shortcut = Controller::GetMoveMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kSettings) {
+    shortcut = Controller::GetSettingsMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
+    }
+  } else if (state == Controller::MenuType::kShop) {
+    shortcut = Controller::GetShopMenu()->GetShortcut(event->key());
+    if (shortcut && shortcut->key() != QKeySequence(unused_key)) {
+      shortcut->setObjectName("From KeyReleaseEvent");
+      emit shortcut->activated();
     }
   }
 }
@@ -208,14 +252,15 @@ void EventHandler::View::KeyReleaseEvent(QKeyEvent* event) {
 void EventHandler::View::MoveTo() {
   double width = view_->sceneRect().width();
   double height = view_->sceneRect().height();
-
-  QPointF direction = 2 * target_->pos() - view_->sceneRect().center();
+  QPointF direction = 2 * target_position_ - view_->sceneRect().center();
   double distance =
       sqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-  // TODO
-  // Выбрать скорость передвижения к планете
-  const double kVelocity = width / 30;
+  double velocity_coefficient = 5;
+  if (is_scaled_motion) {
+    velocity_coefficient = 30;
+  }
+  const double kVelocity = width / velocity_coefficient;
 
   double time = distance / kVelocity;
   if (distance > kVelocity) {
@@ -224,7 +269,7 @@ void EventHandler::View::MoveTo() {
         view_->sceneRect().y() + direction.y() / static_cast<int>(time + 1),
         width, height);
   }
-  if (view_->matrix().m11() < kMaxScale) {
+  if (view_->matrix().m11() < kMaxScale && is_scaled_motion) {
     double scale_velocity;
     if (abs(time) < 1e-12) {
       // TODO
@@ -243,21 +288,27 @@ void EventHandler::View::MoveTo() {
     view_->setMatrix(matrix);
     Controller::GetGameMenu()->ReDraw();
   }
-  if (distance <= kVelocity && view_->matrix().m11() >= kMaxScale) {
-    view_->setSceneRect(2 * target_->pos().x() - width / 2,
-                        2 * target_->pos().y() - height / 2, width, height);
-    Controller::GetGameMenu()->ReDraw();
-    current_motion_ = MotionType::kNoMotion;
-    Controller::SwitchMenu(Controller::MenuType::kPlanet);
+  if (distance <= kVelocity &&
+      (view_->matrix().m11() >= kMaxScale || !is_scaled_motion)) {
+    view_->setSceneRect(2 * target_position_.x() - width / 2,
+                        2 * target_position_.y() - height / 2, width, height);
     delete timer_;
     timer_ = nullptr;
     target_ = nullptr;
+    if (is_scaled_motion) {
+      Controller::GetGameMenu()->ReDraw();
+      current_motion_ = MotionType::kNoMotion;
+      Controller::SwitchMenu(Controller::MenuType::kPlanet);
+    } else {
+      QTimer::singleShot(500, this, SLOT(ChangePlanet()));
+    }
   }
 }
 
 void EventHandler::View::Scale(QWheelEvent* event) {
-  if (Controller::GetMenuType() != Controller::MenuType::kGame &&
-      Controller::GetMenuType() != Controller::MenuType::kPlanet) {
+  if ((Controller::GetMenuType() != Controller::MenuType::kGame &&
+       Controller::GetMenuType() != Controller::MenuType::kPlanet) ||
+      !Controller::view->IsMotionEnabled()) {
     return;
   }
 
@@ -293,6 +344,76 @@ void EventHandler::View::Scale(QWheelEvent* event) {
     timer_->start(15);
     connect(timer_, SIGNAL(timeout()), this, SLOT(ScaleToGoal()));
   }
+}
+
+void EventHandler::View::GeneratePath(
+    QVector<std::pair<Planet*, Planet*>> planets_to_show) {
+  for (const auto& planet_to_show : planets_to_show) {
+    planets_to_show_.push_back(
+        std::make_pair(planet_to_show.first->GetCoordinates() * 2,
+                       planet_to_show.second->GetCoordinates() * 2));
+  }
+  if (!planets_to_show.empty()) {
+    planets_to_show_.push_back(
+        std::make_pair(view_->sceneRect().center() / 2, QPointF(0, 0)));
+  }
+}
+
+void EventHandler::View::ShowBotsAttack() {
+  if (planets_to_show_.size() <= motion_counter) {
+    current_motion_ = MotionType::kNoMotion;
+    motion_counter = 0;
+    Controller::scene->UpdatePlanetsGraph();
+    Controller::GetGameMenu()->Show();
+    planets_to_show_.clear();
+    return;
+  }
+
+  if (planets_to_show_.size() <= motion_counter + 1) {
+    target_position_ = planets_to_show_[motion_counter].first;
+    StartMotion();
+    return;
+  }
+
+  target_ = dynamic_cast<QGraphicsItem*>(Controller::scene->itemAt(
+      planets_to_show_[motion_counter].first, QTransform()));
+  if (target_ == nullptr) {
+    int32_t i = motion_counter;
+    for (; i < planets_to_show_.size(); i++) {
+      target_ = dynamic_cast<QGraphicsItem*>(Controller::scene->itemAt(
+          planets_to_show_[motion_counter].first, QTransform()));
+      if (target_ != nullptr) {
+        motion_counter = i;
+        break;
+      }
+    }
+    if (i == planets_to_show_.size() && target_ == nullptr) {
+      motion_counter = 0;
+      planets_to_show_.clear();
+      return;
+    }
+  }
+  target_position_ = target_->pos();
+  StartMotion();
+}
+
+void EventHandler::View::StartMotion() {
+  current_motion_ = MotionType::kBotsAttack;
+  timer_ = new QTimer();
+  timer_->start(15);
+  is_scaled_motion = false;
+  connect(timer_, SIGNAL(timeout()), this, SLOT(MoveTo()));
+}
+
+void EventHandler::View::ChangePlanet() {
+  PlanetGraphics* planet =
+      dynamic_cast<PlanetGraphics*>(Controller::scene->itemAt(
+          planets_to_show_[motion_counter].second, QTransform()));
+  if (planet != nullptr) {
+    Controller::scene->GetGraph()->UpdatePlanet(planet);
+  }
+  motion_counter++;
+  QTimer::singleShot(500, this, SLOT(ShowBotsAttack()));
 }
 
 EventHandler::View::MotionType EventHandler::View::GetMotionType() {

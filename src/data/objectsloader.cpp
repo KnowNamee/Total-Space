@@ -47,7 +47,8 @@ void ObjectsLoader::LoadDataFromJson(const QJsonDocument& document) {
 void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
   QString caption = building.value("caption").toString();
   QString unit_caption = building.value("unit").toString();
-  QString type = building.value("type").toString();
+  BuildingRole role =
+      ObjectsStorage::GetBuildingRole(building.value("type").toString());
 
   QVector<BuildingType> upgrades_vector;
   QJsonArray upgrades = building.value("upgrades").toArray();
@@ -57,13 +58,14 @@ void ObjectsLoader::LoadBuilding(const QJsonObject& building) {
   }
 
   int32_t level = building.value("level").toInt();
+  int32_t time = building.value("time").toInt();
   Resources cost(building.value("batteries_cost").toInt(),
                  building.value("tools_cost").toInt());
   Resources income(building.value("batteries_income").toInt(),
                    building.value("tools_income").toInt());
 
   Building* building_ptr =
-      new Building(caption, type, upgrades_vector, level,
+      new Building(caption, role, upgrades_vector, level, time,
                    ObjectsStorage::GetUnitType(unit_caption), cost, income);
 
   ObjectsStorage::AddBuilding(building_ptr);

@@ -23,6 +23,9 @@ void ButtonItem::SetEnabled(bool is_enabled) { is_enabled_ = is_enabled; }
 void ButtonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
   if (is_enabled_) {
     emit clicked();
+    QMediaPlayer* click_sound = Loader::GetClickSound();
+    click_sound->setVolume(20);
+    click_sound->play();
   }
 
   Q_UNUSED(event);

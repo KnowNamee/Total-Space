@@ -34,5 +34,28 @@
         <file>info_button.png</file>
         <file>loading_background.jpg</file>
         <file>no_name.png</file>
+        <file>assembly_shop.png</file>
+        <file>battery_factory.png</file>
+        <file>buy_button.png</file>
+        <file>cursor — копия.png</file>
+        <file>electronics.png</file>
+        <file>exit_shop.png</file>
+        <file>factory_shop.png</file>
+        <file>forge.png</file>
+        <file>robot_line.png</file>
+        <file>unit_shop.png</file>
+        <file>workshop.png</file>
+        <file>barrack.png</file>
+        <file>Spaceport.png</file>
+        <file>Training Base.png</file>
+        <file>move_beautiful_button.png</file>
+        <file>army.png</file>
+        <file>battery.png</file>
+        <file>tools.png</file>
+        <file>click sound.mp3</file>
+        <file>Star Wars_1.mp3</file>
+        <file>settings.png</file>
+        <file>looser.jpg</file>
+        <file>winner.jpg</file>
     </qresource>
 </RCC>

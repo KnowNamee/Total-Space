@@ -6,14 +6,15 @@
 #include <cstdint>
 
 #include "util/utility.h"
+#include "objects/planet.h"
 
 class QPixmap;
-class Planet;
 
 class FullPlanetInfo : public QGraphicsItem {
  public:
   FullPlanetInfo(int32_t width, int32_t height, Planet* planet);
   void SetLevel(int32_t level);
+  void Update();
 
  private:
   QRectF boundingRect() const override;
@@ -26,6 +27,7 @@ class FullPlanetInfo : public QGraphicsItem {
   int font_;
 
   QPixmap* planet_image_;
+  QString current_building_;
   int32_t width_;
   int32_t height_;
   int32_t level_;
@@ -33,8 +35,7 @@ class FullPlanetInfo : public QGraphicsItem {
   int32_t batteries_cost_;
   int32_t tools_income_;
   int32_t batteries_income_;
-  int32_t nearest_power_;
-  int32_t power_;
+  Planet::AttackResult result_;
   bool is_players_;
 };
 

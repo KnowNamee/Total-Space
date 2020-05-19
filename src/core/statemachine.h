@@ -14,12 +14,15 @@ class Planet;
 class PlanetMenu;
 class MainMenu;
 class PauseMenu;
+class ShopMenu;
 class UnitMenu;
 class GameMenu;
+class SettingsMenu;
 class PlanetInfoMenu;
 class AttackMenu;
 class MoveMenu;
 class MenuGraph;
+class KeyHandler;
 
 class MainWindow;
 class GameView;
@@ -33,16 +36,19 @@ class Controller {
     kPause,
     kPlanet,
     kUnit,
+    kShop,
     kAttack,
     kMove,
     kPlanetInfo,
     kGame,
+    kSettings,
+    kLoad,
   };
 
   static void HideGame();
   static void ShowGame();
   static void SwitchMenu(MenuType menu);
-  static void SetMenuType(MenuType type);
+  static void SetMenuType(MenuType type);  
   static MenuType GetMenuType();
   static void Destroy();
 
@@ -60,8 +66,12 @@ class Controller {
   static PauseMenu* GetPauseMenu();
   static PlanetMenu* GetPlanetMenu();
   static GameMenu* GetGameMenu();
+  static SettingsMenu* GetSettingsMenu();
+  static ShopMenu* GetShopMenu();
+  static MenuType GetCurrentState();
 
   static void SetMainMenu(MainMenu* menu);
+  static void SetShopMenu(ShopMenu* menu);
   static void SetUnitMenu(UnitMenu* menu);
   static void SetAttackMenu(AttackMenu* menu);
   static void SetMoveMenu(MoveMenu* menu);
@@ -69,6 +79,11 @@ class Controller {
   static void SetPauseMenu(PauseMenu* menu);
   static void SetPlanetMenu(PlanetMenu* menu);
   static void SetGameMenu(GameMenu* menu);
+
+  static void SetSettingsMenu(SettingsMenu* menu);
+
+  static KeyHandler* GetKeyHandler();
+  static void CreateKeyHandler();
 
   static GameScene* scene;
   static GameView* view;
@@ -87,6 +102,10 @@ class Controller {
   static PauseMenu* pause_menu_;
   static PlanetMenu* planet_menu_;
   static GameMenu* game_menu_;
+  static SettingsMenu* settings_menu_;
+  static ShopMenu* shop_menu_;
+
+  static std::shared_ptr<KeyHandler> key_handler_;
 
   static MenuType current_state_;
   static int kMenuCount;

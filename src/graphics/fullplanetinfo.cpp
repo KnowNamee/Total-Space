@@ -12,7 +12,7 @@
 #include "scene/gameview.h"
 
 FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
-    : width_(width), height_(height), font_(Loader::GetFont()) {
+    : font_(Loader::GetFont()), width_(width), height_(height) {
   PlanetGraphics* planet_graphics = dynamic_cast<PlanetGraphics*>(
       Controller::scene->itemAt(2 * planet->GetCoordinates(), QTransform()));
   planet_image_ = planet_graphics->GetImage();
@@ -29,15 +29,26 @@ FullPlanetInfo::FullPlanetInfo(int32_t width, int32_t height, Planet* planet)
   batteries_cost_ = res.GetBatteries();
   is_players_ = Controller::GetActivePlanet()->GetOwner() ==
                 dynamic_cast<PlayerBase*>(Controller::scene->GetPlayer());
-  nearest_power_ =
-      Controller::scene->GetNearestPower(Controller::scene->GetPlayer());
-  power_ = planet->GetPower();
+  if (!is_players_) {
+    PlayerBase* player = Controller::scene->GetPlayer();
+    QVector<UnitType> defending_units = planet->GetUnits();
+    defending_units.append(planet->GetTiredUnits());
+    result_ = planet->CalculateAttack(planet->GetNearestEnemies(player),
+                                      defending_units);
+  }
   if (is_players_) {
     Resources income = Controller::GetActivePlanet()->GetIncome();
     tools_income_ = income.GetTools();
     batteries_income_ = income.GetBatteries();
   }
   units_to_data_ = Controller::GetActivePlanet()->GetUnitsToData();
+  int32_t time_to_build =
+      Controller::GetActivePlanet()->GetCurrentBuildingTime();
+  current_building_ =
+      Controller::GetActivePlanet()->GetCurrentBuildingCaption();
+  if (time_to_build > 0) {
+    current_building_ += "\t" + QString::number(time_to_build);
+  }
 }
 
 void FullPlanetInfo::SetLevel(int32_t level) {
@@ -45,6 +56,13 @@ void FullPlanetInfo::SetLevel(int32_t level) {
   Resources res = Controller::GetActivePlanet()->GetUpgradeCost();
   tools_cost_ = res.GetTools();
   batteries_cost_ = res.GetBatteries();
+  update();
+}
+
+void FullPlanetInfo::Update() {
+  Resources income = Controller::GetActivePlanet()->GetIncome();
+  tools_income_ = income.GetTools();
+  batteries_income_ = income.GetBatteries();
   update();
 }
 
@@ -60,13 +78,14 @@ void FullPlanetInfo::paint(QPainter* painter,
   // Planet
   painter->setPen(QColor(Qt::white));
   const double kScale = Controller::view->matrix().m11();
+  double font_size = Controller::scene->GetFontSize(32);
   QFont fabulist_header =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(37 / kScale));
+            static_cast<int32_t>(font_size / kScale));
   painter->setFont(fabulist_header);
   QFont fabulist_general =
       QFont(QFontDatabase::applicationFontFamilies(font_).first(),
-            static_cast<int32_t>(20 / kScale));
+            static_cast<int32_t>(Controller::scene->GetFontSize(20) / kScale));
   painter->drawPixmap(
       QRect(static_cast<int32_t>(-boundingRect().width() / 2),
             static_cast<int32_t>(-boundingRect().width() / 6),
@@ -120,10 +139,10 @@ void FullPlanetInfo::paint(QPainter* painter,
   if (is_players_) {
     status = "belongs to you";
     color = Qt::white;
-  } else if (abs(power_ - nearest_power_) < 400) {
+  } else if (result_ == Planet::AttackResult::kDraw) {
     status = "attackable";
     color = Qt::yellow;
-  } else if (nearest_power_ > power_) {
+  } else if (result_ == Planet::AttackResult::kWin) {
     status = "approachable";
     color = Qt::green;
   } else {
@@ -154,6 +173,12 @@ void FullPlanetInfo::paint(QPainter* painter,
               static_cast<int32_t>(boundingRect().width() / 3),
               static_cast<int32_t>(boundingRect().height() / 8)),
         "tools income: " + QString::number(tools_income_));
+    painter->drawText(
+        QRect(static_cast<int32_t>(-boundingRect().width() / 6),
+              static_cast<int32_t>(boundingRect().height() * 5 / 16),
+              static_cast<int32_t>(boundingRect().width() * 4 / 9),
+              static_cast<int32_t>(boundingRect().height() / 8)),
+        "on construction: " + current_building_);
   }
 
   // Units
