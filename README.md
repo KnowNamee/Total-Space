@@ -1,4 +1,21 @@
-[![Build Status](https://travis-ci.com/KnowNamee/Total-Space.svg?token=9ZPpz73GHpmSpVzZPRrM&branch=master)](https://travis-ci.com/KnowNamee/Total-Space)
-
 # Total-Space
 Something great here
+# Total Space
+Total Space - некоммерческая 2D-стратегия, написанная на C++ с использованием [Qt framework (5.14.2+)](https://www.qt.io/)
+
+В тотальном космосе последнее время творится какое-то раздолье. И именно поэтому мы решили, что кто-то должен взять в свои руки управление в тотальном космосе. 
+
+Потому в нашей игре предоставляется управление планетой в открытом космосе, которую можно улучшать, возводить различные постройки, нанимать отважных воинов. С помощью данного войска можно расширять свое влияние на другие планеты.
+
+Однако господствовать придется не долго, если не думать о защите. На другой стороне космоса находятся ваши заклятые враги. И они жаждут лишить вас владений.
+
+![](https://github.com/KnowNamee/Total-Space/blob/Readme/img/Main%20Menu.jpg)
+![](https://github.com/KnowNamee/Total-Space/blob/Readme/img/Game%20Screen.jpg)
+
+Данная стратегия была разработана студентами первого курса пятой группы Факультета Прикладной Математики и Информатики в качестве проекта по учебной практике.
+
+В состав команды входят:
+- Безиев Тимур([@TimurBeziev](https://github.com/TimurBeziev))
+- Буйвал Владисав([@buyval01](https://github.com/buyval01))
+- Ступакевич Иван([@KnowNamee](https://github.com/KnowNamee))
+- Филипович Игорь([@IgorFilipovich](https://github.com/IgorFilipovich))
