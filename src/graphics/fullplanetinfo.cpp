@@ -59,6 +59,13 @@ void FullPlanetInfo::SetLevel(int32_t level) {
   update();
 }
 
+void FullPlanetInfo::Update() {
+  Resources income = Controller::GetActivePlanet()->GetIncome();
+  tools_income_ = income.GetTools();
+  batteries_income_ = income.GetBatteries();
+  update();
+}
+
 QRectF FullPlanetInfo::boundingRect() const {
   const double kScale = Controller::view->matrix().m11();
   return QRectF(-width_ / kScale / 2, -height_ / kScale / 2, width_ / kScale,
