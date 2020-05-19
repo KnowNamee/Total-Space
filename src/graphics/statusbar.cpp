@@ -50,11 +50,11 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
   painter->drawPixmap(QRect(-width / 2 + width / 13, -height / 2,
                             field_size.width() / 2, field_size.width() / 2),
-                      *batteries_);
+                      *tools_);
   painter->drawPixmap(
       QRect(-width / 2 + field_size.width() + width / 13, -height / 2,
             field_size.width() / 2, field_size.width() / 2),
-      *tools_);
+      *batteries_);
   painter->drawPixmap(
       QRect(-width / 2 + 2 * field_size.width() + width / 13, -height / 2,
             field_size.width() / 2, field_size.width() / 2),
@@ -63,14 +63,14 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       QRectF(-width / 2, -height / 3 + height / 20 + field_size.height() / 2,
              field_size.width(), field_size.height() / 2),
       Qt::AlignHCenter,
-      QString::number(Controller::scene->GetPlayer()->GetBatteries()));
+      QString::number(Controller::scene->GetPlayer()->GetTools()));
 
   painter->drawText(
       QRectF(-width / 2 + field_size.width(),
              -height / 3 + height / 20 + field_size.height() / 2,
              field_size.width(), field_size.height() / 2),
       Qt::AlignHCenter,
-      QString::number(Controller::scene->GetPlayer()->GetTools()));
+      QString::number(Controller::scene->GetPlayer()->GetBatteries()));
 
   painter->drawText(
       QRectF(-width / 2 + 2 * field_size.width(),
