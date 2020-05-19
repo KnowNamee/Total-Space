@@ -176,7 +176,7 @@ void FullPlanetInfo::paint(QPainter* painter,
     painter->drawText(
         QRect(static_cast<int32_t>(-boundingRect().width() / 6),
               static_cast<int32_t>(boundingRect().height() * 5 / 16),
-              static_cast<int32_t>(boundingRect().width() / 3),
+              static_cast<int32_t>(boundingRect().width() * 4 / 9),
               static_cast<int32_t>(boundingRect().height() / 8)),
         "on construction: " + current_building_);
   }
