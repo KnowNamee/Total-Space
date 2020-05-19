@@ -353,7 +353,8 @@ class SettingsMenu : public Menu {
   void btnBackClicked();
 
  private:
-  QGraphicsRectItem* background_rect_;
+  ImageItem* background_;
+  //  QGraphicsRectItem* background_rect_;
   QGraphicsTextItem* settings_;
   QGraphicsTextItem* keypad_;
   ButtonItem* btn_back_;

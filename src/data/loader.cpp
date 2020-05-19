@@ -99,6 +99,12 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/army.png");
     button_images_[ButtonsEnum::kToolsIcon] =
         std::make_shared<QPixmap>(":/Img/tools.png");
+    button_images_[ButtonsEnum::kSettingsButton] =
+        std::make_shared<QPixmap>(":/Img/settings.png");
+    button_images_[ButtonsEnum::kLoser] =
+        std::make_shared<QPixmap>(":/Img/looser.jpg");
+    button_images_[ButtonsEnum::kWinner] =
+        std::make_shared<QPixmap>(":/Img/winner.jpg");
   }
   // unit images
   {
