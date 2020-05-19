@@ -75,6 +75,8 @@ void MainMenu::Draw() {
   btn_new_game_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kNewGameButton));
 
   btn_settings_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_settings_->SetPixmap(
+      Loader::GetButtonImage(ButtonsEnum::kSettingsButton));
 
   txt_total_space_ = new ImageItem(
       Loader::GetButtonImage(ButtonsEnum::kBackground),
@@ -89,10 +91,10 @@ void MainMenu::Draw() {
 
   btn_new_game_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
-  btn_exit_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
   btn_settings_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6)));
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
+  btn_exit_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6 + kHeight / 30)));
 
   txt_total_space_->setPos(Controller::view->sceneRect().center() / 2);
 }
@@ -194,6 +196,8 @@ void PauseMenu::Draw() {
   btn_exit_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
   btn_exit_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kToMenuButton));
   btn_settings_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_settings_->SetPixmap(
+      Loader::GetButtonImage(ButtonsEnum::kSettingsButton));
 
   SetZValue();
 
@@ -204,10 +208,10 @@ void PauseMenu::Draw() {
 
   btn_back_->setPos(Controller::view->mapToScene(
       QPoint(kWidth / 2, kHeight / 2 - kHeight / 30)));
-  btn_exit_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
   btn_settings_->setPos(Controller::view->mapToScene(
-      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6)));
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 12)));
+  btn_exit_->setPos(Controller::view->mapToScene(
+      QPoint(kWidth / 2, kHeight / 2 + kHeight / 6 + kHeight / 30)));
 }
 
 void PauseMenu::SwitchTo(Controller::MenuType menu) {
@@ -940,6 +944,10 @@ GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
 
+  QMediaPlayer* background_song = Loader::GetBackgroundSong();
+  background_song->setVolume(40);
+  background_song->play();
+
   Controller::SetMenuType(Controller::MenuType::kGame);
 
   Controller::MenuType type = Controller::MenuType::kGame;
@@ -986,9 +994,11 @@ void GameMenu::SwitchTo(Controller::MenuType menu) {
     QCoreApplication::processEvents();
     Controller::SetMenuType(Controller::MenuType::kPause);
   }
+
   if (menu == Controller::MenuType::kMain) {
-      Controller::SetGameMenu(nullptr);
-      Controller::SetMainMenu(new MainMenu());
+    Controller::SetGameMenu(nullptr);
+    Controller::SetMainMenu(new MainMenu());
+    Controller::SetMenuType(Controller::MenuType::kMain);
   }
 }
 
@@ -1024,6 +1034,34 @@ void GameMenu::ReDraw() {
 
 void GameMenu::UpdateStatusBar() { status_bar_->update(); }
 
+void GameMenu::ShowWinMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kWinner));
+  result_msg_->setZValue(ZValues::kResultMessage);
+  result_msg_->setPos(Controller::view->mapToScene(w / 2, h / 2));
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
+void GameMenu::ShowLoseMessage() {
+  int32_t w = qApp->screens()[0]->size().width();
+  int32_t h = qApp->screens()[0]->size().height();
+
+  result_msg_ = new ButtonItem(w, h);
+  result_msg_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kLoser));
+  result_msg_->setZValue(ZValues::kResultMessage);
+  result_msg_->setPos(Controller::view->mapToScene(w / 2, h / 2));
+  Controller::scene->addItem(result_msg_);
+  Controller::view->DisableMotion();
+
+  connect(result_msg_, SIGNAL(clicked()), this, SLOT(GameOver()));
+}
+
 void GameMenu::StartGame() {
   Controller::view->SetNewGameSettings();
   Controller::scene->NewGame();
@@ -1034,7 +1072,7 @@ void GameMenu::Hide() {
   status_bar_->hide();
 }
 
-void GameMenu::Show() {  
+void GameMenu::Show() {
   btn_next_->show();
   status_bar_->show();
   ReDraw();
@@ -1043,7 +1081,7 @@ void GameMenu::Show() {
 void GameMenu::keyEscapeReleased() {
   QShortcut* sc = dynamic_cast<QShortcut*>(QObject::sender());
   if (sc && sc->objectName() == "From KeyReleaseEvent") {
-    sc->setObjectName("");    
+    sc->setObjectName("");
     Controller::SwitchMenu(Controller::MenuType::kPause);
   }
 }
@@ -1058,6 +1096,11 @@ void GameMenu::keyNextReleased() {
     sc->setObjectName("");
     Controller::scene->Next();
   }
+}
+
+void GameMenu::GameOver() {
+  Controller::view->EnableMotion();
+  SwitchTo(Controller::MenuType::kMain);
 }
 
 UnitsInteractionMenu::UnitsInteractionMenu() {
@@ -1556,7 +1599,7 @@ SettingsMenu::SettingsMenu() {
 
 SettingsMenu::~SettingsMenu() {
   delete (settings_);
-  delete (background_rect_);
+  delete (background_);
   delete (btn_back_);
   delete (keypad_);
 }
@@ -1593,11 +1636,9 @@ void SettingsMenu::Draw() {
   rect.setY(center.y() - view->rect().height() / coef);
   rect.setSize(rect.size() * 4);
 
-  background_rect_ = new QGraphicsRectItem();
-  background_rect_->setScale(1 / coef);
-  background_rect_->setRect(rect);
-  background_rect_->setOpacity(0.7);
-  background_rect_->setBrush(Qt::black);
+  background_ =
+      new ImageItem(Loader::GetButtonImage(ButtonsEnum::kMenuBackground),
+                    static_cast<int>(w / coef), static_cast<int>(h / coef));
 
   settings_ = new QGraphicsTextItem("Settings");
   settings_->setDefaultTextColor(Qt::white);
@@ -1612,18 +1653,20 @@ void SettingsMenu::Draw() {
   keypad_->setPos(Controller::view->mapToScene(cur_x, cur_y));
   keypad_->setScale(1 / coef);
 
-  btn_back_ = new ButtonItem(kGeneralButtonWidth, kGeneralButtonHeight);
+  btn_back_ = new ButtonItem(kGeneralButtonWidth,
+                             kGeneralButtonHeight + kGeneralButtonHeight / 2);
+  btn_back_->SetPixmap(Loader::GetButtonImage(ButtonsEnum::kCancelButton));
   btn_back_->setPos(
       Controller::view->mapToScene(QPoint(w, h) - QPoint(w / 8, h / 15)));
 
   Controller::scene->addItem(keypad_);
   Controller::scene->addItem(btn_back_);
   Controller::scene->addItem(settings_);
-  Controller::scene->addItem(background_rect_);
+  Controller::scene->addItem(background_);
 }
 
 void SettingsMenu::SetZValue() {
-  background_rect_->setZValue(ZValues::kSettingsMenuDown);
+  background_->setZValue(ZValues::kSettingsMenuDown);
   settings_->setZValue(ZValues::kSettingsMenuUp);
   btn_back_->setZValue(ZValues::kSettingsMenuUp);
   keypad_->setZValue(ZValues::kSettingsMenuUp);

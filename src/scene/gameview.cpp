@@ -37,7 +37,13 @@ void GameView::SetNewGameSettings() {
 
 void GameView::EnableKeyReleaseListener() { is_key_listener_enabled_ = true; }
 
+void GameView::EnableMotion() { is_in_motion_ = true; }
+
+void GameView::DisableMotion() { is_in_motion_ = false; }
+
 bool GameView::IsKeyListenerEnabled() { return is_key_listener_enabled_; }
+
+bool GameView::IsMotionEnabled() { return is_in_motion_; }
 
 bool GameView::IsInMotion() {
   return event_handler_->GetMotionType() !=

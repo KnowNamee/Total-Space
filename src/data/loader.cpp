@@ -12,10 +12,24 @@ QMap<UnitType, std::shared_ptr<QPixmap>> Loader::unit_images_;
 QMap<BuildingType, std::shared_ptr<QPixmap>> Loader::building_images_;
 int32_t Loader::font_;
 QBrush* Loader::ibrush_ = nullptr;
+QMediaPlayer* Loader::click_sound_ = nullptr;
+QMediaPlayer* Loader::background_song_ = nullptr;
 
 void Loader::LoadAll() {
   // font
   font_ = QFontDatabase::addApplicationFont(":/Img/Fabulist.ttf");
+  // sounds
+
+  click_sound_ = new QMediaPlayer;
+  click_sound_->setMedia(QUrl("qrc:/Img/click sound.mp3"));
+
+  background_song_ = new QMediaPlayer;
+
+  QMediaPlaylist* playlist = new QMediaPlaylist();
+  playlist->addMedia(QUrl("qrc:/Img/Star Wars_1.mp3"));
+  playlist->setPlaybackMode(QMediaPlaylist::Loop);
+  background_song_->setPlaylist(playlist);
+
   // brush
   ibrush_ = new QBrush;
   ibrush_->setTextureImage(QImage(":/Img/transparent_bg.png"));
@@ -85,6 +99,12 @@ void Loader::LoadAll() {
         std::make_shared<QPixmap>(":/Img/army.png");
     button_images_[ButtonsEnum::kToolsIcon] =
         std::make_shared<QPixmap>(":/Img/tools.png");
+    button_images_[ButtonsEnum::kSettingsButton] =
+        std::make_shared<QPixmap>(":/Img/settings.png");
+    button_images_[ButtonsEnum::kLoser] =
+        std::make_shared<QPixmap>(":/Img/looser.jpg");
+    button_images_[ButtonsEnum::kWinner] =
+        std::make_shared<QPixmap>(":/Img/winner.jpg");
   }
   // unit images
   {
@@ -144,3 +164,7 @@ QPixmap* Loader::GetBuildingImage(BuildingType type) {
 QBrush* Loader::GetBrush() { return ibrush_; }
 
 int32_t Loader::GetFont() { return font_; }
+
+QMediaPlayer* Loader::GetClickSound() { return click_sound_; }
+
+QMediaPlayer* Loader::GetBackgroundSong() { return background_song_; }

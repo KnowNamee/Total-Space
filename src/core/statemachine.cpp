@@ -78,8 +78,9 @@ void Controller::LoadMenuGraph() {
 
   connections[static_cast<int>(MenuType::kMain)] = {MenuType::kGame,
                                                     MenuType::kSettings};
-  connections[static_cast<int>(MenuType::kGame)] = {MenuType::kPlanet,
-                                                    MenuType::kPause};
+  connections[static_cast<int>(MenuType::kGame)] = {
+      MenuType::kPlanet, MenuType::kPause, MenuType::kMain};
+
   connections[static_cast<int>(MenuType::kPlanet)] = {
       MenuType::kGame, MenuType::kAttack, MenuType::kMove,
       MenuType::kPlanetInfo, MenuType::kShop};

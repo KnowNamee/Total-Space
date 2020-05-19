@@ -45,7 +45,8 @@ bool EventHandler::View::IsMouseInMotionZone(QPointF cursor) {
 
 void EventHandler::View::MouseMoveEvent() {
   if (Controller::GetMenuType() == Controller::MenuType::kGame &&
-      current_motion_ != MotionType::kBotsAttack) {
+      current_motion_ != MotionType::kBotsAttack &&
+      Controller::view->IsMotionEnabled()) {
     if (IsMouseInMotionZone(QCursor::pos())) {
       if (CompareMotion(MotionType::kMoveWithMouse)) {
         return;
@@ -305,8 +306,9 @@ void EventHandler::View::MoveTo() {
 }
 
 void EventHandler::View::Scale(QWheelEvent* event) {
-  if (Controller::GetMenuType() != Controller::MenuType::kGame &&
-      Controller::GetMenuType() != Controller::MenuType::kPlanet) {
+  if ((Controller::GetMenuType() != Controller::MenuType::kGame &&
+       Controller::GetMenuType() != Controller::MenuType::kPlanet) ||
+      !Controller::view->IsMotionEnabled()) {
     return;
   }
 
