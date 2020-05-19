@@ -54,5 +54,8 @@
         <file>tools.png</file>
         <file>click sound.mp3</file>
         <file>Star Wars_1.mp3</file>
+        <file>settings.png</file>
+        <file>looser.jpg</file>
+        <file>winner.jpg</file>
     </qresource>
 </RCC>
