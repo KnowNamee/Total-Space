@@ -7,8 +7,8 @@ Total Space - некоммерческая 2D-стратегия, написан
 
 Однако господствовать придется не долго, если не думать о защите. На другой стороне космоса находятся ваши заклятые враги. И они жаждут лишить вас владений.
 
-![](https://github.com/KnowNamee/Total-Space/blob/Readme/img/Main%20Menu.jpg)
-![](https://github.com/KnowNamee/Total-Space/blob/Readme/img/Game%20Screen.jpg)
+![Main Menu](https://github.com/KnowNamee/Total-Space/blob/master/img/Main%20Menu.jpg)
+![Game Screen](https://github.com/KnowNamee/Total-Space/blob/master/img/Game%20Screen.jpg)
 
 Данная стратегия была разработана студентами первого курса пятой группы Факультета Прикладной Математики и Информатики в качестве проекта по учебной практике.
 
