@@ -945,7 +945,7 @@ GameMenu::GameMenu() {
   this->Draw();
 
   QMediaPlayer* background_song = Loader::GetBackgroundSong();
-  background_song->setVolume(1000);
+  background_song->setVolume(100);
   background_song->play();
 
   Controller::SetMenuType(Controller::MenuType::kGame);
