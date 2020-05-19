@@ -756,6 +756,11 @@ void ShopMenu::UpdateInfo() {
 GameMenu::GameMenu() {
   this->StartGame();
   this->Draw();
+
+  QMediaPlayer* background_song = Loader::GetBackgroundSong();
+  background_song->setVolume(40);
+  background_song->play();
+
   connect(btn_next_, SIGNAL(clicked()), Controller::scene, SLOT(Next()));
   connect(btn_next_, SIGNAL(clicked()), this, SLOT(UpdateStatusBar()));
 }

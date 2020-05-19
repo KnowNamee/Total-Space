@@ -1,6 +1,8 @@
 #ifndef LOADER_H
 #define LOADER_H
 #include <QGraphicsItem>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 #include <memory>
 
 #include "util/utility.h"
@@ -48,8 +50,13 @@ class Loader : public QGraphicsItem {
   static QPixmap* GetBuildingImage(BuildingType);
   static QBrush* GetBrush();
   static int32_t GetFont();
+  static QMediaPlayer* GetClickSound();
+  static QMediaPlayer* GetBackgroundSong();
 
  private:
+  static QMediaPlayer* click_sound_;
+  static QMediaPlayer* background_song_;
+
   static QVector<std::shared_ptr<QPixmap>> planet_pictures_;
   static std::shared_ptr<QPixmap> background_image_;
   static QMap<ButtonsEnum, std::shared_ptr<QPixmap>> button_images_;
