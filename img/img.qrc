@@ -58,4 +58,5 @@
         <file>looser.jpg</file>
         <file>winner.jpg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

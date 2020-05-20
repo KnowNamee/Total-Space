@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = TotalSpace
 TEMPLATE = app
+RC_ICONS = appicon.ico
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -104,3 +105,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     ../data/objectsdata.qrc \
     ../img/img.qrc \
+
